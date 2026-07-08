@@ -5,7 +5,7 @@
     }
     .funds-grid {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1.2fr;
         gap: 24px;
         margin-bottom: 30px;
     }
@@ -23,7 +23,7 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        min-height: 180px;
+        min-height: 190px;
     }
     .wallet-card h3 {
         margin: 0 0 8px;
@@ -43,68 +43,67 @@
         opacity: 0.85;
         margin-top: 15px;
     }
-    .add-money-card {
+    .actions-card {
         background: #fff;
         border: 1px solid #ede9fe;
         border-radius: 20px;
         padding: 24px;
         box-shadow: 0 14px 40px rgba(49, 32, 90, 0.05);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
     }
-    .add-money-card h3 {
-        margin: 0 0 16px;
+    .actions-card h3 {
+        margin: 0 0 10px;
         font-size: 18px;
         font-weight: 700;
         color: #201a2f;
     }
-    .form-group {
-        margin-bottom: 16px;
+    .actions-buttons-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+        margin-top: 10px;
     }
-    label {
-        display: block;
-        font-size: 13px;
-        font-weight: 600;
-        margin-bottom: 8px;
-        color: #201a2f;
-    }
-    input {
-        width: 100%;
-        border: 1px solid #ddd6fe;
-        border-radius: 12px;
-        padding: 13px 14px;
-        font-size: 15px;
-        outline: none;
-        background: #fff;
-        transition: all 0.2s ease;
-    }
-    input:focus {
-        border-color: #6d28d9;
-        box-shadow: 0 0 0 4px rgba(109, 40, 217, 0.12);
+    @media (max-width: 480px) {
+        .actions-buttons-grid {
+            grid-template-columns: 1fr;
+        }
     }
     .btn {
         border: 0;
         border-radius: 12px;
         background: #6d28d9;
         color: #fff;
-        padding: 13px 22px;
+        padding: 14px 22px;
         font-weight: 700;
         font-size: 15px;
         cursor: pointer;
-        transition: background 0.15s ease;
+        transition: all 0.15s ease;
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        width: 100%;
+        text-decoration: none;
         justify-content: center;
     }
     .btn:hover {
         background: #5b21b6;
+    }
+    .btn-outline {
+        background: transparent;
+        color: #6d28d9;
+        border: 2px solid #6d28d9;
+        padding: 12px 20px;
+    }
+    .btn-outline:hover {
+        background: #f5f3ff;
+        color: #5b21b6;
     }
     .table-card {
         background: #fff;
         border: 1px solid #ede9fe;
         border-radius: 20px;
         box-shadow: 0 14px 40px rgba(49, 32, 90, 0.06);
-        overflow-x: auto;
         padding: 24px;
     }
     .table-card h3 {
@@ -112,6 +111,37 @@
         font-size: 20px;
         font-weight: 700;
         color: #201a2f;
+    }
+    .filter-tabs {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 20px;
+        border-bottom: 2px solid #f5f3ff;
+        padding-bottom: 12px;
+        overflow-x: auto;
+    }
+    .tab-btn {
+        background: none;
+        border: 0;
+        padding: 8px 16px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #6b5c81;
+        cursor: pointer;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+    .tab-btn:hover {
+        color: #6d28d9;
+        background: #f5f3ff;
+    }
+    .tab-btn.active {
+        color: #fff;
+        background: #6d28d9;
+    }
+    .table-wrapper {
+        overflow-x: auto;
     }
     table {
         width: 100%;
@@ -173,68 +203,125 @@
             </div>
         </div>
 
-        <div class="add-money-card">
-            <h3>Add Money to Wallet</h3>
-            <?php echo form_open('investor/funds/add'); ?>
-                <div class="form-group">
-                    <label for="amount">Amount (INR)</label>
-                    <input type="number" name="amount" id="amount" placeholder="Enter amount to add" min="1" step="any" required>
-                </div>
-                <button type="submit" class="btn">
+        <div class="actions-card">
+            <h3>Quick Actions</h3>
+            <p style="color: #6b5c81; font-size: 14px; margin-top: 0; margin-bottom: 15px; line-height: 1.5;">
+                Manage your balance. Add funds using UPI/Bank transfer or request a withdrawal directly to your linked bank account.
+            </p>
+            <div class="actions-buttons-grid">
+                <a href="<?php echo base_url('investor/funds/add_balance'); ?>" class="btn">
                     <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
-                    Add Money
-                </button>
-            <?php echo form_close(); ?>
+                    Add Balance
+                </a>
+                <a href="<?php echo base_url('investor/funds/withdraw'); ?>" class="btn btn-outline">
+                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75" />
+                    </svg>
+                    Withdraw Funds
+                </a>
+            </div>
         </div>
     </div>
 
     <div class="table-card">
         <h3>Transaction History</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Txn ID</th>
-                    <th>Type</th>
-                    <th>Amount</th>
-                    <th>Balance After</th>
-                    <th>Date & Time</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php if (!empty($transactions)): ?>
-                    <?php foreach ($transactions as $txn): ?>
-                        <tr>
-                            <td>#<?php echo $txn->id; ?></td>
-                            <td>
-                                <span class="badge badge-<?php echo $txn->type; ?>">
-                                    <?php echo str_replace('_', ' ', $txn->type); ?>
-                                </span>
-                            </td>
-                            <td>
-                                <strong style="color: <?php echo ($txn->type === 'add_money' || $txn->type === 'loan_return') ? '#16a34a' : '#dc2626'; ?>;">
-                                    <?php echo ($txn->type === 'add_money' || $txn->type === 'loan_return') ? '+' : '-'; ?> 
-                                    INR <?php echo number_format($txn->amount, 2); ?>
-                                </strong>
-                            </td>
-                            <td><strong>INR <?php echo number_format($txn->balance_after, 2); ?></strong></td>
-                            <td><?php echo date('d M Y, h:i A', strtotime($txn->created_at)); ?></td>
-                        </tr>
-                    <?php endforeach; ?>
-                <?php else: ?>
+        
+        <div class="filter-tabs">
+            <button class="tab-btn active" onclick="filterTransactions(event, 'all')">All</button>
+            <button class="tab-btn" onclick="filterTransactions(event, 'add_money')">Deposits</button>
+            <button class="tab-btn" onclick="filterTransactions(event, 'withdrawal')">Withdrawals</button>
+            <button class="tab-btn" onclick="filterTransactions(event, 'loan_invest')">Investments</button>
+            <button class="tab-btn" onclick="filterTransactions(event, 'loan_return')">Returns</button>
+        </div>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
                     <tr>
-                        <td colspan="5">
-                            <div class="no-records">
-                                <p>No transaction history found.</p>
-                            </div>
-                        </td>
+                        <th>Sr. No.</th>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Balance After</th>
+                        <th>Date & Time</th>
                     </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
+                </thead>
+                <tbody id="txnTableBody">
+                    <?php if (!empty($transactions)): ?>
+                        <?php $sno = 1; ?>
+                        <?php foreach ($transactions as $txn): ?>
+                            <tr data-type="<?php echo $txn->type; ?>">
+                                <td><?php echo $sno++; ?></td>
+                                <td>
+                                    <span class="badge badge-<?php echo $txn->type; ?>">
+                                        <?php echo str_replace('_', ' ', $txn->type); ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <strong style="color: <?php echo ($txn->type === 'add_money' || $txn->type === 'loan_return') ? '#16a34a' : '#dc2626'; ?>;">
+                                        <?php echo ($txn->type === 'add_money' || $txn->type === 'loan_return') ? '+' : '-'; ?> 
+                                        INR <?php echo number_format($txn->amount, 2); ?>
+                                    </strong>
+                                </td>
+                                <td><strong>INR <?php echo number_format($txn->balance_after, 2); ?></strong></td>
+                                <td><?php echo date('d M Y, h:i A', strtotime($txn->created_at)); ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                        <!-- Dynamic No Records Row -->
+                        <tr class="no-records-row" style="display: none;">
+                            <td colspan="5">
+                                <div class="no-records">
+                                    <p>No transaction history found for the selected filter.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php else: ?>
+                        <tr class="no-records-row">
+                            <td colspan="5">
+                                <div class="no-records">
+                                    <p>No transaction history found.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
+
+<script>
+    function filterTransactions(e, type) {
+        // Toggle tab activation styling
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        e.currentTarget.classList.add('active');
+
+        // Toggle rows based on data-type
+        const rows = document.querySelectorAll('#txnTableBody tr:not(.no-records-row)');
+        let visibleCount = 0;
+
+        rows.forEach(row => {
+            const rowType = row.getAttribute('data-type');
+            if (type === 'all' || rowType === type) {
+                row.style.display = '';
+                visibleCount++;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        // Toggle dynamic no-records fallback
+        const noRecordsRow = document.querySelector('.no-records-row');
+        if (visibleCount === 0) {
+            noRecordsRow.style.display = '';
+        } else {
+            noRecordsRow.style.display = 'none';
+        }
+    }
+</script>
 
 <?php if ($this->session->flashdata('success')): ?>
     <script>Swal.fire({icon:'success',title:'Success',text:<?php echo json_encode($this->session->flashdata('success')); ?>});</script>

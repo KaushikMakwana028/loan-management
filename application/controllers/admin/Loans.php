@@ -213,6 +213,7 @@ class Loans extends CI_Controller
         // 5. Update loan status
         $this->general->update('loans', ['id' => $id], [
             'status' => 'approved',
+            'approved_at' => date('Y-m-d H:i:s'),
             'updated_at' => date('Y-m-d H:i:s')
         ]);
 
@@ -247,5 +248,123 @@ class Loans extends CI_Controller
                 ORDER BY u.name ASC";
         $investors = $this->general->query($sql, [$loan_amount]);
         echo json_encode($investors);
+    }
+
+    public function view($id)
+    {
+        $data['admin'] = $this->general->getById('users', $this->session->userdata('user_id'));
+        $data['page_title'] = 'Loan Details';
+
+        // Fetch loan details and borrower details
+        $sql = "SELECT l.*, u.name as borrower_name, u.email as borrower_email, u.mobile as borrower_mobile, u.address as borrower_address,
+                       u.reference_name_1, u.reference_mobile_1, u.reference_name_2, u.reference_mobile_2
+                FROM loans l
+                JOIN users u ON l.user_id = u.id
+                WHERE l.id = ?";
+        $data['loan'] = $this->db->query($sql, [$id])->row();
+
+        if (!$data['loan']) {
+            $this->session->set_flashdata('error', 'Loan record not found.');
+            redirect('admin/loans');
+            return;
+        }
+
+        // Fetch selected investors who funded this loan
+        $sql_investors = "SELECT li.*, u.name as investor_name, u.email as investor_email, u.mobile as investor_mobile
+                          FROM loan_investors li
+                          JOIN users u ON li.investor_id = u.id
+                          WHERE li.loan_id = ? AND li.status = 'selected'";
+        $data['investors'] = $this->db->query($sql_investors, [$id])->result_array();
+
+        $this->load->view('admin/header', $data);
+        $this->load->view('admin/loan_detail_view', $data);
+        $this->load->view('admin/footer', $data);
+    }
+
+    public function mark_paid($id)
+    {
+        $loan = $this->general->getById('loans', $id);
+        if (!$loan) {
+            $this->session->set_flashdata('error', 'Loan record not found.');
+            redirect('admin/loans');
+            return;
+        }
+
+        if ($loan->status !== 'approved') {
+            $this->session->set_flashdata('error', 'Only approved loans can be marked as paid.');
+            redirect('admin/loans/view/' . $id);
+            return;
+        }
+
+        $this->db->trans_start();
+
+        // 1. Update loan status to paid
+        $this->general->update('loans', ['id' => $id], [
+            'status' => 'paid',
+            'updated_at' => date('Y-m-d H:i:s')
+        ]);
+
+        // 2. Fetch selected investors for this loan
+        $investors = $this->general->getAll('loan_investors', [
+            'loan_id' => $id,
+            'status' => 'selected'
+        ]);
+
+        foreach ($investors as $inv) {
+            // Calculate total return = invested amount + profit
+            $payout_amount = $inv->invested_amount + $inv->profit_amount;
+
+            // Fetch investor wallet
+            $wallet = $this->general->getOne('wallets', ['investor_id' => $inv->investor_id]);
+            if ($wallet) {
+                $new_balance = $wallet->balance + $payout_amount;
+
+                // Update wallet balance
+                $this->general->update('wallets', ['id' => $wallet->id], [
+                    'balance' => $new_balance,
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
+
+                // Insert wallet transaction
+                $this->general->insert('wallet_transactions', [
+                    'investor_id' => $inv->investor_id,
+                    'type' => 'loan_return',
+                    'amount' => $payout_amount,
+                    'loan_id' => $id,
+                    'balance_after' => $new_balance,
+                    'created_at' => date('Y-m-d H:i:s')
+                ]);
+
+                // Send notification to investor
+                $this->general->insert('notifications', [
+                    'user_id' => $inv->investor_id,
+                    'loan_id' => $id,
+                    'title' => 'Investment Payout Received',
+                    'message' => 'Your investment in Loan #' . $id . ' has been paid back. Payout of INR ' . number_format($payout_amount, 2) . ' (including interest/profit) has been added to your wallet.',
+                    'is_read' => 0,
+                    'created_at' => date('Y-m-d H:i:s')
+                ]);
+            }
+        }
+
+        // 3. Notify borrower
+        $this->general->insert('notifications', [
+            'user_id' => $loan->user_id,
+            'loan_id' => $id,
+            'title' => 'Loan Repayment Completed',
+            'message' => 'Your loan of INR ' . number_format($loan->amount, 2) . ' has been successfully marked as paid. You can now apply for a new loan.',
+            'is_read' => 0,
+            'created_at' => date('Y-m-d H:i:s')
+        ]);
+
+        $this->db->trans_complete();
+
+        if ($this->db->trans_status() === FALSE) {
+            $this->session->set_flashdata('error', 'Failed to mark loan as paid.');
+            redirect('admin/loans/view/' . $id);
+        } else {
+            $this->session->set_flashdata('success', 'Loan marked as paid and payout successfully distributed to investors.');
+            redirect('admin/loans/view/' . $id);
+        }
     }
 }

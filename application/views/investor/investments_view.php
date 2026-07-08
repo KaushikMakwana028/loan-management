@@ -83,7 +83,7 @@
         <table>
             <thead>
                 <tr>
-                    <th>Loan ID</th>
+                    <th>Sr. No.</th>
                     <th>Borrower</th>
                     <th>Loan Amount</th>
                     <th>Tenure</th>
@@ -95,9 +95,10 @@
             </thead>
             <tbody>
                 <?php if (!empty($investments)): ?>
+                    <?php $sno = 1; ?>
                     <?php foreach ($investments as $inv): ?>
                         <tr>
-                            <td>#<?php echo $inv['loan_id']; ?></td>
+                            <td><?php echo $sno++; ?></td>
                             <td><strong><?php echo html_escape($inv['borrower_name']); ?></strong></td>
                             <td>
                                 <strong>INR <?php echo number_format($inv['loan_amount'], 2); ?></strong>

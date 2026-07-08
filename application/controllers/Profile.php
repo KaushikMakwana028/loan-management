@@ -55,7 +55,11 @@ class Profile extends CI_Controller
             'account_number' => trim($this->input->post('account_number', TRUE)) ?: NULL,
             'ifsc_code' => trim($this->input->post('ifsc_code', TRUE)) ?: NULL,
             'account_type' => trim($this->input->post('account_type', TRUE)) ?: NULL,
-            'branch_name' => trim($this->input->post('branch_name', TRUE)) ?: NULL
+            'branch_name' => trim($this->input->post('branch_name', TRUE)) ?: NULL,
+            'reference_name_1' => trim($this->input->post('reference_name_1', TRUE)) ?: NULL,
+            'reference_mobile_1' => trim($this->input->post('reference_mobile_1', TRUE)) ?: NULL,
+            'reference_name_2' => trim($this->input->post('reference_name_2', TRUE)) ?: NULL,
+            'reference_mobile_2' => trim($this->input->post('reference_mobile_2', TRUE)) ?: NULL
         ];
 
         foreach (['profile_image', 'aadhaar_photo', 'pan_photo'] as $field) {

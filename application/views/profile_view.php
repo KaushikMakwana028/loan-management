@@ -5,8 +5,8 @@ $photo = $profile && !empty($profile->profile_image) ? base_url($profile->profil
 $aadhaar_photo = $profile && !empty($profile->aadhaar_photo) ? base_url($profile->aadhaar_photo) : '';
 $pan_photo = $profile && !empty($profile->pan_photo) ? base_url($profile->pan_photo) : '';
 
-// crude profile completion % based on required text fields already saved
-$req_fields = ['name', 'mobile', 'email', 'marriage_status', 'dob', 'education', 'employment', 'address', 'aadhaar_number', 'pan_number', 'account_holder_name', 'bank_name', 'account_number', 'ifsc_code', 'account_type', 'branch_name'];
+// ---- overall completion (unchanged logic) ----
+$req_fields = ['name', 'mobile', 'email', 'marriage_status', 'dob', 'education', 'employment', 'address', 'aadhaar_number', 'pan_number', 'account_holder_name', 'bank_name', 'account_number', 'ifsc_code', 'account_type', 'branch_name', 'reference_name_1', 'reference_mobile_1', 'reference_name_2', 'reference_mobile_2'];
 $filled = 0;
 foreach ($req_fields as $f) {
     if (!empty($profile->$f ?? '')) $filled++;
@@ -14,30 +14,91 @@ foreach ($req_fields as $f) {
 $img_fields_filled = (!empty($photo) ? 1 : 0) + (!empty($aadhaar_photo) ? 1 : 0) + (!empty($pan_photo) ? 1 : 0);
 $total_fields = count($req_fields) + 3;
 $completion = round((($filled + $img_fields_filled) / $total_fields) * 100);
+
+// ---- per-section completion (drives the section stepper + badges) ----
+function pf_count_filled($profile, $fields)
+{
+    $c = 0;
+    foreach ($fields as $f) {
+        if (!empty($profile->$f ?? '')) $c++;
+    }
+    return $c;
+}
+$personal_fields = ['name', 'mobile', 'email', 'marriage_status', 'dob', 'education', 'employment', 'address'];
+$kyc_text_fields  = ['aadhaar_number', 'pan_number'];
+$bank_fields      = ['account_holder_name', 'bank_name', 'account_number', 'ifsc_code', 'account_type', 'branch_name'];
+$ref_fields       = ['reference_name_1', 'reference_mobile_1', 'reference_name_2', 'reference_mobile_2'];
+
+$personal_filled = pf_count_filled($profile, $personal_fields);
+$personal_total  = count($personal_fields);
+
+$kyc_filled = pf_count_filled($profile, $kyc_text_fields) + (!empty($aadhaar_photo) ? 1 : 0) + (!empty($pan_photo) ? 1 : 0);
+$kyc_total  = count($kyc_text_fields) + 2;
+
+$bank_filled = pf_count_filled($profile, $bank_fields);
+$bank_total  = count($bank_fields);
+
+$ref_filled = pf_count_filled($profile, $ref_fields);
+$ref_total  = count($ref_fields);
+
+// ---- SVG icons (replace emoji so nothing renders as a blank box on any device/font) ----
+$icon_personal = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>';
+$icon_kyc      = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line><line x1="6" y1="15" x2="10" y2="15"></line></svg>';
+$icon_bank     = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="21" x2="21" y2="21"></line><line x1="5" y1="21" x2="5" y2="10"></line><line x1="9" y1="21" x2="9" y2="10"></line><line x1="15" y1="21" x2="15" y2="10"></line><line x1="19" y1="21" x2="19" y2="10"></line><polygon points="12 3 21 9 3 9"></polygon></svg>';
+$icon_ref      = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>';
+$icon_folder   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>';
+$icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
 ?>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <style>
+    .pf-wrap,
     .pf-wrap * {
         box-sizing: border-box;
+        font-family: 'Poppins', sans-serif;
     }
 
     .pf-wrap {
-        --pf-teal: #0f766e;
-        --pf-teal-dark: #0b5c56;
-        --pf-teal-light: #e8f7f5;
-        --pf-text: #172033;
-        --pf-muted: #65758b;
-        --pf-border: #e8eef6;
-        font-family: inherit;
+        --pf-teal: #0d9488;
+        --pf-teal-dark: #0b6b62;
+        --pf-teal-light: #e6f6f4;
+        --pf-ink: #10151f;
+        --pf-muted: #6b7688;
+        --pf-border: #eaeff5;
+        --pf-bg: #f6f8fb;
+        --pf-danger: #e8734b;
+        --pf-radius-lg: 22px;
+        --pf-radius-md: 16px;
+        --pf-radius-sm: 10px;
+        max-width: 1280px;
+        margin: 0 auto;
+        color: var(--pf-ink);
+        background: var(--pf-bg);
+        padding: 0 20px 100px;
     }
 
-    /* ---------- Header ---------- */
+    /* generic icon sizing so svg icons always sit correctly wherever they're used */
+    .pf-icon svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+
+    /* ================= Desktop two-column layout ================= */
+    .pf-layout {
+        display: block;
+    }
+
+    /* ================= Header ================= */
     .pf-head {
         position: relative;
-        border-radius: 24px;
+        border-radius: var(--pf-radius-lg);
         overflow: hidden;
-        background: linear-gradient(135deg, var(--pf-teal) 0%, #0891b2 100%);
-        padding: 40px 28px 70px;
+        background: linear-gradient(150deg, #0d9488 0%, #0e7c8f 55%, #115e78 100%);
+        padding: 28px 22px 64px;
         color: #fff;
     }
 
@@ -45,82 +106,166 @@ $completion = round((($filled + $img_fields_filled) / $total_fields) * 100);
         content: '';
         position: absolute;
         inset: 0;
-        background: radial-gradient(circle at 85% 15%, rgba(255, 255, 255, .18), transparent 55%);
+        background: radial-gradient(circle at 88% 0%, rgba(255, 255, 255, .16), transparent 55%);
+        pointer-events: none;
     }
 
     .pf-head-top {
         position: relative;
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: space-between;
+        gap: 14px;
         flex-wrap: wrap;
-        gap: 16px;
     }
 
     .pf-head-top h1 {
-        margin: 0 0 6px;
-        font-size: 24px;
+        margin: 0 0 4px;
+        font-size: 21px;
         font-weight: 800;
+        letter-spacing: -.2px;
     }
 
     .pf-head-top p {
         margin: 0;
-        color: rgba(255, 255, 255, .85);
-        font-size: 14px;
-        max-width: 420px;
+        color: rgba(255, 255, 255, .82);
+        font-size: 13px;
+        font-weight: 400;
+        max-width: 340px;
+        line-height: 1.5;
     }
 
-    .pf-progress-wrap {
-        min-width: 180px;
-    }
-
-    .pf-progress-label {
-        display: flex;
-        justify-content: space-between;
-        font-size: 12px;
-        font-weight: 700;
-        color: rgba(255, 255, 255, .9);
-        margin-bottom: 6px;
-    }
-
-    .pf-progress-bar {
-        width: 100%;
-        height: 8px;
-        border-radius: 99px;
-        background: rgba(255, 255, 255, .25);
-        overflow: hidden;
-    }
-
-    .pf-progress-fill {
-        height: 100%;
-        border-radius: 99px;
-        background: #fff;
-        transition: width .5s ease;
-    }
-
-    /* ---------- Floating photo card ---------- */
-    .pf-photo-card {
+    .pf-ring-wrap {
         position: relative;
-        margin: -54px 24px 0;
-        background: #fff;
-        border-radius: 20px;
-        box-shadow: 0 20px 45px rgba(22, 34, 51, .12);
-        padding: 22px;
+        width: 60px;
+        height: 60px;
+        flex: none;
+    }
+
+    .pf-ring-wrap svg {
+        width: 60px;
+        height: 60px;
+        transform: rotate(-90deg);
+    }
+
+    .pf-ring-bg {
+        fill: none;
+        stroke: rgba(255, 255, 255, .25);
+        stroke-width: 5;
+    }
+
+    .pf-ring-fg {
+        fill: none;
+        stroke: #fff;
+        stroke-width: 5;
+        stroke-linecap: round;
+        transition: stroke-dashoffset .6s ease;
+    }
+
+    .pf-ring-label {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        font-size: 13px;
+        font-weight: 800;
+    }
+
+    /* ---- section stepper (checklist journey, always 2-up so it stays legible in a narrow sidebar) ---- */
+    .pf-stepper {
+        position: relative;
+        margin-top: 22px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .pf-step {
+        border: 1.5px solid rgba(255, 255, 255, .3);
+        background: rgba(255, 255, 255, .08);
+        border-radius: 14px;
+        padding: 10px 8px;
+        text-align: left;
+        cursor: pointer;
+        color: #fff;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .pf-step:hover,
+    .pf-step:active {
+        background: rgba(255, 255, 255, .18);
+    }
+
+    .pf-step-top {
         display: flex;
         align-items: center;
-        gap: 20px;
+        justify-content: space-between;
+    }
+
+    .pf-step-icon {
+        width: 17px;
+        height: 17px;
+        color: #fff;
+        flex: none;
+    }
+
+    .pf-step-check {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background: #fff;
+        color: var(--pf-teal-dark);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 3px;
+        flex: none;
+    }
+
+    .pf-step.pf-step-done .pf-step-check {
+        display: flex;
+    }
+
+    .pf-step-label {
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .pf-step-count {
+        font-size: 10px;
+        font-weight: 600;
+        color: rgba(255, 255, 255, .75);
+    }
+
+    /* ================= Floating avatar card ================= */
+    .pf-photo-card {
+        position: relative;
+        margin: -42px 18px 0;
+        background: #fff;
+        border-radius: var(--pf-radius-md);
+        box-shadow: 0 18px 40px rgba(16, 21, 31, .1);
+        padding: 18px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
     }
 
     .pf-avatar {
         position: relative;
-        width: 92px;
-        height: 92px;
-        border-radius: 24px;
+        width: 76px;
+        height: 76px;
+        border-radius: 20px;
         background: var(--pf-teal-light);
         color: var(--pf-teal);
         display: grid;
         place-items: center;
-        font-size: 34px;
+        font-size: 28px;
         font-weight: 800;
         overflow: hidden;
         flex: none;
@@ -136,10 +281,10 @@ $completion = round((($filled + $img_fields_filled) / $total_fields) * 100);
 
     .pf-cam-btn {
         position: absolute;
-        right: -6px;
-        bottom: -6px;
-        width: 34px;
-        height: 34px;
+        right: -4px;
+        bottom: -4px;
+        width: 30px;
+        height: 30px;
         border-radius: 50%;
         background: var(--pf-teal);
         color: #fff;
@@ -147,80 +292,152 @@ $completion = round((($filled + $img_fields_filled) / $total_fields) * 100);
         place-items: center;
         border: 3px solid #fff;
         cursor: pointer;
-        box-shadow: 0 4px 10px rgba(15, 118, 110, .4);
+        box-shadow: 0 4px 10px rgba(13, 148, 136, .4);
     }
 
     .pf-cam-btn svg {
-        width: 15px;
-        height: 15px;
+        width: 13px;
+        height: 13px;
     }
 
     .pf-photo-card .pf-name {
-        font-size: 19px;
-        font-weight: 800;
-        color: var(--pf-text);
-        margin: 0 0 4px;
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--pf-ink);
+        margin: 0 0 2px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
     .pf-photo-card .pf-sub {
         margin: 0;
-        font-size: 13px;
+        font-size: 12.5px;
         color: var(--pf-muted);
+        font-weight: 400;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
     }
 
-    /* ---------- Form card ---------- */
+    /* ================= Section cards (native <details>, no JS needed to toggle) ================= */
     .pf-form {
-        margin-top: 22px;
+        margin-top: 16px;
+        padding: 0 2px;
+    }
+
+    .pf-section {
         background: #fff;
         border: 1px solid var(--pf-border);
-        border-radius: 20px;
-        padding: 26px;
-        box-shadow: 0 14px 40px rgba(22, 34, 51, .06);
+        border-radius: var(--pf-radius-md);
+        margin-bottom: 14px;
+        overflow: hidden;
+    }
+
+    .pf-section[open] {
+        box-shadow: 0 10px 30px rgba(16, 21, 31, .06);
+    }
+
+    .pf-section summary {
+        list-style: none;
+        cursor: pointer;
+        padding: 16px 18px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .pf-section summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .pf-sec-badge {
+        width: 38px;
+        height: 38px;
+        border-radius: 11px;
+        background: var(--pf-teal-light);
+        color: var(--pf-teal);
+        display: grid;
+        place-items: center;
+        flex: none;
+    }
+
+    .pf-sec-badge svg {
+        width: 19px;
+        height: 19px;
+    }
+
+    .pf-sec-heading {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .pf-sec-heading h2 {
+        margin: 0;
+        font-size: 14.5px;
+        font-weight: 700;
+        color: var(--pf-ink);
+    }
+
+    .pf-sec-heading span {
+        display: block;
+        font-size: 12px;
+        color: var(--pf-muted);
+        margin-top: 2px;
+        font-weight: 500;
+    }
+
+    .pf-sec-pill {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--pf-teal);
+        background: var(--pf-teal-light);
+        border-radius: 99px;
+        padding: 4px 10px;
+        white-space: nowrap;
+        flex: none;
+    }
+
+    .pf-sec-pill.pf-sec-pill-done {
+        color: #fff;
+        background: var(--pf-teal);
+    }
+
+    .pf-chevron {
+        flex: none;
+        width: 20px;
+        height: 20px;
+        color: var(--pf-muted);
+        transition: transform .2s ease;
+    }
+
+    .pf-section[open] .pf-chevron {
+        transform: rotate(180deg);
+    }
+
+    .pf-sec-body {
+        padding: 4px 18px 20px;
+        border-top: 1px solid var(--pf-border);
     }
 
     .pf-grid {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
-        gap: 18px;
+        gap: 14px;
+        margin-top: 16px;
     }
 
     .pf-full {
         grid-column: 1/-1;
     }
 
-    .pf-section-title {
-        grid-column: 1/-1;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-top: 6px;
-        padding: 0 0 14px;
-        border-bottom: 1px solid #eef3f8;
-        color: var(--pf-teal);
-        font-weight: 800;
-        font-size: 15px;
-    }
-
-    .pf-section-title .pf-badge {
-        width: 26px;
-        height: 26px;
-        border-radius: 8px;
-        background: var(--pf-teal-light);
-        display: grid;
-        place-items: center;
-        font-size: 13px;
-    }
-
-    .pf-section-title:not(:first-child) {
-        margin-top: 6px;
-    }
-
     label {
         display: block;
-        font-size: 13px;
-        font-weight: 700;
-        margin-bottom: 8px;
-        color: var(--pf-text);
+        font-size: 12.5px;
+        font-weight: 600;
+        margin-bottom: 7px;
+        color: var(--pf-ink);
     }
 
     input[type="text"],
@@ -229,44 +446,50 @@ $completion = round((($filled + $img_fields_filled) / $total_fields) * 100);
     select,
     textarea {
         width: 100%;
-        border: 1.5px solid #dbe3ef;
+        border: 1.5px solid #dde5f0;
         border-radius: 12px;
-        padding: 13px 14px;
-        font-size: 15px;
+        padding: 12px 13px;
+        font-size: 14.5px;
+        font-weight: 400;
         outline: none;
         background: #fbfcfe;
         transition: border-color .15s, box-shadow .15s, background .15s;
+        color: var(--pf-ink);
     }
 
     textarea {
-        min-height: 92px;
+        min-height: 82px;
         resize: vertical;
     }
 
-    input[type="text"]:focus,
-    input[type="email"]:focus,
-    input[type="date"]:focus,
+    input:focus,
     select:focus,
     textarea:focus {
         border-color: var(--pf-teal);
         background: #fff;
-        box-shadow: 0 0 0 4px rgba(15, 118, 110, .12);
+        box-shadow: 0 0 0 4px rgba(13, 148, 136, .12);
     }
 
-    /* ---------- Document upload tiles (Aadhaar / PAN) ---------- */
+    input:invalid.pf-touched,
+    select:invalid.pf-touched,
+    textarea:invalid.pf-touched {
+        border-color: var(--pf-danger);
+    }
+
+    /* ---- document upload tiles ---- */
     .pf-doc-tile {
         border: 1.5px dashed #d7e1ee;
         border-radius: 14px;
-        padding: 14px;
+        padding: 13px;
         background: #fbfcfe;
         display: flex;
         align-items: center;
-        gap: 14px;
+        gap: 13px;
     }
 
     .pf-doc-thumb {
-        width: 64px;
-        height: 64px;
+        width: 56px;
+        height: 56px;
         border-radius: 10px;
         background: var(--pf-teal-light);
         color: var(--pf-teal);
@@ -274,7 +497,11 @@ $completion = round((($filled + $img_fields_filled) / $total_fields) * 100);
         place-items: center;
         overflow: hidden;
         flex: none;
-        font-size: 22px;
+    }
+
+    .pf-doc-thumb svg {
+        width: 22px;
+        height: 22px;
     }
 
     .pf-doc-thumb img {
@@ -289,16 +516,17 @@ $completion = round((($filled + $img_fields_filled) / $total_fields) * 100);
     }
 
     .pf-doc-info .pf-doc-title {
-        font-size: 13px;
+        font-size: 12.5px;
         font-weight: 700;
-        color: var(--pf-text);
+        color: var(--pf-ink);
         margin: 0 0 3px;
     }
 
     .pf-doc-info .pf-doc-status {
-        font-size: 12px;
+        font-size: 11.5px;
         color: var(--pf-muted);
         margin: 0;
+        font-weight: 500;
     }
 
     .pf-doc-status.pf-ok {
@@ -311,8 +539,8 @@ $completion = round((($filled + $img_fields_filled) / $total_fields) * 100);
         color: var(--pf-teal);
         background: #fff;
         font-weight: 700;
-        font-size: 13px;
-        padding: 9px 14px;
+        font-size: 12.5px;
+        padding: 8px 13px;
         border-radius: 10px;
         cursor: pointer;
         flex: none;
@@ -323,27 +551,47 @@ $completion = round((($filled + $img_fields_filled) / $total_fields) * 100);
         background: var(--pf-teal-light);
     }
 
-    /* ---------- Submit ---------- */
+    /* ---- sticky submit ---- */
+    .pf-submit-bar {
+        position: sticky;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, var(--pf-bg) 60%, transparent);
+        padding: 14px 2px calc(14px + env(safe-area-inset-bottom));
+        margin-top: 4px;
+        z-index: 20;
+    }
+
     .pf-submit-btn {
         border: 0;
         border-radius: 14px;
         background: var(--pf-teal);
         color: #fff;
-        padding: 16px 22px;
-        font-weight: 800;
-        font-size: 15px;
+        padding: 15px 20px;
+        font-weight: 700;
+        font-size: 14.5px;
         cursor: pointer;
         width: 100%;
-        box-shadow: 0 10px 25px rgba(15, 118, 110, .3);
+        box-shadow: 0 10px 25px rgba(13, 148, 136, .32);
         transition: transform .1s, background .15s;
     }
 
+    .pf-submit-btn:hover,
     .pf-submit-btn:active {
         transform: scale(.99);
         background: var(--pf-teal-dark);
     }
 
-    /* ---------- Bottom sheet (image source picker) ---------- */
+    .pf-submit-hint {
+        text-align: center;
+        font-size: 11.5px;
+        color: var(--pf-muted);
+        margin: 8px 0 0;
+        font-weight: 500;
+    }
+
+    /* ================= Bottom sheet (image source picker) ================= */
     .pf-sheet-overlay {
         display: none;
         position: fixed;
@@ -375,8 +623,8 @@ $completion = round((($filled + $img_fields_filled) / $total_fields) * 100);
         background: #fff;
         border-radius: 20px 20px 0 0;
         padding: 10px 18px 26px;
-        transform: translateY(0);
         animation: pf-slide-up .22s ease;
+        font-family: 'Poppins', sans-serif;
     }
 
     @media (min-width: 600px) {
@@ -412,9 +660,9 @@ $completion = round((($filled + $img_fields_filled) / $total_fields) * 100);
 
     .pf-sheet h3 {
         margin: 0 0 16px;
-        font-size: 16px;
-        font-weight: 800;
-        color: var(--pf-text);
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--pf-ink);
         text-align: center;
     }
 
@@ -426,11 +674,11 @@ $completion = round((($filled + $img_fields_filled) / $total_fields) * 100);
         border: 1px solid var(--pf-border);
         background: #fbfcfe;
         border-radius: 14px;
-        padding: 15px 16px;
+        padding: 14px 15px;
         margin-bottom: 10px;
-        font-size: 15px;
-        font-weight: 700;
-        color: var(--pf-text);
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--pf-ink);
         cursor: pointer;
         text-align: left;
     }
@@ -440,8 +688,8 @@ $completion = round((($filled + $img_fields_filled) / $total_fields) * 100);
     }
 
     .pf-sheet-option .pf-sheet-icon {
-        width: 40px;
-        height: 40px;
+        width: 38px;
+        height: 38px;
         border-radius: 10px;
         background: var(--pf-teal-light);
         color: var(--pf-teal);
@@ -456,56 +704,94 @@ $completion = round((($filled + $img_fields_filled) / $total_fields) * 100);
         background: #f1f5f9;
         color: var(--pf-muted);
         font-weight: 700;
-        font-size: 15px;
-        padding: 14px;
+        font-size: 14px;
+        padding: 13px;
         border-radius: 14px;
         cursor: pointer;
         margin-top: 4px;
     }
 
-    /* hide the real inputs, we trigger them via JS */
     .pf-hidden-input {
         display: none;
     }
 
-    /* ---------- Responsive ---------- */
-    @media (max-width: 860px) {
-        .pf-grid {
-            grid-template-columns: 1fr;
-        }
-    }
-
-    @media (max-width: 640px) {
-        .pf-head {
-            padding: 28px 18px 66px;
-            border-radius: 18px;
+    /* ================= Desktop: use the full page width with a sticky sidebar ================= */
+    @media (min-width: 1000px) {
+        .pf-wrap {
+            padding: 32px 32px 100px;
         }
 
-        .pf-head-top {
-            flex-direction: column;
-            align-items: flex-start;
+        .pf-layout {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 28px;
+            align-items: start;
         }
 
-        .pf-progress-wrap {
-            width: 100%;
-        }
-
-        .pf-photo-card {
-            margin: -50px 12px 0;
-            padding: 18px;
-            border-radius: 16px;
-        }
-
-        .pf-avatar {
-            width: 76px;
-            height: 76px;
-            border-radius: 20px;
-            font-size: 28px;
+        .pf-sidebar {
+            position: sticky;
+            top: 24px;
         }
 
         .pf-form {
-            padding: 18px;
+            margin-top: 0;
+        }
+
+        .pf-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (min-width: 1000px) and (max-width: 1199px) {
+        .pf-layout {
+            grid-template-columns: 320px 1fr;
+        }
+    }
+
+    /* ================= Responsive (mobile) ================= */
+    @media (max-width: 640px) {
+        .pf-wrap {
+            padding: 0 0 90px;
+        }
+
+        .pf-head {
+            padding: 22px 16px 58px;
+            border-radius: 18px;
+        }
+
+        .pf-head-top h1 {
+            font-size: 18px;
+        }
+
+        .pf-head-top p {
+            font-size: 12.5px;
+            max-width: 100%;
+        }
+
+        .pf-photo-card {
+            margin: -38px 10px 0;
+            padding: 14px;
+            border-radius: 14px;
+            gap: 12px;
+        }
+
+        .pf-avatar {
+            width: 64px;
+            height: 64px;
             border-radius: 16px;
+            font-size: 24px;
+        }
+
+        .pf-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .pf-sec-body {
+            padding: 2px 14px 16px;
+        }
+
+        .pf-section summary {
+            padding: 14px;
         }
 
         .pf-doc-tile {
@@ -519,192 +805,321 @@ $completion = round((($filled + $img_fields_filled) / $total_fields) * 100);
 </style>
 
 <div class="pf-wrap">
+    <div class="pf-layout">
 
-    <!-- ============ Header ============ -->
-    <section class="pf-head">
-        <div class="pf-head-top">
-            <div>
-                <h1>My Profile</h1>
-                <p>Complete every section below to unlock full loan eligibility and faster approvals.</p>
-            </div>
-            <div class="pf-progress-wrap">
-                <div class="pf-progress-label">
-                    <span>Profile Completion</span>
-                    <span id="pfProgressText"><?php echo $completion; ?>%</span>
+        <!-- ============ Sidebar: header + avatar (sticky on desktop) ============ -->
+        <div class="pf-sidebar">
+
+            <!-- ============ Header ============ -->
+            <section class="pf-head">
+                <div class="pf-head-top">
+                    <div>
+                        <h1>My Profile</h1>
+                        <p>Complete every section to unlock full loan eligibility and faster approvals.</p>
+                    </div>
+                    <div class="pf-ring-wrap">
+                        <svg viewBox="0 0 60 60">
+                            <circle class="pf-ring-bg" cx="30" cy="30" r="25"></circle>
+                            <circle class="pf-ring-fg" id="pfRingFg" cx="30" cy="30" r="25"
+                                stroke-dasharray="157"
+                                stroke-dashoffset="<?php echo round(157 - (157 * $completion / 100)); ?>"></circle>
+                        </svg>
+                        <div class="pf-ring-label" id="pfRingLabel"><?php echo $completion; ?>%</div>
+                    </div>
                 </div>
-                <div class="pf-progress-bar">
-                    <div class="pf-progress-fill" id="pfProgressFill" style="width: <?php echo $completion; ?>%;"></div>
+
+                <!-- section stepper: tap any card to jump straight to that part of the form -->
+                <div class="pf-stepper">
+                    <button type="button" class="pf-step <?php echo ($personal_filled >= $personal_total) ? 'pf-step-done' : ''; ?>" onclick="pfJump('sec-personal')" id="pfStep-personal">
+                        <div class="pf-step-top">
+                            <span class="pf-step-icon"><?php echo $icon_personal; ?></span>
+                            <span class="pf-step-check"><?php echo $icon_check; ?></span>
+                        </div>
+                        <span class="pf-step-label">Personal</span>
+                        <span class="pf-step-count" id="pfStepCount-personal"><?php echo $personal_filled; ?>/<?php echo $personal_total; ?></span>
+                    </button>
+                    <button type="button" class="pf-step <?php echo ($kyc_filled >= $kyc_total) ? 'pf-step-done' : ''; ?>" onclick="pfJump('sec-kyc')" id="pfStep-kyc">
+                        <div class="pf-step-top">
+                            <span class="pf-step-icon"><?php echo $icon_kyc; ?></span>
+                            <span class="pf-step-check"><?php echo $icon_check; ?></span>
+                        </div>
+                        <span class="pf-step-label">KYC</span>
+                        <span class="pf-step-count" id="pfStepCount-kyc"><?php echo $kyc_filled; ?>/<?php echo $kyc_total; ?></span>
+                    </button>
+                    <button type="button" class="pf-step <?php echo ($bank_filled >= $bank_total) ? 'pf-step-done' : ''; ?>" onclick="pfJump('sec-bank')" id="pfStep-bank">
+                        <div class="pf-step-top">
+                            <span class="pf-step-icon"><?php echo $icon_bank; ?></span>
+                            <span class="pf-step-check"><?php echo $icon_check; ?></span>
+                        </div>
+                        <span class="pf-step-label">Bank</span>
+                        <span class="pf-step-count" id="pfStepCount-bank"><?php echo $bank_filled; ?>/<?php echo $bank_total; ?></span>
+                    </button>
+                    <button type="button" class="pf-step <?php echo ($ref_filled >= $ref_total) ? 'pf-step-done' : ''; ?>" onclick="pfJump('sec-ref')" id="pfStep-ref">
+                        <div class="pf-step-top">
+                            <span class="pf-step-icon"><?php echo $icon_ref; ?></span>
+                            <span class="pf-step-check"><?php echo $icon_check; ?></span>
+                        </div>
+                        <span class="pf-step-label">References</span>
+                        <span class="pf-step-count" id="pfStepCount-ref"><?php echo $ref_filled; ?>/<?php echo $ref_total; ?></span>
+                    </button>
                 </div>
-            </div>
+            </section>
+
+            <!-- ============ Floating avatar card ============ -->
+            <section class="pf-photo-card">
+                <div class="pf-avatar" id="pfAvatarBox">
+                    <?php if ($photo): ?>
+                        <img src="<?php echo $photo; ?>" alt="Profile" id="pfAvatarImg">
+                    <?php else: ?>
+                        <span id="pfAvatarInitial"><?php echo strtoupper(substr($profile->name ?? 'U', 0, 1)); ?></span>
+                        <img src="" alt="Profile" id="pfAvatarImg" style="display:none;">
+                    <?php endif; ?>
+                    <div class="pf-cam-btn" onclick="pfOpenSheet('profile_image')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
+                            <circle cx="12" cy="13" r="4"></circle>
+                        </svg>
+                    </div>
+                </div>
+                <div>
+                    <p class="pf-name"><?php echo html_escape($profile->name ?? 'User'); ?></p>
+                    <p class="pf-sub"><?php echo html_escape($profile->email ?? $profile->mobile ?? ''); ?></p>
+                </div>
+            </section>
+
         </div>
-    </section>
+        <!-- /pf-sidebar -->
 
-    <!-- ============ Floating avatar card ============ -->
-    <section class="pf-photo-card">
-        <div class="pf-avatar" id="pfAvatarBox">
-            <?php if ($photo): ?>
-                <img src="<?php echo $photo; ?>" alt="Profile" id="pfAvatarImg">
-            <?php else: ?>
-                <span id="pfAvatarInitial"><?php echo strtoupper(substr($profile->name ?? 'U', 0, 1)); ?></span>
-                <img src="" alt="Profile" id="pfAvatarImg" style="display:none;">
-            <?php endif; ?>
-            <div class="pf-cam-btn" onclick="pfOpenSheet('profile_image')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
-                    <circle cx="12" cy="13" r="4"></circle>
+        <!-- ============ Form ============ -->
+        <?php echo form_open_multipart('profile/update', ['class' => 'pf-form', 'id' => 'pfForm', 'novalidate' => 'novalidate']); ?>
+
+        <!-- ---------------- Personal Details ---------------- -->
+        <details class="pf-section" id="sec-personal" open>
+            <summary>
+                <div class="pf-sec-badge"><?php echo $icon_personal; ?></div>
+                <div class="pf-sec-heading">
+                    <h2>Personal Details</h2>
+                    <span>Basic information about you</span>
+                </div>
+                <span class="pf-sec-pill <?php echo ($personal_filled >= $personal_total) ? 'pf-sec-pill-done' : ''; ?>" id="pfPill-personal"><?php echo $personal_filled; ?>/<?php echo $personal_total; ?></span>
+                <svg class="pf-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
                 </svg>
+            </summary>
+            <div class="pf-sec-body">
+                <div class="pf-grid">
+                    <div>
+                        <label>Name</label>
+                        <input type="text" name="name" class="pf-req" value="<?php echo html_escape($profile->name ?? ''); ?>" required>
+                    </div>
+                    <div>
+                        <label>Mobile Number</label>
+                        <input type="text" name="mobile" class="pf-req" value="<?php echo html_escape($profile->mobile ?? ''); ?>" required>
+                    </div>
+                    <div>
+                        <label>Email</label>
+                        <input type="email" name="email" class="pf-req" value="<?php echo html_escape($profile->email ?? ''); ?>" required>
+                    </div>
+                    <div>
+                        <label>Marriage Status</label>
+                        <select name="marriage_status" class="pf-req" required>
+                            <option value="">Select Status</option>
+                            <?php foreach (['Single', 'Married', 'Divorced', 'Widowed'] as $status): ?>
+                                <option value="<?php echo $status; ?>" <?php echo (($profile->marriage_status ?? '') === $status) ? 'selected' : ''; ?>><?php echo $status; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Date of Birth</label>
+                        <input type="date" name="dob" class="pf-req" value="<?php echo html_escape($profile->dob ?? ''); ?>" required>
+                    </div>
+                    <div>
+                        <label>Education</label>
+                        <input type="text" name="education" class="pf-req" value="<?php echo html_escape($profile->education ?? ''); ?>" required>
+                    </div>
+                    <div>
+                        <label>Employment</label>
+                        <input type="text" name="employment" class="pf-req" value="<?php echo html_escape($profile->employment ?? ''); ?>" required>
+                    </div>
+                    <div class="pf-full">
+                        <label>Address</label>
+                        <textarea name="address" class="pf-req" required><?php echo html_escape($profile->address ?? ''); ?></textarea>
+                    </div>
+                </div>
             </div>
-        </div>
-        <div>
-            <p class="pf-name"><?php echo html_escape($profile->name ?? 'User'); ?></p>
-            <p class="pf-sub"><?php echo html_escape($profile->email ?? $profile->mobile ?? ''); ?></p>
-        </div>
-    </section>
+        </details>
 
-    <!-- ============ Form ============ -->
-    <?php echo form_open_multipart('profile/update', ['class' => 'pf-form', 'id' => 'pfForm']); ?>
-    <div class="pf-grid">
-
-        <div class="pf-section-title"><span class="pf-badge">👤</span> Personal Details</div>
-
-        <div>
-            <label>Name</label>
-            <input type="text" name="name" class="pf-req" value="<?php echo html_escape($profile->name ?? ''); ?>" required>
-        </div>
-        <div>
-            <label>Mobile Number</label>
-            <input type="text" name="mobile" class="pf-req" value="<?php echo html_escape($profile->mobile ?? ''); ?>" required>
-        </div>
-        <div>
-            <label>Email</label>
-            <input type="email" name="email" class="pf-req" value="<?php echo html_escape($profile->email ?? ''); ?>" required>
-        </div>
-        <div>
-            <label>Marriage Status</label>
-            <select name="marriage_status" class="pf-req" required>
-                <option value="">Select Status</option>
-                <?php foreach (['Single', 'Married', 'Divorced', 'Widowed'] as $status): ?>
-                    <option value="<?php echo $status; ?>" <?php echo (($profile->marriage_status ?? '') === $status) ? 'selected' : ''; ?>><?php echo $status; ?></option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        <div>
-            <label>DOB</label>
-            <input type="date" name="dob" class="pf-req" value="<?php echo html_escape($profile->dob ?? ''); ?>" required>
-        </div>
-        <div>
-            <label>Education</label>
-            <input type="text" name="education" class="pf-req" value="<?php echo html_escape($profile->education ?? ''); ?>" required>
-        </div>
-        <div>
-            <label>Employment</label>
-            <input type="text" name="employment" class="pf-req" value="<?php echo html_escape($profile->employment ?? ''); ?>" required>
-        </div>
-        <div class="pf-full">
-            <label>Address</label>
-            <textarea name="address" class="pf-req" required><?php echo html_escape($profile->address ?? ''); ?></textarea>
-        </div>
-
-        <div class="pf-section-title"><span class="pf-badge">🪪</span> KYC Details</div>
-
-        <div>
-            <label>Aadhaar Number</label>
-            <input type="text" name="aadhaar_number" class="pf-req" value="<?php echo html_escape($profile->aadhaar_number ?? ''); ?>" required>
-        </div>
-        <div>
-            <label>PAN Number</label>
-            <input type="text" name="pan_number" class="pf-req" value="<?php echo html_escape($profile->pan_number ?? ''); ?>" required>
-        </div>
-
-        <div class="pf-full">
-            <label>Aadhaar Photo</label>
-            <div class="pf-doc-tile">
-                <div class="pf-doc-thumb" id="pfThumb_aadhaar_photo">
-                    <?php if ($aadhaar_photo): ?>
-                        <img src="<?php echo $aadhaar_photo; ?>" alt="Aadhaar" id="pfImg_aadhaar_photo">
-                    <?php else: ?>
-                        <span id="pfIcon_aadhaar_photo">🪪</span>
-                        <img src="" alt="Aadhaar" id="pfImg_aadhaar_photo" style="display:none;">
-                    <?php endif; ?>
+        <!-- ---------------- KYC Details ---------------- -->
+        <details class="pf-section" id="sec-kyc">
+            <summary>
+                <div class="pf-sec-badge"><?php echo $icon_kyc; ?></div>
+                <div class="pf-sec-heading">
+                    <h2>KYC Details</h2>
+                    <span>Identity verification documents</span>
                 </div>
-                <div class="pf-doc-info">
-                    <p class="pf-doc-title">Aadhaar Card Photo</p>
-                    <p class="pf-doc-status <?php echo $aadhaar_photo ? 'pf-ok' : ''; ?>" id="pfStatus_aadhaar_photo">
-                        <?php echo $aadhaar_photo ? 'Uploaded' : 'Not uploaded yet'; ?>
-                    </p>
+                <span class="pf-sec-pill <?php echo ($kyc_filled >= $kyc_total) ? 'pf-sec-pill-done' : ''; ?>" id="pfPill-kyc"><?php echo $kyc_filled; ?>/<?php echo $kyc_total; ?></span>
+                <svg class="pf-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </summary>
+            <div class="pf-sec-body">
+                <div class="pf-grid">
+                    <div>
+                        <label>Aadhaar Number</label>
+                        <input type="text" name="aadhaar_number" class="pf-req" value="<?php echo html_escape($profile->aadhaar_number ?? ''); ?>" required>
+                    </div>
+                    <div>
+                        <label>PAN Number</label>
+                        <input type="text" name="pan_number" class="pf-req" value="<?php echo html_escape($profile->pan_number ?? ''); ?>" required>
+                    </div>
+
+                    <div class="pf-full">
+                        <label>Aadhaar Photo</label>
+                        <div class="pf-doc-tile">
+                            <div class="pf-doc-thumb" id="pfThumb_aadhaar_photo">
+                                <?php if ($aadhaar_photo): ?>
+                                    <img src="<?php echo $aadhaar_photo; ?>" alt="Aadhaar" id="pfImg_aadhaar_photo">
+                                <?php else: ?>
+                                    <span id="pfIcon_aadhaar_photo"><?php echo $icon_kyc; ?></span>
+                                    <img src="" alt="Aadhaar" id="pfImg_aadhaar_photo" style="display:none;">
+                                <?php endif; ?>
+                            </div>
+                            <div class="pf-doc-info">
+                                <p class="pf-doc-title">Aadhaar Card Photo</p>
+                                <p class="pf-doc-status <?php echo $aadhaar_photo ? 'pf-ok' : ''; ?>" id="pfStatus_aadhaar_photo">
+                                    <?php echo $aadhaar_photo ? 'Uploaded' : 'Not uploaded yet'; ?>
+                                </p>
+                            </div>
+                            <button type="button" class="pf-doc-upload-btn" onclick="pfOpenSheet('aadhaar_photo')">
+                                <?php echo $aadhaar_photo ? 'Change' : 'Upload'; ?>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="pf-full">
+                        <label>PAN Photo</label>
+                        <div class="pf-doc-tile">
+                            <div class="pf-doc-thumb" id="pfThumb_pan_photo">
+                                <?php if ($pan_photo): ?>
+                                    <img src="<?php echo $pan_photo; ?>" alt="PAN" id="pfImg_pan_photo">
+                                <?php else: ?>
+                                    <span id="pfIcon_pan_photo"><?php echo $icon_folder; ?></span>
+                                    <img src="" alt="PAN" id="pfImg_pan_photo" style="display:none;">
+                                <?php endif; ?>
+                            </div>
+                            <div class="pf-doc-info">
+                                <p class="pf-doc-title">PAN Card Photo</p>
+                                <p class="pf-doc-status <?php echo $pan_photo ? 'pf-ok' : ''; ?>" id="pfStatus_pan_photo">
+                                    <?php echo $pan_photo ? 'Uploaded' : 'Not uploaded yet'; ?>
+                                </p>
+                            </div>
+                            <button type="button" class="pf-doc-upload-btn" onclick="pfOpenSheet('pan_photo')">
+                                <?php echo $pan_photo ? 'Change' : 'Upload'; ?>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <button type="button" class="pf-doc-upload-btn" onclick="pfOpenSheet('aadhaar_photo')">
-                    <?php echo $aadhaar_photo ? 'Change' : 'Upload'; ?>
-                </button>
             </div>
-        </div>
+        </details>
 
-        <div class="pf-full">
-            <label>PAN Photo</label>
-            <div class="pf-doc-tile">
-                <div class="pf-doc-thumb" id="pfThumb_pan_photo">
-                    <?php if ($pan_photo): ?>
-                        <img src="<?php echo $pan_photo; ?>" alt="PAN" id="pfImg_pan_photo">
-                    <?php else: ?>
-                        <span id="pfIcon_pan_photo">🗂️</span>
-                        <img src="" alt="PAN" id="pfImg_pan_photo" style="display:none;">
-                    <?php endif; ?>
+        <!-- ---------------- Bank Details ---------------- -->
+        <details class="pf-section" id="sec-bank">
+            <summary>
+                <div class="pf-sec-badge"><?php echo $icon_bank; ?></div>
+                <div class="pf-sec-heading">
+                    <h2>Bank Details</h2>
+                    <span>Where your disbursements are sent</span>
                 </div>
-                <div class="pf-doc-info">
-                    <p class="pf-doc-title">PAN Card Photo</p>
-                    <p class="pf-doc-status <?php echo $pan_photo ? 'pf-ok' : ''; ?>" id="pfStatus_pan_photo">
-                        <?php echo $pan_photo ? 'Uploaded' : 'Not uploaded yet'; ?>
-                    </p>
+                <span class="pf-sec-pill <?php echo ($bank_filled >= $bank_total) ? 'pf-sec-pill-done' : ''; ?>" id="pfPill-bank"><?php echo $bank_filled; ?>/<?php echo $bank_total; ?></span>
+                <svg class="pf-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </summary>
+            <div class="pf-sec-body">
+                <div class="pf-grid">
+                    <div>
+                        <label>Account Holder Name</label>
+                        <input type="text" name="account_holder_name" class="pf-req" value="<?php echo html_escape($profile->account_holder_name ?? ''); ?>" required>
+                    </div>
+                    <div>
+                        <label>Bank Name</label>
+                        <input type="text" name="bank_name" class="pf-req" value="<?php echo html_escape($profile->bank_name ?? ''); ?>" required>
+                    </div>
+                    <div>
+                        <label>Account Number</label>
+                        <input type="text" name="account_number" class="pf-req" value="<?php echo html_escape($profile->account_number ?? ''); ?>" required>
+                    </div>
+                    <div>
+                        <label>IFSC Code</label>
+                        <input type="text" name="ifsc_code" class="pf-req" value="<?php echo html_escape($profile->ifsc_code ?? ''); ?>" required>
+                    </div>
+                    <div>
+                        <label>Account Type</label>
+                        <select name="account_type" class="pf-req" required>
+                            <option value="">Select Type</option>
+                            <?php foreach (['Savings', 'Current', 'Salary', 'Other'] as $type): ?>
+                                <option value="<?php echo $type; ?>" <?php echo (($profile->account_type ?? '') === $type) ? 'selected' : ''; ?>><?php echo $type; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Branch Name</label>
+                        <input type="text" name="branch_name" class="pf-req" value="<?php echo html_escape($profile->branch_name ?? ''); ?>" required>
+                    </div>
                 </div>
-                <button type="button" class="pf-doc-upload-btn" onclick="pfOpenSheet('pan_photo')">
-                    <?php echo $pan_photo ? 'Change' : 'Upload'; ?>
-                </button>
             </div>
-        </div>
+        </details>
 
-        <div class="pf-section-title"><span class="pf-badge">🏦</span> Bank Details</div>
+        <!-- ---------------- References ---------------- -->
+        <details class="pf-section" id="sec-ref">
+            <summary>
+                <div class="pf-sec-badge"><?php echo $icon_ref; ?></div>
+                <div class="pf-sec-heading">
+                    <h2>References</h2>
+                    <span>Two people we can contact if needed</span>
+                </div>
+                <span class="pf-sec-pill <?php echo ($ref_filled >= $ref_total) ? 'pf-sec-pill-done' : ''; ?>" id="pfPill-ref"><?php echo $ref_filled; ?>/<?php echo $ref_total; ?></span>
+                <svg class="pf-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+            </summary>
+            <div class="pf-sec-body">
+                <div class="pf-grid">
+                    <div>
+                        <label>Reference 1 Name</label>
+                        <input type="text" name="reference_name_1" class="pf-req" value="<?php echo html_escape($profile->reference_name_1 ?? ''); ?>" required>
+                    </div>
+                    <div>
+                        <label>Reference 1 Contact Number</label>
+                        <input type="text" name="reference_mobile_1" class="pf-req" value="<?php echo html_escape($profile->reference_mobile_1 ?? ''); ?>" required>
+                    </div>
+                    <div>
+                        <label>Reference 2 Name</label>
+                        <input type="text" name="reference_name_2" class="pf-req" value="<?php echo html_escape($profile->reference_name_2 ?? ''); ?>" required>
+                    </div>
+                    <div>
+                        <label>Reference 2 Contact Number</label>
+                        <input type="text" name="reference_mobile_2" class="pf-req" value="<?php echo html_escape($profile->reference_mobile_2 ?? ''); ?>" required>
+                    </div>
+                </div>
+            </div>
+        </details>
 
-        <div>
-            <label>Account Holder Name</label>
-            <input type="text" name="account_holder_name" class="pf-req" value="<?php echo html_escape($profile->account_holder_name ?? ''); ?>" required>
-        </div>
-        <div>
-            <label>Bank Name</label>
-            <input type="text" name="bank_name" class="pf-req" value="<?php echo html_escape($profile->bank_name ?? ''); ?>" required>
-        </div>
-        <div>
-            <label>Account Number</label>
-            <input type="text" name="account_number" class="pf-req" value="<?php echo html_escape($profile->account_number ?? ''); ?>" required>
-        </div>
-        <div>
-            <label>IFSC Code</label>
-            <input type="text" name="ifsc_code" class="pf-req" value="<?php echo html_escape($profile->ifsc_code ?? ''); ?>" required>
-        </div>
-        <div>
-            <label>Account Type</label>
-            <select name="account_type" class="pf-req" required>
-                <option value="">Select Type</option>
-                <?php foreach (['Savings', 'Current', 'Salary', 'Other'] as $type): ?>
-                    <option value="<?php echo $type; ?>" <?php echo (($profile->account_type ?? '') === $type) ? 'selected' : ''; ?>><?php echo $type; ?></option>
-                <?php endforeach; ?>
-            </select>
-        </div>
-        <div>
-            <label>Branch Name</label>
-            <input type="text" name="branch_name" class="pf-req" value="<?php echo html_escape($profile->branch_name ?? ''); ?>" required>
-        </div>
+        <!-- hidden real file inputs (one per uploadable field) -->
+        <input type="file" name="profile_image" id="input_profile_image" accept="image/*" class="pf-hidden-input">
+        <input type="file" name="aadhaar_photo" id="input_aadhaar_photo" accept="image/*" class="pf-hidden-input">
+        <input type="file" name="pan_photo" id="input_pan_photo" accept="image/*" class="pf-hidden-input">
 
-        <div class="pf-full">
+        <div class="pf-submit-bar">
             <button class="pf-submit-btn" type="submit">Update Profile</button>
+            <p class="pf-submit-hint" id="pfSubmitHint"><?php echo $completion; ?>% complete &middot; keep going to finish your profile</p>
         </div>
+
+        <?php echo form_close(); ?>
+        <!-- /pf-form -->
+
     </div>
-
-    <!-- hidden real file inputs (one per uploadable field) -->
-    <input type="file" name="profile_image" id="input_profile_image" accept="image/*" class="pf-hidden-input">
-    <input type="file" name="aadhaar_photo" id="input_aadhaar_photo" accept="image/*" class="pf-hidden-input">
-    <input type="file" name="pan_photo" id="input_pan_photo" accept="image/*" class="pf-hidden-input">
-
-    <?php echo form_close(); ?>
+    <!-- /pf-layout -->
 </div>
 
 <!-- ============ Camera / Gallery bottom sheet ============ -->
@@ -714,7 +1129,7 @@ $completion = round((($filled + $img_fields_filled) / $total_fields) * 100);
         <h3>Add Photo</h3>
         <button type="button" class="pf-sheet-option" onclick="pfPick('camera')">
             <span class="pf-sheet-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                     <circle cx="12" cy="13" r="4"></circle>
                 </svg>
@@ -723,7 +1138,7 @@ $completion = round((($filled + $img_fields_filled) / $total_fields) * 100);
         </button>
         <button type="button" class="pf-sheet-option" onclick="pfPick('gallery')">
             <span class="pf-sheet-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="3" y="3" width="18" height="18" rx="2"></rect>
                     <circle cx="8.5" cy="8.5" r="1.5"></circle>
                     <path d="M21 15l-5-5L5 21"></path>
@@ -739,6 +1154,7 @@ $completion = round((($filled + $img_fields_filled) / $total_fields) * 100);
     (function() {
         var pfCurrentField = null;
 
+        // ---- bottom sheet ----
         window.pfOpenSheet = function(fieldName) {
             pfCurrentField = fieldName;
             document.getElementById('pfSheetOverlay').classList.add('pf-open');
@@ -758,12 +1174,23 @@ $completion = round((($filled + $img_fields_filled) / $total_fields) * 100);
                 input.removeAttribute('capture');
             }
             pfCloseSheet();
-            // slight delay so the sheet closes smoothly before the native picker opens
             setTimeout(function() {
                 input.click();
             }, 120);
         };
 
+        // ---- jump to + open a section from the stepper ----
+        window.pfJump = function(sectionId) {
+            var el = document.getElementById(sectionId);
+            if (!el) return;
+            el.open = true;
+            el.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        };
+
+        // ---- image previews ----
         function bindPreview(fieldName) {
             var input = document.getElementById('input_' + fieldName);
             input.addEventListener('change', function(e) {
@@ -794,33 +1221,101 @@ $completion = round((($filled + $img_fields_filled) / $total_fields) * 100);
                 reader.readAsDataURL(file);
             });
         }
-
         bindPreview('profile_image');
         bindPreview('aadhaar_photo');
         bindPreview('pan_photo');
 
+        // ---- section field maps (mirrors the PHP grouping) ----
+        var sections = {
+            personal: {
+                fields: ['name', 'mobile', 'email', 'marriage_status', 'dob', 'education', 'employment', 'address'],
+                images: []
+            },
+            kyc: {
+                fields: ['aadhaar_number', 'pan_number'],
+                images: ['aadhaar_photo', 'pan_photo']
+            },
+            bank: {
+                fields: ['account_holder_name', 'bank_name', 'account_number', 'ifsc_code', 'account_type', 'branch_name'],
+                images: []
+            },
+            ref: {
+                fields: ['reference_name_1', 'reference_mobile_1', 'reference_name_2', 'reference_mobile_2'],
+                images: []
+            }
+        };
+
+        function isImageFilled(fieldName) {
+            var el = fieldName === 'profile_image' ? document.getElementById('pfAvatarImg') : document.getElementById('pfImg_' + fieldName);
+            return !!(el && el.style.display !== 'none' && el.src);
+        }
+
         function pfUpdateProgress() {
+            // overall ring
             var reqInputs = document.querySelectorAll('.pf-req');
             var filled = 0;
             reqInputs.forEach(function(el) {
                 if (el.value && el.value.trim() !== '') filled++;
             });
-
             var imgFilled = 0;
             ['profile_image', 'aadhaar_photo', 'pan_photo'].forEach(function(f) {
-                var el = f === 'profile_image' ? document.getElementById('pfAvatarImg') : document.getElementById('pfImg_' + f);
-                if (el && el.style.display !== 'none' && el.src) imgFilled++;
+                if (isImageFilled(f)) imgFilled++;
             });
-
             var total = reqInputs.length + 3;
             var pct = Math.round(((filled + imgFilled) / total) * 100);
-            document.getElementById('pfProgressFill').style.width = pct + '%';
-            document.getElementById('pfProgressText').textContent = pct + '%';
+
+            document.getElementById('pfRingLabel').textContent = pct + '%';
+            var circumference = 157;
+            document.getElementById('pfRingFg').style.strokeDashoffset = Math.round(circumference - (circumference * pct / 100));
+            document.getElementById('pfSubmitHint').textContent = pct + '% complete · keep going to finish your profile';
+
+            // per-section badges + stepper
+            Object.keys(sections).forEach(function(key) {
+                var conf = sections[key];
+                var doneCount = 0;
+                conf.fields.forEach(function(name) {
+                    var el = document.querySelector('[name="' + name + '"]');
+                    if (el && el.value && el.value.trim() !== '') doneCount++;
+                });
+                conf.images.forEach(function(name) {
+                    if (isImageFilled(name)) doneCount++;
+                });
+                var totalCount = conf.fields.length + conf.images.length;
+                var isDone = doneCount >= totalCount;
+
+                var pill = document.getElementById('pfPill-' + key);
+                if (pill) {
+                    pill.textContent = doneCount + '/' + totalCount;
+                    pill.classList.toggle('pf-sec-pill-done', isDone);
+                }
+                var stepCount = document.getElementById('pfStepCount-' + key);
+                if (stepCount) stepCount.textContent = doneCount + '/' + totalCount;
+                var step = document.getElementById('pfStep-' + key);
+                if (step) step.classList.toggle('pf-step-done', isDone);
+            });
         }
 
         document.querySelectorAll('.pf-req').forEach(function(el) {
             el.addEventListener('input', pfUpdateProgress);
             el.addEventListener('change', pfUpdateProgress);
+        });
+
+        // ---- if a required field is invalid on submit, auto-expand its section & scroll to it ----
+        document.querySelectorAll('.pf-req').forEach(function(el) {
+            el.addEventListener('invalid', function() {
+                el.classList.add('pf-touched');
+                var details = el.closest('details');
+                if (details) details.open = true;
+                setTimeout(function() {
+                    el.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+                }, 50);
+            });
+            el.addEventListener('blur', function() {
+                el.classList.add('pf-touched');
+            });
         });
     })();
 </script>

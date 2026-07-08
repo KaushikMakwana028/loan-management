@@ -28,4 +28,35 @@ class Investors extends CI_Controller
         $this->load->view('admin/investors_view', $data);
         $this->load->view('admin/footer', $data);
     }
+
+    public function view($id)
+    {
+        $data['admin'] = $this->general->getById('users', $this->session->userdata('user_id'));
+        $data['page_title'] = 'Investor Details';
+
+        // Query investor profile
+        $sql = "SELECT u.*, w.balance FROM users u 
+                LEFT JOIN wallets w ON u.id = w.investor_id 
+                WHERE u.id = ? AND u.role = 2";
+        $data['investor'] = $this->db->query($sql, [$id])->row();
+
+        if (!$data['investor']) {
+            $this->session->set_flashdata('error', 'Investor not found.');
+            redirect('admin/investors');
+            return;
+        }
+
+        // Query investments of this investor
+        $investment_sql = "SELECT li.*, l.amount as loan_amount, l.tenure_days, l.interest_rate, l.status as loan_status, u.name as borrower_name
+                           FROM loan_investors li
+                           JOIN loans l ON li.loan_id = l.id
+                           JOIN users u ON l.user_id = u.id
+                           WHERE li.investor_id = ?
+                           ORDER BY li.id DESC";
+        $data['investments'] = $this->db->query($investment_sql, [$id])->result_array();
+
+        $this->load->view('admin/header', $data);
+        $this->load->view('admin/investor_detail_view', $data);
+        $this->load->view('admin/footer', $data);
+    }
 }

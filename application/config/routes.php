@@ -65,6 +65,8 @@ $route['admin/send-otp'] = 'admin/login/send_otp';
 $route['admin/verify-otp'] = 'admin/login/verify_otp';
 $route['admin/dashboard'] = 'admin/dashboard';
 $route['admin/users'] = 'admin/users';
+$route['admin/users/view/(:num)'] = 'admin/users/view/$1';
+$route['admin/users/delete/(:num)'] = 'admin/users/delete/$1';
 $route['admin/profile'] = 'admin/profile';
 $route['admin/profile/update'] = 'admin/profile/update';
 $route['admin/logout'] = 'admin/login/logout';
@@ -83,22 +85,44 @@ $route['investor/logout'] = 'investor/login/logout';
 // User Loans
 $route['loans'] = 'loans';
 $route['loans/apply'] = 'loans/apply';
+$route['loans/pay/(:num)'] = 'loans/pay/$1';
+$route['loans/submit_pay/(:num)'] = 'loans/submit_pay/$1';
 
 // Admin Investors & Loans
 $route['admin/investors'] = 'admin/investors';
+$route['admin/investors/view/(:num)'] = 'admin/investors/view/$1';
 $route['admin/loans'] = 'admin/loans';
 $route['admin/loans/assign/(:num)'] = 'admin/loans/assign/$1';
 $route['admin/loans/reject/(:num)'] = 'admin/loans/reject/$1';
 $route['admin/loans/responses/(:num)'] = 'admin/loans/responses/$1';
 $route['admin/loans/fund/(:num)'] = 'admin/loans/fund/$1';
+$route['admin/loans/view/(:num)'] = 'admin/loans/view/$1';
+$route['admin/loans/mark_paid/(:num)'] = 'admin/loans/mark_paid/$1';
+
+// Admin Payment & Requests Routes
+$route['admin/payment_settings'] = 'admin/paymentsettings';
+$route['admin/payment_settings/save'] = 'admin/paymentsettings/save';
+$route['admin/deposit_requests'] = 'admin/depositrequests';
+$route['admin/deposit_requests/approve/(:num)'] = 'admin/depositrequests/approve/$1';
+$route['admin/deposit_requests/reject/(:num)'] = 'admin/depositrequests/reject/$1';
+$route['admin/withdrawal_requests'] = 'admin/withdrawalrequests';
+$route['admin/withdrawal_requests/approve/(:num)'] = 'admin/withdrawalrequests/approve/$1';
+$route['admin/withdrawal_requests/reject/(:num)'] = 'admin/withdrawalrequests/reject/$1';
 
 // Investor Pages
 $route['investor/funds'] = 'investor/funds';
 $route['investor/funds/add'] = 'investor/funds/add_money';
+$route['investor/funds/add_balance'] = 'investor/funds/add_balance';
+$route['investor/funds/submit_deposit'] = 'investor/funds/submit_deposit';
+$route['investor/funds/withdraw'] = 'investor/funds/withdraw';
+$route['investor/funds/submit_withdrawal'] = 'investor/funds/submit_withdrawal';
 $route['investor/investments'] = 'investor/investments';
 $route['investor/returns'] = 'investor/returns';
 $route['investor/notifications'] = 'investor/notifications';
-$route['investor/notifications/invest/(:num)'] = 'investor/notifications/invest/$1';
+$route['investor/opportunities'] = 'investor/notifications/opportunities';
+$route['investor/notifications/view/(:num)'] = 'investor/notifications/view/$1';
+$route['investor/notifications/invest/(:num)/(:num)'] = 'investor/notifications/invest/$1/$2';
+$route['investor/notifications/reject/(:num)/(:num)'] = 'investor/notifications/reject/$1/$2';
 
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;

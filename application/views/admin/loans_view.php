@@ -63,6 +63,7 @@
     .badge-active { background: #f3e8ff; color: #7e22ce; }
     .badge-completed { background: #f1f5f9; color: #475569; }
     .badge-rejected { background: #fee2e2; color: #b91c1c; }
+    .badge-paid { background: #eff6ff; color: #1e40af; }
 
     .action-group {
         display: flex;
@@ -227,7 +228,7 @@
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>Sr. No.</th>
                     <th>User</th>
                     <th>Amount</th>
                     <th>Tenure</th>
@@ -238,9 +239,10 @@
             </thead>
             <tbody>
                 <?php if (!empty($loans)): ?>
+                    <?php $sno = 1; ?>
                     <?php foreach ($loans as $loan): ?>
                         <tr>
-                            <td>#<?php echo $loan['id']; ?></td>
+                            <td><?php echo $sno++; ?></td>
                             <td>
                                 <strong><?php echo html_escape($loan['user_name']); ?></strong>
                                 <br>
@@ -262,7 +264,7 @@
                             <td><?php echo date('d M Y, h:i A', strtotime($loan['created_at'])); ?></td>
                             <td>
                                 <div class="action-group">
-                                    <button class="btn-action btn-view" onclick="openViewModal(<?php echo html_escape(json_encode($loan)); ?>)">View</button>
+                                    <a href="<?php echo base_url('admin/loans/view/' . $loan['id']); ?>" class="btn-action btn-view">View</a>
                                     
                                     <?php if ($loan['status'] === 'pending'): ?>
                                         <button class="btn-action btn-assign" onclick="openAssignModal(<?php echo $loan['id']; ?>, <?php echo $loan['amount']; ?>)">Assign</button>

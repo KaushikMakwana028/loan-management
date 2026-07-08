@@ -117,12 +117,21 @@
     <div class="loans-header">
         <h1>My Loans</h1>
         <?php if (!empty($profile_completed)): ?>
-            <a href="<?php echo base_url('loans/apply'); ?>" class="btn-apply">
-                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-                </svg>
-                Apply Loan
-            </a>
+            <?php if (!empty($has_active_loan)): ?>
+                <button class="btn-apply" style="opacity: 0.6; cursor: not-allowed; display: inline-flex; align-items: center; gap: 8px; border: 0;" onclick="Swal.fire({icon:'warning',title:'Blocked',text:'You already have an active/pending loan application. You must pay off your existing loan before applying for a new one.'})">
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    Apply Loan
+                </button>
+            <?php else: ?>
+                <a href="<?php echo base_url('loans/apply'); ?>" class="btn-apply">
+                    <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    Apply Loan
+                </a>
+            <?php endif; ?>
         <?php endif; ?>
     </div>
 
@@ -130,19 +139,22 @@
         <table>
             <thead>
                 <tr>
-                    <th>Loan ID</th>
+                    <th>Sr. No.</th>
                     <th>Amount</th>
                     <th>Tenure</th>
                     <th>Purpose</th>
                     <th>Status</th>
+                    <th>Days Left</th>
                     <th>Applied Date</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (!empty($loans)): ?>
+                    <?php $sno = 1; ?>
                     <?php foreach ($loans as $loan): ?>
                         <tr>
-                            <td>#<?php echo $loan->id; ?></td>
+                            <td><?php echo $sno++; ?></td>
                             <td>
                                 <strong>INR <?php echo number_format($loan->amount, 2); ?></strong>
                                 <?php if (!empty($loan->interest_rate)): ?>
@@ -157,12 +169,53 @@
                                     <?php echo html_escape($loan->status); ?>
                                 </span>
                             </td>
+                            <td>
+                                <?php if ($loan->status === 'approved'): ?>
+                                    <?php 
+                                    $tenure_days = (int) $loan->tenure_days;
+                                    $start_date = new DateTime(date('Y-m-d', strtotime($loan->approved_at ?: $loan->updated_at ?: $loan->created_at)));
+                                    $due_date = clone $start_date;
+                                    $due_date->modify('+' . $tenure_days . ' days');
+                                    $today = new DateTime(date('Y-m-d'));
+                                    $remaining_days = (int) $today->diff($due_date)->format('%r%a');
+                                    $remaining_days = min($remaining_days, $tenure_days);
+                                    
+                                    if ($remaining_days > 0) {
+                                        $label = ($remaining_days === 1) ? '1 Day Remaining' : $remaining_days . ' Days Remaining';
+                                        echo '<span class="badge" style="background:#fffbeb; color:#b45309; border: 1px solid #fef3c7; text-transform:none;">' . $label . '</span>';
+                                    } elseif ($remaining_days === 0) {
+                                        echo '<span class="badge" style="background:#fef2f2; color:#dc2626; border: 1px solid #fecaca; text-transform:none;">Due Today</span>';
+                                    } else {
+                                        echo '<span class="badge" style="background:#fef2f2; color:#dc2626; border: 1px solid #fecaca; text-transform:none;">Overdue by ' . abs($remaining_days) . ' Days</span>';
+                                    }
+                                    ?>
+                                <?php elseif ($loan->status === 'paid'): ?>
+                                    <span class="badge" style="background:#ecfdf5; color:#059669; border: 1px solid #a7f3d0; text-transform:none;">Paid</span>
+                                <?php else: ?>
+                                    -
+                                <?php endif; ?>
+                            </td>
                             <td><?php echo date('d M Y, h:i A', strtotime($loan->created_at)); ?></td>
+                            <td>
+                                <?php if ($loan->status === 'approved'): ?>
+                                    <?php if (!empty($loan->repayment_submitted_at)): ?>
+                                        <span class="badge" style="background:#f1f5f9; color:#475569; border:1px solid #e2e8f0; text-transform:none;">Verification Pending</span>
+                                    <?php else: ?>
+                                        <a href="<?php echo base_url('loans/pay/' . $loan->id); ?>" style="background:#0f766e; color:#fff; border:0; padding:6px 12px; border-radius:8px; font-size:12.5px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:4px; transition:background 0.2s ease;">
+                                            Pay Loan
+                                        </a>
+                                    <?php endif; ?>
+                                <?php elseif ($loan->status === 'paid'): ?>
+                                    <span class="badge" style="background:#ecfdf5; color:#059669; border: 1px solid #a7f3d0; text-transform:none;">Completed</span>
+                                <?php else: ?>
+                                    -
+                                <?php endif; ?>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="6">
+                        <td colspan="8">
                             <div class="no-records">
                                 <svg class="no-records-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />

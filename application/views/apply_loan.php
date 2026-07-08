@@ -52,13 +52,13 @@
     }
     .radio-grid {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 12px;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
     }
     .radio-card {
         border: 1px solid #dbe3ef;
         border-radius: 12px;
-        padding: 14px;
+        padding: 14px 8px;
         text-align: center;
         cursor: pointer;
         background: #fff;
@@ -66,6 +66,7 @@
         position: relative;
         font-weight: 600;
         color: #51657f;
+        font-size: 13px;
     }
     .radio-card input {
         position: absolute;
@@ -117,25 +118,64 @@
             <label>Tenure</label>
             <div class="radio-grid">
                 <label class="radio-card <?php echo (set_value('tenure_days') === '15') ? 'active' : ''; ?>">
-                    <input type="radio" name="tenure_days" value="15" <?php echo (set_value('tenure_days') === '15') ? 'checked' : ''; ?> required>
+                    <input type="radio" name="tenure_days" id="tenure_15" value="15" <?php echo (set_value('tenure_days') === '15') ? 'checked' : ''; ?> required>
                     15 Days
                 </label>
                 <label class="radio-card <?php echo (set_value('tenure_days', '30') === '30') ? 'active' : ''; ?>">
-                    <input type="radio" name="tenure_days" value="30" <?php echo (set_value('tenure_days', '30') === '30') ? 'checked' : ''; ?> required>
+                    <input type="radio" name="tenure_days" id="tenure_30" value="30" <?php echo (set_value('tenure_days', '30') === '30') ? 'checked' : ''; ?> required>
                     30 Days
                 </label>
                 <label class="radio-card <?php echo (set_value('tenure_days') === '45') ? 'active' : ''; ?>">
-                    <input type="radio" name="tenure_days" value="45" <?php echo (set_value('tenure_days') === '45') ? 'checked' : ''; ?> required>
+                    <input type="radio" name="tenure_days" id="tenure_45" value="45" <?php echo (set_value('tenure_days') === '45') ? 'checked' : ''; ?> required>
                     45 Days
+                </label>
+                <label class="radio-card <?php echo (!empty(set_value('tenure_days')) && !in_array(set_value('tenure_days'), ['15', '30', '45'])) ? 'active' : ''; ?>" id="custom-tenure-card">
+                    <input type="radio" name="tenure_days" id="tenure_custom" value="<?php echo (!in_array(set_value('tenure_days'), ['', '15', '30', '45'])) ? set_value('tenure_days') : ''; ?>" <?php echo (!in_array(set_value('tenure_days'), ['', '15', '30', '45'])) ? 'checked' : ''; ?> required>
+                    Custom
                 </label>
             </div>
             <?php echo form_error('tenure_days', '<div style="color: #b91c1c; font-size: 12px; margin-top: 4px;">', '</div>'); ?>
         </div>
 
+        <div class="form-group" id="custom-days-group" style="display: <?php echo (!empty(set_value('tenure_days')) && !in_array(set_value('tenure_days'), ['15', '30', '45'])) ? 'block' : 'none'; ?>; margin-top: 15px;">
+            <label for="custom_tenure_input">Custom Tenure (Days)</label>
+            <input type="number" id="custom_tenure_input" placeholder="Enter custom days (e.g. 60)" min="1" step="1" value="<?php echo (!in_array(set_value('tenure_days'), ['', '15', '30', '45'])) ? set_value('tenure_days') : ''; ?>">
+        </div>
+
         <div class="form-group">
-            <label for="purpose">Purpose of Loan (Optional)</label>
-            <textarea name="purpose" id="purpose" placeholder="Describe the reason for applying..."><?php echo set_value('purpose'); ?></textarea>
+            <label for="purpose_select">Purpose of Loan</label>
+            <select id="purpose_select" onchange="togglePurposeOther(); updateHiddenPurpose();" required>
+                <option value="">-- Select Purpose --</option>
+                <?php 
+                $default_purposes = [
+                    "Medical Emergency",
+                    "Personal Expenses",
+                    "Household Expenses",
+                    "Education",
+                    "Business Expansion",
+                    "Working Capital",
+                    "Inventory Purchase",
+                    "Travel & Vacation",
+                    "Home Renovation",
+                    "Vehicle Repair",
+                    "Emergency Funds",
+                    "Debt Consolidation"
+                ];
+                $current_purpose = set_value('purpose');
+                $is_other = !empty($current_purpose) && !in_array($current_purpose, $default_purposes);
+                ?>
+                <?php foreach ($default_purposes as $purp): ?>
+                    <option value="<?php echo $purp; ?>" <?php echo ($current_purpose === $purp) ? 'selected' : ''; ?>><?php echo $purp; ?></option>
+                <?php endforeach; ?>
+                <option value="Other" <?php echo ($is_other) ? 'selected' : ''; ?>>Other</option>
+            </select>
+            <input type="hidden" name="purpose" id="hidden_purpose" value="<?php echo set_value('purpose'); ?>">
             <?php echo form_error('purpose', '<div style="color: #b91c1c; font-size: 12px; margin-top: 4px;">', '</div>'); ?>
+        </div>
+
+        <div class="form-group" id="other-purpose-group" style="display: <?php echo ($is_other) ? 'block' : 'none'; ?>; margin-top: 15px;">
+            <label for="other_purpose">Specify Other Purpose</label>
+            <input type="text" id="other_purpose" placeholder="Please specify your loan purpose" value="<?php echo ($is_other) ? html_escape($current_purpose) : ''; ?>" oninput="updateHiddenPurpose();">
         </div>
 
         <button type="submit" class="btn">Submit Application</button>
@@ -147,7 +187,68 @@
         card.addEventListener('click', function() {
             document.querySelectorAll('.radio-card').forEach(c => c.classList.remove('active'));
             this.classList.add('active');
+            
+            const customGroup = document.getElementById('custom-days-group');
+            const customInput = document.getElementById('custom_tenure_input');
+            const customRadio = document.getElementById('tenure_custom');
+            const clickedRadio = this.querySelector('input[type="radio"]');
+            
+            if (this.id === 'custom-tenure-card') {
+                customGroup.style.display = 'block';
+                customInput.setAttribute('required', 'required');
+                customRadio.checked = true;
+                customRadio.value = customInput.value;
+            } else {
+                customGroup.style.display = 'none';
+                customInput.removeAttribute('required');
+                if (clickedRadio) {
+                    clickedRadio.checked = true;
+                }
+            }
         });
+    });
+
+    document.getElementById('custom_tenure_input').addEventListener('input', function() {
+        document.getElementById('tenure_custom').value = this.value;
+    });
+
+    function togglePurposeOther() {
+        const purposeSelect = document.getElementById('purpose_select');
+        const otherGroup = document.getElementById('other-purpose-group');
+        const otherInput = document.getElementById('other_purpose');
+        
+        if (purposeSelect.value === 'Other') {
+            otherGroup.style.display = 'block';
+            otherInput.setAttribute('required', 'required');
+        } else {
+            otherGroup.style.display = 'none';
+            otherInput.removeAttribute('required');
+        }
+    }
+
+    function updateHiddenPurpose() {
+        const purposeSelect = document.getElementById('purpose_select');
+        const otherInput = document.getElementById('other_purpose');
+        const hiddenInput = document.getElementById('hidden_purpose');
+        
+        if (purposeSelect.value === 'Other') {
+            hiddenInput.value = otherInput.value;
+        } else {
+            hiddenInput.value = purposeSelect.value;
+        }
+    }
+
+    // Initial setup on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        togglePurposeOther();
+        updateHiddenPurpose();
+        
+        const customCard = document.getElementById('custom-tenure-card');
+        const customInput = document.getElementById('custom_tenure_input');
+        if (customCard && customCard.classList.contains('active')) {
+            customInput.setAttribute('required', 'required');
+            document.getElementById('tenure_custom').value = customInput.value;
+        }
     });
 </script>
 

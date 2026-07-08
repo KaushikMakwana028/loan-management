@@ -77,6 +77,32 @@
         color: #65758b;
         font-size: 15px;
     }
+    .actions-cell {
+        display: flex;
+        gap: 8px;
+    }
+    .btn-action {
+        border: 0;
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-weight: 600;
+        font-size: 13px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.15s ease;
+        text-decoration: none;
+    }
+    .btn-view {
+        background: #eaf1ff;
+        color: #2563eb;
+        border: 1px solid #dce5f0;
+    }
+    .btn-view:hover {
+        background: #2563eb;
+        color: #fff;
+    }
 </style>
 
 <div class="admin-container">
@@ -88,20 +114,22 @@
         <table>
             <thead>
                 <tr>
-                    <th>ID</th>
+                    <th>Sr. No.</th>
                     <th>Name</th>
                     <th>Mobile</th>
                     <th>Email</th>
                     <th>Wallet Balance</th>
                     <th>Status</th>
                     <th>Joined At</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (!empty($investors)): ?>
+                    <?php $sno = 1; ?>
                     <?php foreach ($investors as $investor): ?>
                         <tr>
-                            <td>#<?php echo $investor['id']; ?></td>
+                            <td><?php echo $sno++; ?></td>
                             <td><strong><?php echo html_escape($investor['name']); ?></strong></td>
                             <td><?php echo html_escape($investor['mobile']); ?></td>
                             <td><?php echo html_escape($investor['email'] ?: '-'); ?></td>
@@ -116,11 +144,14 @@
                                 </span>
                             </td>
                             <td><?php echo date('d M Y, h:i A', strtotime($investor['created_at'])); ?></td>
+                            <td class="actions-cell">
+                                <a href="<?php echo base_url('admin/investors/view/' . $investor['id']); ?>" class="btn-action btn-view">View</a>
+                            </td>
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="7">
+                        <td colspan="8">
                             <div class="no-records">
                                 <p>No investor accounts found.</p>
                             </div>
