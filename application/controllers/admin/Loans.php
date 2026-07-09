@@ -217,6 +217,15 @@ class Loans extends CI_Controller
             'updated_at' => date('Y-m-d H:i:s')
         ]);
 
+        // Update referral status to approved
+        $referral = $this->general->getOne('referrals', ['referred_user_id' => $loan->user_id, 'status' => 'applied']);
+        if ($referral) {
+            $this->general->update('referrals', ['id' => $referral->id], [
+                'status' => 'approved',
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+        }
+
         // 6. Insert notification for borrower
         $this->general->insert('notifications', [
             'user_id' => $loan->user_id,
@@ -290,8 +299,8 @@ class Loans extends CI_Controller
             return;
         }
 
-        if ($loan->status !== 'approved') {
-            $this->session->set_flashdata('error', 'Only approved loans can be marked as paid.');
+        if ($loan->status !== 'approved' && $loan->status !== 'disbursed') {
+            $this->session->set_flashdata('error', 'Only approved or disbursed loans can be marked as paid.');
             redirect('admin/loans/view/' . $id);
             return;
         }
@@ -357,6 +366,76 @@ class Loans extends CI_Controller
             'created_at' => date('Y-m-d H:i:s')
         ]);
 
+        // 4. Check for referral reward (if not already credited during disburse)
+        $referral = $this->general->getOne('referrals', ['referred_user_id' => $loan->user_id]);
+        if ($referral && in_array($referral->status, ['invited', 'applied', 'approved', 'disbursed'])) {
+            // Update status to disbursed first
+            $this->general->update('referrals', ['id' => $referral->id], [
+                'status' => 'disbursed',
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+
+            // Calculate reward amount
+            $settings = $this->general->getById('referral_settings', 1);
+            $reward_amount = 0.00;
+            if ($settings) {
+                if ($settings->reward_type === 'flat') {
+                    $reward_amount = (float) $settings->reward_value;
+                } else if ($settings->reward_type === 'percentage') {
+                    $reward_amount = ((float) $loan->amount) * ((float) $settings->reward_value) / 100.00;
+                }
+            }
+
+            $referrer_id = $referral->referrer_id;
+            
+            // Get or create referrer wallet
+            $wallet = $this->general->getOne('wallets', ['investor_id' => $referrer_id]);
+            if (!$wallet) {
+                $wallet_id = $this->general->insert('wallets', [
+                    'investor_id' => $referrer_id,
+                    'balance' => 0.00,
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
+                $wallet = $this->general->getById('wallets', $wallet_id);
+            }
+
+            $new_balance = $wallet->balance + $reward_amount;
+            
+            // Update wallet balance
+            $this->general->update('wallets', ['id' => $wallet->id], [
+                'balance' => $new_balance,
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+
+            // Log wallet transaction
+            $this->general->insert('wallet_transactions', [
+                'investor_id' => $referrer_id,
+                'type' => 'referral_reward',
+                'amount' => $reward_amount,
+                'loan_id' => $id,
+                'balance_after' => $new_balance,
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+
+            // Update referral status to reward_credited
+            $this->general->update('referrals', ['id' => $referral->id], [
+                'status' => 'reward_credited',
+                'reward_amount' => $reward_amount,
+                'reward_credited_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+
+            // Send notification to referrer
+            $this->general->insert('notifications', [
+                'user_id' => $referrer_id,
+                'loan_id' => $id,
+                'title' => 'Referral Reward Credited',
+                'message' => 'Congratulations! Your referral reward of INR ' . number_format($reward_amount, 2) . ' has been credited to your wallet.',
+                'is_read' => 0,
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+        }
+
         $this->db->trans_complete();
 
         if ($this->db->trans_status() === FALSE) {
@@ -366,5 +445,213 @@ class Loans extends CI_Controller
             $this->session->set_flashdata('success', 'Loan marked as paid and payout successfully distributed to investors.');
             redirect('admin/loans/view/' . $id);
         }
+    }
+
+    public function disburse($id)
+    {
+        $loan = $this->general->getById('loans', $id);
+        if (!$loan) {
+            $this->session->set_flashdata('error', 'Loan record not found.');
+            redirect('admin/loans');
+            return;
+        }
+
+        if ($loan->status !== 'approved') {
+            $this->session->set_flashdata('error', 'Only approved loans can be marked as disbursed.');
+            redirect('admin/loans/view/' . $id);
+            return;
+        }
+
+        $this->db->trans_start();
+
+        // 1. Update loan status to disbursed
+        $this->general->update('loans', ['id' => $id], [
+            'status' => 'disbursed',
+            'updated_at' => date('Y-m-d H:i:s')
+        ]);
+
+        // 2. Insert notification for borrower
+        $this->general->insert('notifications', [
+            'user_id' => $loan->user_id,
+            'loan_id' => $id,
+            'title' => 'Loan Disbursed',
+            'message' => 'Your loan of INR ' . number_format($loan->amount, 2) . ' has been disbursed.',
+            'is_read' => 0,
+            'created_at' => date('Y-m-d H:i:s')
+        ]);
+
+        // 3. Check for referral reward
+        $referral = $this->general->getOne('referrals', ['referred_user_id' => $loan->user_id]);
+        if ($referral && in_array($referral->status, ['invited', 'applied', 'approved'])) {
+            // Update status to disbursed first
+            $this->general->update('referrals', ['id' => $referral->id], [
+                'status' => 'disbursed',
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+
+            // Calculate reward amount
+            $settings = $this->general->getById('referral_settings', 1);
+            $reward_amount = 0.00;
+            if ($settings) {
+                if ($settings->reward_type === 'flat') {
+                    $reward_amount = (float) $settings->reward_value;
+                } else if ($settings->reward_type === 'percentage') {
+                    $reward_amount = ((float) $loan->amount) * ((float) $settings->reward_value) / 100.00;
+                }
+            }
+
+            $referrer_id = $referral->referrer_id;
+            
+            // Get or create referrer wallet
+            $wallet = $this->general->getOne('wallets', ['investor_id' => $referrer_id]);
+            if (!$wallet) {
+                $wallet_id = $this->general->insert('wallets', [
+                    'investor_id' => $referrer_id,
+                    'balance' => 0.00,
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
+                $wallet = $this->general->getById('wallets', $wallet_id);
+            }
+
+            $new_balance = $wallet->balance + $reward_amount;
+            
+            // Update wallet balance
+            $this->general->update('wallets', ['id' => $wallet->id], [
+                'balance' => $new_balance,
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+
+            // Log wallet transaction
+            $this->general->insert('wallet_transactions', [
+                'investor_id' => $referrer_id,
+                'type' => 'referral_reward',
+                'amount' => $reward_amount,
+                'loan_id' => $id,
+                'balance_after' => $new_balance,
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+
+            // Update referral status to reward_credited
+            $this->general->update('referrals', ['id' => $referral->id], [
+                'status' => 'reward_credited',
+                'reward_amount' => $reward_amount,
+                'reward_credited_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+
+            // Send notification to referrer
+            $this->general->insert('notifications', [
+                'user_id' => $referrer_id,
+                'loan_id' => $id,
+                'title' => 'Referral Reward Credited',
+                'message' => 'Congratulations! Your referral reward of INR ' . number_format($reward_amount, 2) . ' has been credited to your wallet.',
+                'is_read' => 0,
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+        }
+
+        $this->db->trans_complete();
+
+        if ($this->db->trans_status() === FALSE) {
+            $this->session->set_flashdata('error', 'Failed to disburse loan.');
+        } else {
+            $this->session->set_flashdata('success', 'Loan marked as disbursed and referral reward credited successfully.');
+        }
+        redirect('admin/loans/view/' . $id);
+    }
+
+    public function update_offer($id)
+    {
+        $loan = $this->general->getById('loans', $id);
+        if (!$loan) {
+            $this->session->set_flashdata('error', 'Loan record not found.');
+            redirect('admin/loans');
+            return;
+        }
+
+        $this->form_validation->set_rules('amount', 'Amount', 'required|numeric|greater_than[0]');
+        $this->form_validation->set_rules('interest_rate', 'Interest Rate', 'required|numeric|greater_than_equal_to[0]');
+        $this->form_validation->set_rules('processing_fee', 'Processing Fee', 'required|numeric|greater_than_equal_to[0]');
+        $this->form_validation->set_rules('platform_charge', 'Platform Charge', 'required|numeric|greater_than_equal_to[0]');
+        $this->form_validation->set_rules('gst_amount', 'GST Amount', 'required|numeric|greater_than_equal_to[0]');
+        
+        $is_emi = (int) $this->input->post('is_emi');
+        if ($is_emi === 1) {
+            $this->form_validation->set_rules('emi_count', 'EMI Count', 'required|integer|greater_than[0]');
+            $this->form_validation->set_rules('emi_amount', 'EMI Amount', 'required|numeric|greater_than[0]');
+        } else {
+            $this->form_validation->set_rules('due_date', 'Due Date', 'required');
+        }
+
+        if ($this->form_validation->run() === FALSE) {
+            $this->session->set_flashdata('error', validation_errors());
+            redirect('admin/loans/view/' . $id);
+            return;
+        }
+
+        $amount = (float) $this->input->post('amount');
+        $interest_rate = (float) $this->input->post('interest_rate');
+        $processing_fee = (float) $this->input->post('processing_fee');
+        $platform_charge = (float) $this->input->post('platform_charge');
+        $gst_amount = (float) $this->input->post('gst_amount');
+        
+        $total_payable = $amount + ($amount * $interest_rate / 100.0) + $processing_fee + $platform_charge + $gst_amount;
+
+        $emi_count = $is_emi ? (int) $this->input->post('emi_count') : NULL;
+        $emi_amount = $is_emi ? (float) $this->input->post('emi_amount') : NULL;
+        $due_date = !$is_emi ? $this->input->post('due_date') : NULL;
+
+        $this->db->trans_start();
+
+        // 1. Update loan columns
+        $this->general->update('loans', ['id' => $id], [
+            'amount' => $amount,
+            'interest_rate' => $interest_rate,
+            'processing_fee' => $processing_fee,
+            'platform_charge' => $platform_charge,
+            'gst_amount' => $gst_amount,
+            'is_emi' => $is_emi,
+            'emi_count' => $emi_count,
+            'emi_amount' => $emi_amount,
+            'due_date' => $due_date,
+            'total_payable' => $total_payable,
+            'updated_at' => date('Y-m-d H:i:s')
+        ]);
+
+        // 2. Insert into loan_offer_history
+        $this->general->insert('loan_offer_history', [
+            'loan_id' => $id,
+            'amount' => $amount,
+            'processing_fee' => $processing_fee,
+            'interest_rate' => $interest_rate,
+            'platform_charge' => $platform_charge,
+            'gst_amount' => $gst_amount,
+            'is_emi' => $is_emi,
+            'emi_count' => $emi_count,
+            'emi_amount' => $emi_amount,
+            'due_date' => $due_date,
+            'total_payable' => $total_payable,
+            'created_at' => date('Y-m-d H:i:s')
+        ]);
+
+        // 3. Send notification to the user
+        $this->general->insert('notifications', [
+            'user_id' => $loan->user_id,
+            'loan_id' => $id,
+            'title' => 'Loan Offer Updated',
+            'message' => 'Your loan offer has been updated — please review the new terms.',
+            'is_read' => 0,
+            'created_at' => date('Y-m-d H:i:s')
+        ]);
+
+        $this->db->trans_complete();
+
+        if ($this->db->trans_status() === FALSE) {
+            $this->session->set_flashdata('error', 'Failed to update loan terms.');
+        } else {
+            $this->session->set_flashdata('success', 'Loan terms updated successfully.');
+        }
+
+        redirect('admin/loans/view/' . $id);
     }
 }

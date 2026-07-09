@@ -6,8 +6,8 @@
         border-radius: 22px;
         padding: 30px;
         box-shadow: 0 14px 40px rgba(22, 34, 51, 0.07);
-        max-width: 600px;
-        margin: 24px auto 0;
+        max-width: 680px;
+        margin: 0 auto;
     }
     .loan-form-card h1 {
         margin: 0 0 8px;
@@ -100,6 +100,31 @@
     }
     .btn:hover {
         background: #0d5f58;
+    }
+
+    @media (max-width: 640px) {
+        .loan-form-card h1 {
+            font-size: 22px;
+            text-align: left;
+        }
+
+        .loan-form-card p {
+            text-align: left;
+            line-height: 1.6;
+        }
+
+        input,
+        select,
+        textarea {
+            min-height: 52px;
+            font-size: 14px;
+        }
+
+        .radio-card {
+            min-height: 52px;
+            display: grid;
+            place-items: center;
+        }
     }
 </style>
 

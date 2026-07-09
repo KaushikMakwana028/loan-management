@@ -4,6 +4,12 @@ $role_names = [0 => 'User', 1 => 'Admin', 2 => 'Investor'];
 $photo = $profile && !empty($profile->profile_image) ? base_url($profile->profile_image) : '';
 $aadhaar_photo = $profile && !empty($profile->aadhaar_photo) ? base_url($profile->aadhaar_photo) : '';
 $pan_photo = $profile && !empty($profile->pan_photo) ? base_url($profile->pan_photo) : '';
+$education_options = ['SSC', 'HSC', 'Graduate', 'Postgraduate', 'Other'];
+$employment_options = ['Salaried', 'Self-employed', 'Professional', 'Other'];
+$current_education = $profile->education ?? '';
+$current_employment = $profile->employment ?? '';
+$education_is_other = $current_education && !in_array($current_education, $education_options, TRUE);
+$employment_is_other = $current_employment && !in_array($current_employment, $employment_options, TRUE);
 
 // ---- overall completion (unchanged logic) ----
 $req_fields = ['name', 'mobile', 'email', 'marriage_status', 'dob', 'education', 'employment', 'address', 'aadhaar_number', 'pan_number', 'account_holder_name', 'bank_name', 'account_number', 'ifsc_code', 'account_type', 'branch_name', 'reference_name_1', 'reference_mobile_1', 'reference_name_2', 'reference_mobile_2'];
@@ -51,14 +57,14 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 ?>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <style>
     .pf-wrap,
     .pf-wrap * {
         box-sizing: border-box;
-        font-family: 'Poppins', sans-serif;
+        font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
     .pf-wrap {
@@ -76,8 +82,8 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
         max-width: 1280px;
         margin: 0 auto;
         color: var(--pf-ink);
-        background: var(--pf-bg);
-        padding: 0 20px 100px;
+        background: transparent;
+        padding: 0 0 100px;
     }
 
     /* generic icon sizing so svg icons always sit correctly wherever they're used */
@@ -97,7 +103,7 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
         position: relative;
         border-radius: var(--pf-radius-lg);
         overflow: hidden;
-        background: linear-gradient(150deg, #0d9488 0%, #0e7c8f 55%, #115e78 100%);
+        background: linear-gradient(145deg, #0f766e 0%, #12a998 54%, #2563eb 100%);
         padding: 28px 22px 64px;
         color: #fff;
     }
@@ -462,6 +468,10 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
         resize: vertical;
     }
 
+    .pf-other-input {
+        margin-top: 10px;
+    }
+
     input:focus,
     select:focus,
     textarea:focus {
@@ -624,7 +634,7 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
         border-radius: 20px 20px 0 0;
         padding: 10px 18px 26px;
         animation: pf-slide-up .22s ease;
-        font-family: 'Poppins', sans-serif;
+        font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
     @media (min-width: 600px) {
@@ -718,7 +728,7 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
     /* ================= Desktop: use the full page width with a sticky sidebar ================= */
     @media (min-width: 1000px) {
         .pf-wrap {
-            padding: 32px 32px 100px;
+            padding: 0 0 100px;
         }
 
         .pf-layout {
@@ -868,13 +878,8 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
             <!-- ============ Floating avatar card ============ -->
             <section class="pf-photo-card">
                 <div class="pf-avatar" id="pfAvatarBox">
-                    <?php if ($photo): ?>
-                        <img src="<?php echo $photo; ?>" alt="Profile" id="pfAvatarImg">
-                    <?php else: ?>
-                        <span id="pfAvatarInitial"><?php echo strtoupper(substr($profile->name ?? 'U', 0, 1)); ?></span>
-                        <img src="" alt="Profile" id="pfAvatarImg" style="display:none;">
-                    <?php endif; ?>
-                    <div class="pf-cam-btn" onclick="pfOpenSheet('profile_image')">
+                    <img src="<?php echo $photo ? $photo : base_url('assets/Images/default.jpg'); ?>" alt="Profile" id="pfAvatarImg">
+                    <div class="pf-cam-btn" onclick="window.startCameraCapture('profile_image')">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path>
                             <circle cx="12" cy="13" r="4"></circle>
@@ -892,6 +897,38 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 
         <!-- ============ Form ============ -->
         <?php echo form_open_multipart('profile/update', ['class' => 'pf-form', 'id' => 'pfForm', 'novalidate' => 'novalidate']); ?>
+
+        <!-- Missing items warning checklist -->
+        <?php 
+            $missing = [];
+            if (empty($profile->name)) $missing[] = 'Full Name';
+            if (empty($profile->mobile)) $missing[] = 'Mobile Number';
+            if (empty($profile->address)) $missing[] = 'Address Details';
+            if (empty($profile->aadhaar_number)) $missing[] = 'Aadhaar Number';
+            if (empty($profile->aadhaar_photo)) $missing[] = 'Aadhaar Card Photo';
+            if (empty($profile->pan_number)) $missing[] = 'PAN Number';
+            if (empty($profile->pan_photo)) $missing[] = 'PAN Card Photo';
+            if (empty($profile->account_holder_name)) $missing[] = 'Bank Account Holder Name';
+            if (empty($profile->bank_name)) $missing[] = 'Bank Name';
+            if (empty($profile->account_number)) $missing[] = 'Bank Account Number';
+            if (empty($profile->ifsc_code)) $missing[] = 'Bank IFSC Code';
+            if (empty($profile->profile_image)) $missing[] = 'Profile Photo / Selfie';
+        ?>
+        <?php if (!empty($missing)): ?>
+            <div style="background: #fff5f5; border: 1px solid #feb2b2; border-radius: 16px; padding: 18px 24px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(254, 178, 178, 0.15);">
+                <h3 style="margin: 0 0 8px; font-size: 15px; color: #c53030; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+                    <span>⚠️ Missing Profile Requirements</span>
+                </h3>
+                <p style="margin: 0 0 12px; color: #742a2a; font-size: 13px; line-height: 1.4;">Your profile is not 100% complete. Please add the following missing information to enable instant loan applications:</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px 16px;">
+                    <?php foreach ($missing as $item): ?>
+                        <div style="font-size: 12.5px; color: #9b2c2c; display: flex; align-items: center; gap: 6px; font-weight: 500;">
+                            <span style="color: #e53e3e;">•</span> <?php echo html_escape($item); ?>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+        <?php endif; ?>
 
         <!-- ---------------- Personal Details ---------------- -->
         <details class="pf-section" id="sec-personal" open>
@@ -935,11 +972,23 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
                     </div>
                     <div>
                         <label>Education</label>
-                        <input type="text" name="education" class="pf-req" value="<?php echo html_escape($profile->education ?? ''); ?>" required>
+                        <select name="education" class="pf-req" data-other-target="education_other" required>
+                            <option value="">Select Education</option>
+                            <?php foreach ($education_options as $education): ?>
+                                <option value="<?php echo $education; ?>" <?php echo (($education_is_other && $education === 'Other') || $current_education === $education) ? 'selected' : ''; ?>><?php echo $education; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <input type="text" name="education_other" id="education_other" class="pf-other-input" value="<?php echo $education_is_other ? html_escape($current_education) : ''; ?>" placeholder="Enter education" <?php echo $education_is_other ? '' : 'hidden'; ?>>
                     </div>
                     <div>
                         <label>Employment</label>
-                        <input type="text" name="employment" class="pf-req" value="<?php echo html_escape($profile->employment ?? ''); ?>" required>
+                        <select name="employment" class="pf-req" data-other-target="employment_other" required>
+                            <option value="">Select Employment</option>
+                            <?php foreach ($employment_options as $employment): ?>
+                                <option value="<?php echo $employment; ?>" <?php echo (($employment_is_other && $employment === 'Other') || $current_employment === $employment) ? 'selected' : ''; ?>><?php echo $employment; ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <input type="text" name="employment_other" id="employment_other" class="pf-other-input" value="<?php echo $employment_is_other ? html_escape($current_employment) : ''; ?>" placeholder="Enter employment" <?php echo $employment_is_other ? '' : 'hidden'; ?>>
                     </div>
                     <div class="pf-full">
                         <label>Address</label>
@@ -974,6 +1023,29 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
                     </div>
 
                     <div class="pf-full">
+                        <label>Profile Photo (Selfie)</label>
+                        <div class="pf-doc-tile">
+                            <div class="pf-doc-thumb" id="pfThumb_profile_image">
+                                <?php if ($photo): ?>
+                                    <img src="<?php echo $photo; ?>" alt="Profile Photo" id="pfImg_profile_image">
+                                <?php else: ?>
+                                    <span id="pfIcon_profile_image"><?php echo $icon_kyc; ?></span>
+                                    <img src="" alt="Profile Photo" id="pfImg_profile_image" style="display:none;">
+                                <?php endif; ?>
+                            </div>
+                            <div class="pf-doc-info">
+                                <p class="pf-doc-title">Selfie Photo</p>
+                                <p class="pf-doc-status <?php echo $photo ? 'pf-ok' : ''; ?>" id="pfStatus_profile_image">
+                                    <?php echo $photo ? 'Uploaded' : 'Not uploaded yet'; ?>
+                                </p>
+                            </div>
+                            <button type="button" class="pf-doc-upload-btn" onclick="window.startCameraCapture('profile_image')">
+                                <?php echo $photo ? 'Change' : 'Upload'; ?>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="pf-full">
                         <label>Aadhaar Photo</label>
                         <div class="pf-doc-tile">
                             <div class="pf-doc-thumb" id="pfThumb_aadhaar_photo">
@@ -990,7 +1062,7 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
                                     <?php echo $aadhaar_photo ? 'Uploaded' : 'Not uploaded yet'; ?>
                                 </p>
                             </div>
-                            <button type="button" class="pf-doc-upload-btn" onclick="pfOpenSheet('aadhaar_photo')">
+                            <button type="button" class="pf-doc-upload-btn" onclick="document.getElementById('input_aadhaar_photo').click()">
                                 <?php echo $aadhaar_photo ? 'Change' : 'Upload'; ?>
                             </button>
                         </div>
@@ -1013,7 +1085,7 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
                                     <?php echo $pan_photo ? 'Uploaded' : 'Not uploaded yet'; ?>
                                 </p>
                             </div>
-                            <button type="button" class="pf-doc-upload-btn" onclick="pfOpenSheet('pan_photo')">
+                            <button type="button" class="pf-doc-upload-btn" onclick="document.getElementById('input_pan_photo').click()">
                                 <?php echo $pan_photo ? 'Change' : 'Upload'; ?>
                             </button>
                         </div>
@@ -1167,16 +1239,16 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
 
         window.pfPick = function(source) {
             if (!pfCurrentField) return;
-            var input = document.getElementById('input_' + pfCurrentField);
-            if (source === 'camera') {
-                input.setAttribute('capture', 'environment');
-            } else {
-                input.removeAttribute('capture');
-            }
             pfCloseSheet();
-            setTimeout(function() {
-                input.click();
-            }, 120);
+            if (source === 'camera') {
+                window.startCameraCapture(pfCurrentField);
+            } else {
+                var input = document.getElementById('input_' + pfCurrentField);
+                input.removeAttribute('capture');
+                setTimeout(function() {
+                    input.click();
+                }, 120);
+            }
         };
 
         // ---- jump to + open a section from the stepper ----
@@ -1225,6 +1297,36 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
         bindPreview('aadhaar_photo');
         bindPreview('pan_photo');
 
+        function syncOtherInput(select) {
+            var target = document.getElementById(select.getAttribute('data-other-target'));
+            if (!target) return;
+            var isOther = select.value === 'Other';
+            target.hidden = !isOther;
+            target.required = isOther;
+            if (!isOther) {
+                target.value = '';
+                target.classList.remove('pf-touched');
+            }
+        }
+
+        function isFieldFilled(el) {
+            if (!el.value || el.value.trim() === '') return false;
+            var otherTarget = el.getAttribute('data-other-target');
+            if (otherTarget && el.value === 'Other') {
+                var other = document.getElementById(otherTarget);
+                return !!(other && other.value && other.value.trim() !== '');
+            }
+            return true;
+        }
+
+        document.querySelectorAll('select[data-other-target]').forEach(function(select) {
+            syncOtherInput(select);
+            select.addEventListener('change', function() {
+                syncOtherInput(select);
+                pfUpdateProgress();
+            });
+        });
+
         // ---- section field maps (mirrors the PHP grouping) ----
         var sections = {
             personal: {
@@ -1233,7 +1335,7 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
             },
             kyc: {
                 fields: ['aadhaar_number', 'pan_number'],
-                images: ['aadhaar_photo', 'pan_photo']
+                images: ['profile_image', 'aadhaar_photo', 'pan_photo']
             },
             bank: {
                 fields: ['account_holder_name', 'bank_name', 'account_number', 'ifsc_code', 'account_type', 'branch_name'],
@@ -1255,7 +1357,7 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
             var reqInputs = document.querySelectorAll('.pf-req');
             var filled = 0;
             reqInputs.forEach(function(el) {
-                if (el.value && el.value.trim() !== '') filled++;
+                if (isFieldFilled(el)) filled++;
             });
             var imgFilled = 0;
             ['profile_image', 'aadhaar_photo', 'pan_photo'].forEach(function(f) {
@@ -1275,7 +1377,7 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
                 var doneCount = 0;
                 conf.fields.forEach(function(name) {
                     var el = document.querySelector('[name="' + name + '"]');
-                    if (el && el.value && el.value.trim() !== '') doneCount++;
+                    if (el && isFieldFilled(el)) doneCount++;
                 });
                 conf.images.forEach(function(name) {
                     if (isImageFilled(name)) doneCount++;
@@ -1295,13 +1397,13 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
             });
         }
 
-        document.querySelectorAll('.pf-req').forEach(function(el) {
+        document.querySelectorAll('.pf-req, .pf-other-input').forEach(function(el) {
             el.addEventListener('input', pfUpdateProgress);
             el.addEventListener('change', pfUpdateProgress);
         });
 
         // ---- if a required field is invalid on submit, auto-expand its section & scroll to it ----
-        document.querySelectorAll('.pf-req').forEach(function(el) {
+        document.querySelectorAll('.pf-req, .pf-other-input').forEach(function(el) {
             el.addEventListener('invalid', function() {
                 el.classList.add('pf-touched');
                 var details = el.closest('details');
@@ -1317,8 +1419,265 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
                 el.classList.add('pf-touched');
             });
         });
+
+        // ---- Camera Capture Logic ----
+        var captureStream = null;
+        var captureField = null;
+        var captureRetakes = 0;
+        var captureCountdownTimer = null;
+        var captureAutoContinueTimer = null;
+        var captureBlob = null;
+
+        window.startCameraCapture = function(fieldName) {
+            captureField = fieldName;
+            captureRetakes = 0;
+            captureBlob = null;
+
+            var title = "Capture Document";
+            var subtitle = "Align the card inside the box and click Capture.";
+            var facing = 'environment';
+            var isSelfie = (fieldName === 'profile_image');
+
+            if (isSelfie) {
+                title = "Capture Selfie KYC";
+                subtitle = "Align your face in the camera area.";
+                facing = 'user';
+            } else if (fieldName === 'aadhaar_photo') {
+                title = "Capture Aadhaar Card";
+            } else if (fieldName === 'pan_photo') {
+                title = "Capture PAN Card";
+            }
+
+            document.getElementById('camModalTitle').textContent = title;
+            document.getElementById('camModalSub').textContent = subtitle;
+
+            var frame = document.getElementById('camTargetFrame');
+            var viewport = document.getElementById('camViewportContainer');
+            if (isSelfie) {
+                viewport.style.borderRadius = "50%";
+                viewport.style.width = "260px";
+                viewport.style.height = "260px";
+                viewport.style.aspectRatio = "1/1";
+                frame.style.borderRadius = "50%";
+                frame.style.inset = "10px";
+                frame.querySelector('span').textContent = "Face Frame";
+            } else {
+                viewport.style.borderRadius = "16px";
+                viewport.style.width = "100%";
+                viewport.style.height = "auto";
+                viewport.style.aspectRatio = "4/3";
+                frame.style.borderRadius = "12px";
+                frame.style.inset = "20px";
+                frame.querySelector('span').textContent = "Align Card";
+            }
+
+            document.getElementById('cameraCaptureOverlay').style.display = 'flex';
+
+            var video = document.getElementById('captureVideo');
+            var preview = document.getElementById('capturePreview');
+            var btnSnap = document.getElementById('btnCaptureSnap');
+            var btnRetake = document.getElementById('btnCaptureRetake');
+            var btnContinue = document.getElementById('btnCaptureContinue');
+            var timerText = document.getElementById('captureTimerText');
+
+            video.style.display = 'block';
+            video.style.transform = isSelfie ? 'scaleX(-1)' : 'none';
+            preview.style.display = 'none';
+            btnSnap.style.display = isSelfie ? 'none' : 'inline-block';
+            btnRetake.style.display = 'none';
+            btnContinue.style.display = 'none';
+            timerText.textContent = 'Starting camera...';
+
+            navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1024 }, height: { ideal: 768 }, facingMode: facing } })
+                .then(function(stream) {
+                    captureStream = stream;
+                    video.srcObject = stream;
+                    timerText.textContent = isSelfie ? 'Prepare for auto-capture' : 'Align card and click Capture';
+                    if (isSelfie) {
+                        startSelfieCountdown();
+                    }
+                })
+                .catch(function(err) {
+                    console.error("Camera access error:", err);
+                    navigator.mediaDevices.getUserMedia({ video: { facingMode: facing } })
+                        .then(function(stream) {
+                            captureStream = stream;
+                            video.srcObject = stream;
+                            timerText.textContent = isSelfie ? 'Prepare for auto-capture' : 'Align card and click Capture';
+                            if (isSelfie) {
+                                startSelfieCountdown();
+                            }
+                        })
+                        .catch(function(err2) {
+                            timerText.textContent = 'Camera blocked or unavailable.';
+                            setTimeout(function() {
+                                window.closeCameraCapture();
+                                var input = document.getElementById('input_' + captureField);
+                                input.removeAttribute('capture');
+                                input.click();
+                            }, 1000);
+                        });
+                });
+        };
+
+        function startSelfieCountdown() {
+            var countdown = document.getElementById('captureCountdown');
+            var timerText = document.getElementById('captureTimerText');
+            countdown.style.display = 'flex';
+
+            var count = 3;
+            countdown.textContent = count;
+            timerText.textContent = 'Capturing in ' + count + '...';
+
+            captureCountdownTimer = setInterval(function() {
+                count--;
+                if (count > 0) {
+                    countdown.textContent = count;
+                    timerText.textContent = 'Capturing in ' + count + '...';
+                } else {
+                    clearInterval(captureCountdownTimer);
+                    countdown.style.display = 'none';
+                    window.triggerSnapCapture();
+                }
+            }, 1000);
+        }
+
+        window.triggerSnapCapture = function() {
+            var video = document.getElementById('captureVideo');
+            var canvas = document.getElementById('captureCanvas');
+            var preview = document.getElementById('capturePreview');
+            var timerText = document.getElementById('captureTimerText');
+            var isSelfie = (captureField === 'profile_image');
+
+            var context = canvas.getContext('2d');
+            canvas.width = video.videoWidth || 640;
+            canvas.height = video.videoHeight || 480;
+
+            if (isSelfie) {
+                context.translate(canvas.width, 0);
+                context.scale(-1, 1);
+            }
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            canvas.toBlob(function(blob) {
+                captureBlob = blob;
+                preview.src = URL.createObjectURL(blob);
+                preview.style.transform = isSelfie ? 'scaleX(-1)' : 'none';
+
+                video.style.display = 'none';
+                preview.style.display = 'block';
+
+                if (captureStream) {
+                    captureStream.getTracks().forEach(function(track) { track.stop(); });
+                }
+
+                document.getElementById('btnCaptureSnap').style.display = 'none';
+                var retakeBtn = document.getElementById('btnCaptureRetake');
+                var continueBtn = document.getElementById('btnCaptureContinue');
+                continueBtn.style.display = 'inline-block';
+
+                if (captureRetakes < 1) {
+                    retakeBtn.style.display = 'inline-block';
+                    retakeBtn.onclick = function() {
+                        captureRetakes++;
+                        clearTimeout(captureAutoContinueTimer);
+                        window.startCameraCapture(captureField);
+                    };
+                } else {
+                    retakeBtn.style.display = 'none';
+                }
+
+                continueBtn.onclick = saveCapturedPhoto;
+
+                var timeLeft = 3;
+                timerText.textContent = 'Auto-continuing in ' + timeLeft + 's...';
+                captureAutoContinueTimer = setInterval(function() {
+                    timeLeft--;
+                    if (timeLeft > 0) {
+                        timerText.textContent = 'Auto-continuing in ' + timeLeft + 's...';
+                    } else {
+                        clearInterval(captureAutoContinueTimer);
+                        saveCapturedPhoto();
+                    }
+                }, 1000);
+
+            }, 'image/png');
+        };
+
+        function saveCapturedPhoto() {
+            clearTimeout(captureAutoContinueTimer);
+            if (captureBlob) {
+                var file = new File([captureBlob], captureField + ".png", { type: "image/png" });
+                var container = new DataTransfer();
+                container.items.add(file);
+
+                var input = document.getElementById('input_' + captureField);
+                input.files = container.files;
+
+                var event = new Event('change', { bubbles: true });
+                input.dispatchEvent(event);
+            }
+            window.closeCameraCapture();
+        }
+
+        window.closeCameraCapture = function() {
+            clearInterval(captureCountdownTimer);
+            clearInterval(captureAutoContinueTimer);
+            if (captureStream) {
+                captureStream.getTracks().forEach(function(track) { track.stop(); });
+            }
+            document.getElementById('cameraCaptureOverlay').style.display = 'none';
+        };
+
+        function checkAndLaunchCamera() {
+            var hasImg = isImageFilled('profile_image');
+            if (!hasImg) {
+                window.startCameraCapture('profile_image');
+            }
+        }
+
+        var secKyc = document.getElementById('sec-kyc');
+        if (secKyc) {
+            secKyc.addEventListener('toggle', function() {
+                if (secKyc.open) {
+                    checkAndLaunchCamera();
+                }
+            });
+            if (secKyc.open) {
+                checkAndLaunchCamera();
+            }
+        }
     })();
 </script>
+
+<!-- Camera Capture Modal Overlay -->
+<div id="cameraCaptureOverlay" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.9); z-index: 9999; align-items: center; justify-content: center; padding: 20px; font-family: 'Plus Jakarta Sans', sans-serif;">
+    <div style="background: #fff; width: 100%; max-width: 480px; border-radius: 24px; padding: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); text-align: center; position: relative;">
+        <h3 id="camModalTitle" style="margin: 0 0 6px; font-size: 20px; color: #0f172a;">Capture Document</h3>
+        <p id="camModalSub" style="color: #64748b; font-size: 13px; margin: 0 0 20px;">Align the item in the target area.</p>
+
+        <div id="camViewportContainer" style="width: 100%; aspect-ratio: 4/3; max-height: 280px; border-radius: 16px; border: 3px solid #0f766e; overflow: hidden; margin: 0 auto 20px; position: relative; background: #f8fafc; box-shadow: inset 0 4px 10px rgba(0,0,0,0.05);">
+            <video id="captureVideo" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
+            <canvas id="captureCanvas" style="display: none;"></canvas>
+            <img id="capturePreview" style="display: none; width: 100%; height: 100%; object-fit: cover;" />
+
+            <div id="camTargetFrame" style="position: absolute; inset: 20px; border: 2px dashed rgba(255,255,255,0.75); border-radius: 12px; pointer-events: none; display: flex; align-items: center; justify-content: center;">
+                <span style="color: #fff; font-size: 12px; background: rgba(0,0,0,0.5); padding: 4px 10px; border-radius: 4px;">Align Here</span>
+            </div>
+
+            <div id="captureCountdown" style="display: none; position: absolute; inset: 0; background: rgba(15, 118, 110, 0.25); color: #fff; font-size: 72px; font-weight: 800; align-items: center; justify-content: center; text-shadow: 0 4px 12px rgba(0,0,0,0.3);">3</div>
+        </div>
+
+        <div id="captureTimerText" style="font-size: 13.5px; font-weight: 600; color: #0f766e; height: 18px; margin-bottom: 20px;"></div>
+
+        <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+            <button type="button" id="btnCaptureSnap" onclick="triggerSnapCapture()" style="background: #0f766e; color: #fff; border: 0; border-radius: 12px; padding: 12px 28px; font-weight: 700; font-size: 14.5px; cursor: pointer; transition: background 0.15s ease;">Capture</button>
+            <button type="button" id="btnCaptureRetake" style="display: none; background: #fee2e2; color: #b91c1c; border: 0; border-radius: 12px; padding: 12px 24px; font-weight: 700; font-size: 14.5px; cursor: pointer; transition: background 0.15s ease;">Retake</button>
+            <button type="button" id="btnCaptureContinue" style="display: none; background: #10b981; color: #fff; border: 0; border-radius: 12px; padding: 12px 24px; font-weight: 700; font-size: 14.5px; cursor: pointer; transition: background 0.15s ease;">Use Photo</button>
+            <button type="button" onclick="closeCameraCapture()" style="background: #f1f5f9; color: #475569; border: 0; border-radius: 12px; padding: 12px 24px; font-weight: 700; font-size: 14.5px; cursor: pointer;">Cancel</button>
+        </div>
+    </div>
+</div>
 
 <?php if ($this->session->flashdata('success')): ?>
     <script>

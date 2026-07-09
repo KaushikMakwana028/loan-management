@@ -1,6 +1,6 @@
 <?php defined('BASEPATH') or exit('No direct script access allowed');
 
-class WithdrawalRequests extends CI_Controller
+class UserWithdrawals extends CI_Controller
 {
     public function __construct()
     {
@@ -16,12 +16,12 @@ class WithdrawalRequests extends CI_Controller
     {
         $admin_id = $this->session->userdata('user_id');
         $data['admin'] = $this->general->getById('users', $admin_id);
-        $data['page_title'] = 'Withdrawal Requests';
+        $data['page_title'] = 'User Withdrawal Requests';
 
-        // Fetch requests with investor bank details from the users table, sorted by status pending first
+        // Fetch requests with user bank details from the users table, sorted by status pending first
         $sql = "SELECT wr.*, 
-                       u.name as investor_name, 
-                       u.email as investor_email, 
+                       u.name as user_name, 
+                       u.email as user_email, 
                        u.bank_name, 
                        u.account_number, 
                        u.ifsc_code, 
@@ -30,12 +30,12 @@ class WithdrawalRequests extends CI_Controller
                 FROM withdrawal_requests wr 
                 JOIN users u ON wr.investor_id = u.id 
                 LEFT JOIN wallets w ON wr.investor_id = w.investor_id
-                WHERE u.role = 2
+                WHERE u.role = 0
                 ORDER BY CASE WHEN wr.status = 'pending' THEN 0 ELSE 1 END, wr.id DESC";
         $data['requests'] = $this->db->query($sql)->result();
 
         $this->load->view('admin/header', $data);
-        $this->load->view('admin/withdrawal_requests_view', $data);
+        $this->load->view('admin/user_withdrawals_view', $data);
         $this->load->view('admin/footer', $data);
     }
 
@@ -44,20 +44,20 @@ class WithdrawalRequests extends CI_Controller
         $request = $this->general->getById('withdrawal_requests', $id);
         if (!$request) {
             $this->session->set_flashdata('error', 'Request not found.');
-            redirect('admin/withdrawal_requests');
+            redirect('admin/user_withdrawals');
             return;
         }
 
         if ($request->status !== 'pending') {
             $this->session->set_flashdata('error', 'Request is already processed.');
-            redirect('admin/withdrawal_requests');
+            redirect('admin/user_withdrawals');
             return;
         }
 
         $wallet = $this->general->getOne('wallets', ['investor_id' => $request->investor_id]);
         if (!$wallet || $wallet->balance < $request->amount) {
-            $this->session->set_flashdata('error', 'Insufficient investor wallet balance to approve this withdrawal.');
-            redirect('admin/withdrawal_requests');
+            $this->session->set_flashdata('error', 'Insufficient user wallet balance to approve this withdrawal.');
+            redirect('admin/user_withdrawals');
             return;
         }
 
@@ -90,10 +90,10 @@ class WithdrawalRequests extends CI_Controller
         if ($this->db->trans_status() === FALSE) {
             $this->session->set_flashdata('error', 'Failed to approve withdrawal request. Database transaction failed.');
         } else {
-            $this->session->set_flashdata('success', 'Withdrawal request approved successfully.');
+            $this->session->set_flashdata('success', 'User withdrawal request approved successfully.');
         }
 
-        redirect('admin/withdrawal_requests');
+        redirect('admin/user_withdrawals');
     }
 
     public function reject($id)
@@ -101,13 +101,13 @@ class WithdrawalRequests extends CI_Controller
         $request = $this->general->getById('withdrawal_requests', $id);
         if (!$request) {
             $this->session->set_flashdata('error', 'Request not found.');
-            redirect('admin/withdrawal_requests');
+            redirect('admin/user_withdrawals');
             return;
         }
 
         if ($request->status !== 'pending') {
             $this->session->set_flashdata('error', 'Request is already processed.');
-            redirect('admin/withdrawal_requests');
+            redirect('admin/user_withdrawals');
             return;
         }
 
@@ -119,7 +119,7 @@ class WithdrawalRequests extends CI_Controller
             'reviewed_at' => date('Y-m-d H:i:s')
         ]);
 
-        $this->session->set_flashdata('success', 'Withdrawal request rejected successfully.');
-        redirect('admin/withdrawal_requests');
+        $this->session->set_flashdata('success', 'User withdrawal request rejected successfully.');
+        redirect('admin/user_withdrawals');
     }
 }

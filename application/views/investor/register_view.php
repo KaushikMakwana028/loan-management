@@ -46,6 +46,10 @@
                 <label>Email</label>
                 <input type="email" name="email" value="<?php echo html_escape($old['email'] ?? ''); ?>">
             </div>
+            <div class="field">
+                <label>Referral Code (Optional)</label>
+                <input type="text" name="referred_by_code" value="<?php echo html_escape($old['referred_by_code'] ?? $this->session->userdata('referred_by_code') ?? ''); ?>" placeholder="Enter referral code">
+            </div>
             <button class="btn" type="submit">Create Investor Account</button>
         <?php echo form_close(); ?>
     </main>

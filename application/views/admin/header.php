@@ -521,6 +521,12 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
                     </span>
                     Payment Settings
                 </a>
+                <a class="<?php echo ($this->uri->segment(2) === 'referral_settings') ? 'active' : ''; ?>" href="<?php echo base_url('admin/referral_settings'); ?>">
+                    <span class="menu-icon">
+                        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5a2 2 0 10-2 2h2zm0 0H4a2 2 0 00-2 2v10a2 2 0 002 2h16a2 2 0 002-2V9a2 2 0 00-2-2h-8z" /></svg>
+                    </span>
+                    Referral Settings
+                </a>
                 <a class="<?php echo ($this->uri->segment(2) === 'deposit_requests') ? 'active' : ''; ?>" href="<?php echo base_url('admin/deposit_requests'); ?>">
                     <span class="menu-icon">
                         <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" /></svg>
@@ -531,7 +537,13 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
                     <span class="menu-icon">
                         <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" /></svg>
                     </span>
-                    Withdrawal Requests
+                    Investor Withdrawals
+                </a>
+                <a class="<?php echo ($this->uri->segment(2) === 'user_withdrawals') ? 'active' : ''; ?>" href="<?php echo base_url('admin/user_withdrawals'); ?>">
+                    <span class="menu-icon">
+                        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 11l3 3L22 4" /></svg>
+                    </span>
+                    User Withdrawals
                 </a>
                 <!-- <a href="#">
                     <span class="menu-icon">

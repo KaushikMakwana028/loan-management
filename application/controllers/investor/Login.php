@@ -14,6 +14,11 @@ class Login extends CI_Controller
 
     public function index()
     {
+        $ref = $this->input->get('ref');
+        if ($ref) {
+            $this->session->set_userdata('referred_by_code', $ref);
+        }
+
         if ($this->session->userdata('user_id') && (int) $this->session->userdata('role') === $this->role) {
             redirect('investor/dashboard');
         }
@@ -97,6 +102,10 @@ class Login extends CI_Controller
 
     public function register()
     {
+        $ref = $this->input->get('ref');
+        if ($ref) {
+            $this->session->set_userdata('referred_by_code', $ref);
+        }
         $this->load->view('investor/register_view');
     }
 
@@ -110,6 +119,18 @@ class Login extends CI_Controller
             ['is_unique' => 'This mobile number is already registered.']
         );
         $this->form_validation->set_rules('email', 'Email', 'valid_email|trim');
+
+        $manual_ref = trim($this->input->post('referred_by_code'));
+        if (!empty($manual_ref)) {
+            $referrer = $this->general->getOne('users', ['referral_code' => $manual_ref]);
+            if (!$referrer) {
+                $this->session->set_flashdata('error', 'The referral code entered is invalid.');
+                $data['old'] = $this->input->post();
+                $this->load->view('investor/register_view', $data);
+                return;
+            }
+            $this->session->set_userdata('referred_by_code', $manual_ref);
+        }
 
         if ($this->form_validation->run() == FALSE) {
             $data['old'] = $this->input->post();
@@ -145,7 +166,31 @@ class Login extends CI_Controller
         }
 
         if ($entered_otp == $session_otp) {
+            $referred_by = $this->session->userdata('referred_by_code');
+            $referral_code = $this->generate_referral_code();
+            $form_data['referral_code'] = $referral_code;
+
+            $referrer = NULL;
+            if ($referred_by) {
+                $referrer = $this->general->getOne('users', ['referral_code' => $referred_by]);
+                if ($referrer) {
+                    $form_data['referred_by'] = $referred_by;
+                }
+            }
+
             $user_id = $this->general->insert('users', $form_data);
+
+            if ($referred_by && $referrer) {
+                $this->general->insert('referrals', [
+                    'referrer_id' => $referrer->id,
+                    'referred_user_id' => $user_id,
+                    'status' => 'invited',
+                    'created_at' => date('Y-m-d H:i:s'),
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
+                $this->session->unset_userdata('referred_by_code');
+            }
+
             $user_data = $this->general->getRowArray('users', ['id' => $user_id]);
             $user_data['is_logged_in'] = true;
             $user_data['is_registered'] = true;
@@ -165,6 +210,19 @@ class Login extends CI_Controller
         }
 
         echo json_encode(['error' => 'Invalid OTP. Please try again.']);
+    }
+
+    private function generate_referral_code()
+    {
+        $chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        do {
+            $code = '';
+            for ($i = 0; $i < 8; $i++) {
+                $code .= $chars[rand(0, strlen($chars) - 1)];
+            }
+            $exists = $this->general->exists('users', ['referral_code' => $code]);
+        } while ($exists);
+        return $code;
     }
 
     public function send_otp_via_sms($mobileNo, $otp)

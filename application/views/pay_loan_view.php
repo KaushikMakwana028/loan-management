@@ -149,6 +149,27 @@
         color: #172033;
         transform: translateX(-3px);
     }
+
+    @media (max-width: 640px) {
+        .step-card h3 {
+            font-size: 17px;
+        }
+
+        .qr-container img {
+            max-width: 190px;
+            width: 100%;
+        }
+
+        select,
+        input[type="file"] {
+            min-height: 52px;
+            font-size: 14px;
+        }
+
+        .btn-copy {
+            min-height: 34px;
+        }
+    }
 </style>
 
 <div>
@@ -237,13 +258,35 @@
                 <span style="font-weight:600; color:#172033;"><?php echo (float)$loan->interest_rate; ?>%</span>
             </div>
             <?php 
-            $interest = $loan->amount * $loan->interest_rate / 100;
-            $total_payable = $loan->amount + $interest;
+            $interest = $loan->amount * ($loan->interest_rate ?? 0.0) / 100;
+            $total_payable = isset($loan->total_payable) && (float)$loan->total_payable > 0 ? (float)$loan->total_payable : ($loan->amount + $interest);
             ?>
             <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13.5px; color:#65758b;">
                 <span>Interest Amount:</span>
                 <span style="font-weight:600; color:#0f766e;">+ INR <?php echo number_format($interest, 2); ?></span>
             </div>
+            
+            <?php if (isset($loan->processing_fee) && (float)$loan->processing_fee > 0): ?>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13.5px; color:#65758b;">
+                <span>Processing Fee:</span>
+                <span style="font-weight:600; color:#172033;">+ INR <?php echo number_format($loan->processing_fee, 2); ?></span>
+            </div>
+            <?php endif; ?>
+
+            <?php if (isset($loan->platform_charge) && (float)$loan->platform_charge > 0): ?>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13.5px; color:#65758b;">
+                <span>Platform Charges:</span>
+                <span style="font-weight:600; color:#172033;">+ INR <?php echo number_format($loan->platform_charge, 2); ?></span>
+            </div>
+            <?php endif; ?>
+
+            <?php if (isset($loan->gst_amount) && (float)$loan->gst_amount > 0): ?>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13.5px; color:#65758b;">
+                <span>GST Amount:</span>
+                <span style="font-weight:600; color:#172033;">+ INR <?php echo number_format($loan->gst_amount, 2); ?></span>
+            </div>
+            <?php endif; ?>
+
             <div style="border-top:1px dashed #cbd5e1; margin-top:10px; padding-top:10px; display:flex; justify-content:space-between; font-size:15px; color:#172033; font-weight:700;">
                 <span>Total Amount Payable:</span>
                 <span style="color:#0f766e;">INR <?php echo number_format($total_payable, 2); ?></span>

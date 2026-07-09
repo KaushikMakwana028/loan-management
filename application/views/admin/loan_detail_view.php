@@ -574,13 +574,96 @@ $total_payout = $total_invested + $total_profit;
         </div>
 
         <?php if ($loan->status === 'approved'): ?>
-            <button class="btn-action-paid" onclick="confirmPayment(<?php echo (int) $loan->id; ?>)">
-                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                Mark as Paid and Release Payout
-            </button>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 15px;">
+                <button class="btn-action-paid" onclick="confirmPayment(<?php echo (int) $loan->id; ?>)" style="background: #10b981; color: #fff; border: 0; padding: 12px 20px; border-radius: 12px; font-weight: 600; font-size: 14.5px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; box-shadow: 0 10px 24px rgba(16, 185, 129, 0.15);">
+                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Mark as Paid and Release Payout
+                </button>
+                <button class="btn-action-disbursed" onclick="confirmDisburse(<?php echo (int) $loan->id; ?>)" style="background: #0f766e; color: #fff; border: 0; padding: 12px 20px; border-radius: 12px; font-weight: 600; font-size: 14.5px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; box-shadow: 0 10px 24px rgba(15, 118, 110, 0.15);">
+                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5h16.5M4.5 19.5h15M12 6.75v10.5m-3-7.5l3-3 3 3" />
+                    </svg>
+                    Mark as Disbursed (Funds Sent)
+                </button>
+            </div>
+        <?php elseif ($loan->status === 'disbursed'): ?>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 15px;">
+                <button class="btn-action-paid" onclick="confirmPayment(<?php echo (int) $loan->id; ?>)" style="background: #10b981; color: #fff; border: 0; padding: 12px 20px; border-radius: 12px; font-weight: 600; font-size: 14.5px; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; box-shadow: 0 10px 24px rgba(16, 185, 129, 0.15);">
+                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Mark as Paid and Release Payout
+                </button>
+            </div>
         <?php endif; ?>
+    </div>
+
+    <!-- Edit Offer Terms -->
+    <div class="detail-card">
+        <div class="card-head">
+            <h3>Edit Offer Terms</h3>
+        </div>
+        <?php echo form_open('admin/loans/update_offer/' . $loan->id, ['id' => 'editOfferForm']); ?>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
+                <div>
+                    <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">Loan Amount (INR)</label>
+                    <input type="number" step="0.01" name="amount" id="offer_amount" value="<?php echo (float) $loan->amount; ?>" required style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
+                </div>
+                <div>
+                    <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">Interest Rate (%)</label>
+                    <input type="number" step="0.01" name="interest_rate" id="offer_interest" value="<?php echo (float) $loan->interest_rate; ?>" required style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
+                </div>
+                <div>
+                    <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">Processing Fee (INR)</label>
+                    <input type="number" step="0.01" name="processing_fee" id="offer_processing" value="<?php echo (float) $loan->processing_fee; ?>" required style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
+                </div>
+                <div>
+                    <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">Platform Charges (INR)</label>
+                    <input type="number" step="0.01" name="platform_charge" id="offer_platform" value="<?php echo (float) $loan->platform_charge; ?>" required style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
+                </div>
+                <div>
+                    <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">GST Amount (INR)</label>
+                    <input type="number" step="0.01" name="gst_amount" id="offer_gst" value="<?php echo (float) $loan->gst_amount; ?>" required style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display:inline-flex; align-items:center; gap:8px; font-size:14px; font-weight:600; color:#344054; cursor:pointer;">
+                    <input type="checkbox" name="is_emi" id="offer_is_emi" value="1" <?php echo $loan->is_emi ? 'checked' : ''; ?> onchange="toggleEmiFields()" style="width:16px; height:16px;">
+                    Enable EMI Plan
+                </label>
+            </div>
+
+            <div id="emi_fields" style="display: <?php echo $loan->is_emi ? 'grid' : 'none'; ?>; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
+                <div>
+                    <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">EMI Count (Months)</label>
+                    <input type="number" name="emi_count" id="offer_emi_count" value="<?php echo $loan->emi_count; ?>" style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
+                </div>
+                <div>
+                    <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">EMI Amount (INR / month)</label>
+                    <input type="number" step="0.01" name="emi_amount" id="offer_emi_amount" value="<?php echo (float) $loan->emi_amount; ?>" style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
+                </div>
+            </div>
+
+            <div id="due_date_field" style="display: <?php echo $loan->is_emi ? 'none' : 'block'; ?>; margin-bottom: 20px; max-width: 250px;">
+                <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">Due Date</label>
+                <input type="date" name="due_date" id="offer_due_date" value="<?php echo $loan->due_date; ?>" style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
+            </div>
+
+            <hr style="border:0; border-top:1px solid #e2e8f0; margin:20px 0;">
+
+            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+                <div>
+                    <span style="font-size: 14px; font-weight: 600; color: #64748b;">Estimated Total Repayable</span>
+                    <div style="font-size: 24px; font-weight: 800; color: #0f766e;" id="offer_total_payable">INR <?php echo number_format((float) ($loan->total_payable ?? 0.0), 2); ?></div>
+                </div>
+                <button type="submit" class="btn-save" style="background: linear-gradient(135deg, #2563eb, #4f46e5); color: #fff; border: 0; border-radius: 12px; padding: 12px 28px; font-weight: 600; font-size: 15px; cursor: pointer; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2); transition: opacity 0.15s ease;">
+                    Update Offer Terms
+                </button>
+            </div>
+        <?php echo form_close(); ?>
     </div>
 
     <!-- Borrower Profile -->
@@ -755,6 +838,63 @@ $total_payout = $total_invested + $total_profit;
             });
         }
     }
+
+    function confirmDisburse(loanId) {
+        Swal.fire({
+            title: 'Mark loan as disbursed?',
+            text: "This will set the loan status to Disbursed and credit referral reward (if applicable) to the referrer.",
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#0f766e',
+            cancelButtonColor: '#64748b',
+            confirmButtonText: 'Yes, mark disbursed'
+        }).then(function(result) {
+            if (result.isConfirmed) {
+                window.location.href = "<?php echo base_url('admin/loans/disburse/'); ?>" + loanId;
+            }
+        });
+    }
+
+    function toggleEmiFields() {
+        var isEmi = document.getElementById('offer_is_emi').checked;
+        document.getElementById('emi_fields').style.display = isEmi ? 'grid' : 'none';
+        document.getElementById('due_date_field').style.display = isEmi ? 'none' : 'block';
+        
+        var emiCount = document.getElementById('offer_emi_count');
+        var emiAmount = document.getElementById('offer_emi_amount');
+        var dueDate = document.getElementById('offer_due_date');
+        
+        if (isEmi) {
+            emiCount.required = true;
+            emiAmount.required = true;
+            dueDate.required = false;
+        } else {
+            emiCount.required = false;
+            emiAmount.required = false;
+            dueDate.required = true;
+        }
+    }
+
+    function calculateTotalPayable() {
+        var amount = parseFloat(document.getElementById('offer_amount').value) || 0;
+        var interestRate = parseFloat(document.getElementById('offer_interest').value) || 0;
+        var processing = parseFloat(document.getElementById('offer_processing').value) || 0;
+        var platform = parseFloat(document.getElementById('offer_platform').value) || 0;
+        var gst = parseFloat(document.getElementById('offer_gst').value) || 0;
+        
+        var total = amount + (amount * interestRate / 100.0) + processing + platform + gst;
+        document.getElementById('offer_total_payable').textContent = 'INR ' + total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    // Attach live listeners for calculator
+    document.getElementById('offer_amount').addEventListener('input', calculateTotalPayable);
+    document.getElementById('offer_interest').addEventListener('input', calculateTotalPayable);
+    document.getElementById('offer_processing').addEventListener('input', calculateTotalPayable);
+    document.getElementById('offer_platform').addEventListener('input', calculateTotalPayable);
+    document.getElementById('offer_gst').addEventListener('input', calculateTotalPayable);
+    
+    // Call initial toggle
+    toggleEmiFields();
 </script>
 
 <?php if ($this->session->flashdata('error')): ?>

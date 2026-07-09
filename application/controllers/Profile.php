@@ -33,20 +33,57 @@ class Profile extends CI_Controller
         $data = $this->profile_data($user);
 
         $this->general->update('users', ['id' => $user->id], $data);
-        $this->session->set_flashdata('success', 'Profile updated successfully.');
-        redirect('profile');
+
+        // Fetch updated user to check completion
+        $updated_user = $this->general->getById('users', $user->id);
+        
+        $fields_to_check = [
+            'name', 'mobile', 'address', 'aadhaar_number', 'aadhaar_photo', 
+            'pan_number', 'pan_photo', 'account_holder_name', 'bank_name', 
+            'account_number', 'ifsc_code', 'profile_image'
+        ];
+        
+        $is_complete = true;
+        if ((int) $updated_user->is_active !== 1) {
+            $is_complete = false;
+        } else {
+            foreach ($fields_to_check as $field) {
+                if (is_null($updated_user->$field) || trim($updated_user->$field) === '') {
+                    $is_complete = false;
+                    break;
+                }
+            }
+        }
+
+        if ($is_complete) {
+            $this->session->set_flashdata('success', 'Profile and KYC completed! Redirecting you to apply for a loan.');
+            redirect('loans/apply');
+        } else {
+            $this->session->set_flashdata('success', 'Profile updated successfully.');
+            redirect('profile');
+        }
     }
 
     private function profile_data($user)
     {
+        $education = trim($this->input->post('education', TRUE));
+        if ($education === 'Other') {
+            $education = trim($this->input->post('education_other', TRUE));
+        }
+
+        $employment = trim($this->input->post('employment', TRUE));
+        if ($employment === 'Other') {
+            $employment = trim($this->input->post('employment_other', TRUE));
+        }
+
         $data = [
             'name' => trim($this->input->post('name', TRUE)),
             'email' => trim($this->input->post('email', TRUE)) ?: NULL,
             'mobile' => trim($this->input->post('mobile', TRUE)),
             'marriage_status' => trim($this->input->post('marriage_status', TRUE)) ?: NULL,
             'dob' => trim($this->input->post('dob', TRUE)) ?: NULL,
-            'education' => trim($this->input->post('education', TRUE)) ?: NULL,
-            'employment' => trim($this->input->post('employment', TRUE)) ?: NULL,
+            'education' => $education ?: NULL,
+            'employment' => $employment ?: NULL,
             'address' => trim($this->input->post('address', TRUE)) ?: NULL,
             'aadhaar_number' => trim($this->input->post('aadhaar_number', TRUE)) ?: NULL,
             'pan_number' => trim($this->input->post('pan_number', TRUE)) ?: NULL,

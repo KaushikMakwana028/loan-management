@@ -14,7 +14,20 @@ class Dashboard extends CI_Controller
         }
 
         $user_id = $this->session->userdata('user_id');
-        $data['user'] = $this->general->getById('users', $user_id);
+        $user = $this->general->getById('users', $user_id);
+        if ($user && empty($user->referral_code)) {
+            $this->load->helper('string');
+            $code = strtoupper(random_string('alnum', 8));
+            while ($this->general->getOne('users', ['referral_code' => $code])) {
+                $code = strtoupper(random_string('alnum', 8));
+            }
+            $this->general->update('users', ['id' => $user_id], [
+                'referral_code' => $code,
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+            $user->referral_code = $code;
+        }
+        $data['user'] = $user;
         $data['page_title'] = 'User Dashboard';
         $data['profile_completed'] = $this->profile_completed($data['user']);
         
@@ -35,16 +48,13 @@ class Dashboard extends CI_Controller
         if (!$user) {
             return false;
         }
+        if ((int) $user->is_active !== 1) {
+            return false;
+        }
 
         $required = [
             'name',
-            'email',
             'mobile',
-            'marriage_status',
-            'dob',
-            'education',
-            'employment',
-            'profile_image',
             'address',
             'aadhaar_number',
             'aadhaar_photo',
@@ -54,12 +64,11 @@ class Dashboard extends CI_Controller
             'bank_name',
             'account_number',
             'ifsc_code',
-            'account_type',
-            'branch_name'
+            'profile_image'
         ];
 
         foreach ($required as $field) {
-            if (empty($user->{$field})) {
+            if (is_null($user->{$field}) || trim($user->{$field}) === '') {
                 return false;
             }
         }

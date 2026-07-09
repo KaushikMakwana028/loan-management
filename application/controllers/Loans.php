@@ -81,7 +81,17 @@ class Loans extends CI_Controller
                 'updated_at' => date('Y-m-d H:i:s')
             ];
 
-            $this->general->insert('loans', $loan_data);
+            $loan_id = $this->general->insert('loans', $loan_data);
+
+            // Update referral status to applied
+            $referral = $this->general->getOne('referrals', ['referred_user_id' => $user_id, 'status' => 'invited']);
+            if ($referral) {
+                $this->general->update('referrals', ['id' => $referral->id], [
+                    'status' => 'applied',
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
+            }
+
             $this->session->set_flashdata('success', 'Your loan application has been submitted successfully.');
             redirect('loans');
         }
@@ -92,16 +102,13 @@ class Loans extends CI_Controller
         if (!$user) {
             return false;
         }
+        if ((int) $user->is_active !== 1) {
+            return false;
+        }
 
         $required = [
             'name',
-            'email',
             'mobile',
-            'marriage_status',
-            'dob',
-            'education',
-            'employment',
-            'profile_image',
             'address',
             'aadhaar_number',
             'aadhaar_photo',
@@ -111,16 +118,11 @@ class Loans extends CI_Controller
             'bank_name',
             'account_number',
             'ifsc_code',
-            'account_type',
-            'branch_name',
-            'reference_name_1',
-            'reference_mobile_1',
-            'reference_name_2',
-            'reference_mobile_2'
+            'profile_image'
         ];
 
         foreach ($required as $field) {
-            if (empty($user->{$field})) {
+            if (is_null($user->{$field}) || trim($user->{$field}) === '') {
                 return false;
             }
         }

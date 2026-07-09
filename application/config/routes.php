@@ -100,14 +100,17 @@ $route['admin/loans/view/(:num)'] = 'admin/loans/view/$1';
 $route['admin/loans/mark_paid/(:num)'] = 'admin/loans/mark_paid/$1';
 
 // Admin Payment & Requests Routes
-$route['admin/payment_settings'] = 'admin/paymentsettings';
-$route['admin/payment_settings/save'] = 'admin/paymentsettings/save';
-$route['admin/deposit_requests'] = 'admin/depositrequests';
-$route['admin/deposit_requests/approve/(:num)'] = 'admin/depositrequests/approve/$1';
-$route['admin/deposit_requests/reject/(:num)'] = 'admin/depositrequests/reject/$1';
-$route['admin/withdrawal_requests'] = 'admin/withdrawalrequests';
-$route['admin/withdrawal_requests/approve/(:num)'] = 'admin/withdrawalrequests/approve/$1';
-$route['admin/withdrawal_requests/reject/(:num)'] = 'admin/withdrawalrequests/reject/$1';
+$route['admin/payment_settings'] = 'admin/PaymentSettings';
+$route['admin/payment_settings/save'] = 'admin/PaymentSettings/save';
+$route['admin/deposit_requests'] = 'admin/DepositRequests';
+$route['admin/deposit_requests/approve/(:num)'] = 'admin/DepositRequests/approve/$1';
+$route['admin/deposit_requests/reject/(:num)'] = 'admin/DepositRequests/reject/$1';
+$route['admin/withdrawal_requests'] = 'admin/WithdrawalRequests';
+$route['admin/withdrawal_requests/approve/(:num)'] = 'admin/WithdrawalRequests/approve/$1';
+$route['admin/withdrawal_requests/reject/(:num)'] = 'admin/WithdrawalRequests/reject/$1';
+$route['admin/user_withdrawals'] = 'admin/UserWithdrawals';
+$route['admin/user_withdrawals/approve/(:num)'] = 'admin/UserWithdrawals/approve/$1';
+$route['admin/user_withdrawals/reject/(:num)'] = 'admin/UserWithdrawals/reject/$1';
 
 // Investor Pages
 $route['investor/funds'] = 'investor/funds';
@@ -123,6 +126,15 @@ $route['investor/opportunities'] = 'investor/notifications/opportunities';
 $route['investor/notifications/view/(:num)'] = 'investor/notifications/view/$1';
 $route['investor/notifications/invest/(:num)/(:num)'] = 'investor/notifications/invest/$1/$2';
 $route['investor/notifications/reject/(:num)/(:num)'] = 'investor/notifications/reject/$1/$2';
+
+// Referral System Routes
+$route['referrals'] = 'referrals';
+$route['admin/referral_settings'] = 'admin/ReferralSettings';
+$route['admin/referral_settings/save'] = 'admin/ReferralSettings/save';
+
+// Admin Loan Actions
+$route['admin/loans/disburse/(:num)'] = 'admin/loans/disburse/$1';
+$route['admin/loans/update_offer/(:num)'] = 'admin/loans/update_offer/$1';
 
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;

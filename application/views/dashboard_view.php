@@ -1,304 +1,208 @@
 <div class="uld-dashboard">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
 
         .uld-dashboard {
-            --uld-bg: #f4f5fa;
+            --uld-bg: #f8fafc;
             --uld-surface: #ffffff;
-            --uld-primary: #5b4fd6;
-            --uld-primary-dark: #4338ca;
-            --uld-accent: #7c6ee8;
-            --uld-text: #1e1b2e;
-            --uld-text-soft: #8b899c;
-            --uld-border: #ecebf5;
-            --uld-radius: 14px;
-            --uld-shadow: 0 4px 16px rgba(30, 27, 46, 0.05);
+            --uld-primary: #0f766e;
+            --uld-primary-light: #f0fdfa;
+            --uld-accent: #6366f1;
+            --uld-accent-light: #e0e7ff;
+            --uld-text: #0f172a;
+            --uld-text-soft: #64748b;
+            --uld-border: #e2e8f0;
+            --uld-radius-lg: 24px;
+            --uld-radius-md: 16px;
+            --uld-shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --uld-shadow-lg: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.08);
 
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Outfit', sans-serif;
             background: var(--uld-bg);
             color: var(--uld-text);
-            padding: clamp(10px, 2vw, 20px);
+            padding: clamp(12px, 3vw, 24px);
             width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: clamp(16px, 3vw, 24px);
         }
 
         .uld-dashboard * {
             box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Outfit', sans-serif;
         }
 
-        .uld-dashboard svg {
-            display: block;
-        }
-
-        /* Alert */
-        .uld-alert {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: #fff8ee;
-            border: 1px solid #fadfb5;
-            color: #8a4b0c;
-            border-radius: var(--uld-radius);
-            padding: clamp(10px, 1.6vw, 14px) clamp(12px, 2vw, 18px);
-            margin-bottom: clamp(10px, 1.6vw, 16px);
-            font-size: clamp(12px, 1.4vw, 13.5px);
-            font-weight: 500;
-            line-height: 1.5;
-            flex-wrap: wrap;
-        }
-
-        .uld-alert-icon {
-            flex-shrink: 0;
-            width: 32px;
-            height: 32px;
-            border-radius: 9px;
-            background: #fceccb;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .uld-alert-icon svg {
-            width: 16px;
-            height: 16px;
-        }
-
-        .uld-alert-body {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .uld-alert a {
-            display: inline-flex;
-            align-items: center;
-            margin-top: 6px;
-            color: #fff;
-            background: #0f766e;
-            padding: 6px 15px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: clamp(11.5px, 1.3vw, 12.5px);
-            font-weight: 600;
-            transition: background 0.15s ease;
-        }
-
-        .uld-alert a:hover {
-            background: #0d5f58;
-        }
-
-        /* Hero */
+        /* Redesigned Hero Header Card */
         .uld-hero {
-            background: linear-gradient(120deg, var(--uld-primary) 0%, var(--uld-accent) 100%);
-            border-radius: var(--uld-radius);
-            padding: clamp(16px, 2.4vw, 24px);
+            background: linear-gradient(135deg, var(--uld-primary) 0%, #1e1b4b 100%);
+            border-radius: var(--uld-radius-lg);
+            padding: clamp(20px, 4vw, 32px);
             color: #fff;
-            box-shadow: 0 10px 24px rgba(91, 79, 214, 0.22);
-            margin-bottom: clamp(10px, 1.6vw, 16px);
+            box-shadow: var(--uld-shadow-lg);
             position: relative;
             overflow: hidden;
         }
 
-        .uld-hero::after {
-            content: '';
-            position: absolute;
-            width: 180px;
-            height: 180px;
-            background: rgba(255, 255, 255, 0.07);
-            border-radius: 50%;
-            top: -70px;
-            right: -50px;
+        .uld-hero-top h1 {
+            font-size: clamp(20px, 3vw, 28px);
+            font-weight: 800;
+            margin: 0 0 6px;
+            line-height: 1.25;
         }
 
-        .uld-hero::before {
-            content: '';
-            position: absolute;
-            width: 110px;
-            height: 110px;
-            background: rgba(255, 255, 255, 0.06);
-            border-radius: 50%;
-            bottom: -50px;
-            right: 50px;
-        }
-
-        .uld-hero-top {
-            position: relative;
-            z-index: 1;
-        }
-
-        .uld-hero h1 {
-            font-size: clamp(16px, 2.4vw, 20px);
-            font-weight: 700;
-            margin: 0 0 5px;
-            line-height: 1.3;
-        }
-
-        .uld-hero p {
-            font-size: clamp(12px, 1.4vw, 13px);
-            font-weight: 400;
-            opacity: 0.9;
-            margin: 0 0 clamp(14px, 2vw, 20px);
+        .uld-hero-top p {
+            font-size: clamp(13px, 1.6vw, 14.5px);
+            opacity: 0.85;
+            margin: 0 0 24px;
+            max-width: 520px;
             line-height: 1.5;
-            max-width: 480px;
         }
 
         .uld-hero-stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            position: relative;
-            z-index: 1;
-            max-width: 440px;
+            gap: 12px;
+            max-width: 480px;
         }
 
         .uld-hero-stat {
-            background: rgba(255, 255, 255, 0.14);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 11px;
-            padding: clamp(8px, 1.4vw, 12px) 6px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            border-radius: 12px;
+            padding: 12px 8px;
             text-align: center;
         }
 
         .uld-hero-stat strong {
             display: block;
-            font-size: clamp(16px, 2vw, 20px);
-            font-weight: 700;
-            line-height: 1.2;
+            font-size: clamp(18px, 2.5vw, 22px);
+            font-weight: 800;
+            margin-bottom: 2px;
         }
 
         .uld-hero-stat span {
-            font-size: clamp(10px, 1.1vw, 11px);
-            opacity: 0.88;
-            font-weight: 500;
-            letter-spacing: 0.2px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.8;
+            font-weight: 600;
         }
 
-        /* Grid of cards */
-        .uld-grid {
+        /* Custom layout structures */
+        .grid-cols-3 {
             display: grid;
-            grid-template-columns: 1fr;
-            gap: clamp(8px, 1.4vw, 12px);
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
         }
 
-        .uld-card {
-            background: var(--uld-surface);
+        .dashboard-kpi-card {
+            background: #fff;
             border: 1px solid var(--uld-border);
-            border-radius: var(--uld-radius);
-            padding: clamp(12px, 1.8vw, 16px);
-            box-shadow: var(--uld-shadow);
+            border-radius: var(--uld-radius-md);
+            padding: 20px;
+            box-shadow: var(--uld-shadow-sm);
             display: flex;
-            align-items: flex-start;
-            gap: 12px;
+            gap: 16px;
+            align-items: center;
         }
 
-        .uld-card-icon {
-            flex-shrink: 0;
-            width: 38px;
-            height: 38px;
-            border-radius: 10px;
+        .kpi-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #eeecfb;
+            font-size: 20px;
+            flex-shrink: 0;
         }
 
-        .uld-card-icon svg {
-            width: 18px;
-            height: 18px;
-        }
-
-        .uld-card.uld-loan .uld-card-icon {
-            background: #fdf0e6;
-        }
-
-        .uld-card.uld-kyc-done .uld-card-icon {
-            background: #e6f6ec;
-        }
-
-        .uld-card.uld-kyc-pending .uld-card-icon {
-            background: #fdecec;
-        }
-
-        .uld-card-body {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .uld-card-body h3 {
-            font-size: clamp(10.5px, 1.1vw, 11.5px);
-            font-weight: 600;
-            color: var(--uld-text-soft);
-            margin: 0 0 4px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .uld-card-body .uld-value {
-            font-size: clamp(15px, 1.8vw, 17px);
-            font-weight: 700;
-            color: var(--uld-text);
-            margin-bottom: 3px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .uld-card-body span.uld-sub {
-            font-size: clamp(11px, 1.2vw, 12px);
-            color: var(--uld-text-soft);
-            font-weight: 400;
-            line-height: 1.4;
-        }
-
-        .uld-badge {
-            display: inline-block;
-            padding: 3px 11px;
-            border-radius: 999px;
-            font-size: clamp(10.5px, 1.1vw, 11.5px);
-            font-weight: 600;
-        }
-
-        .uld-card.uld-kyc-done .uld-badge {
-            background: #dcf5e4;
-            color: #15803d;
-        }
-
-        .uld-card.uld-kyc-pending .uld-badge {
-            background: #fbe0e0;
-            color: #b91c1c;
-        }
-
-        /* Desktop - cards side by side, hero same row weight but tighter */
-        @media (min-width: 768px) {
-            .uld-grid {
-                grid-template-columns: repeat(3, 1fr);
+        /* Mobile specific media rules */
+        @media (max-width: 768px) {
+            .uld-dashboard {
+                padding: 10px 8px 72px;
+                gap: 12px;
+            }
+            .uld-hero {
+                padding: 16px 12px 14px;
+                border-radius: 18px;
+            }
+            .uld-hero-top h1 {
+                font-size: 18px;
+                margin-bottom: 4px;
+            }
+            .uld-hero-top p {
+                font-size: 11px;
+                line-height: 1.45;
+                margin-bottom: 12px;
+            }
+            .uld-hero-stats {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+                gap: 6px;
+                max-width: none;
+            }
+            .uld-hero-stat {
+                min-width: 0;
+                padding: 9px 4px;
+                border-radius: 10px;
+            }
+            .uld-hero-stat strong {
+                font-size: 17px;
+                margin-bottom: 1px;
+            }
+            .uld-hero-stat span {
+                display: block;
+                font-size: 8px;
+                letter-spacing: 0;
+                line-height: 1.2;
+            }
+            .grid-cols-3 {
+                grid-template-columns: 1fr;
+            }
+            .uld-loan-cta {
+                padding: 16px 14px !important;
+                gap: 12px !important;
+                border-radius: 18px !important;
+            }
+            .uld-loan-cta > div[style*="min-width: 280px"] {
+                min-width: 0 !important;
+            }
+            .uld-loan-cta-badge {
+                font-size: 8px !important;
+                padding: 4px 8px !important;
+                letter-spacing: 0 !important;
+            }
+            .uld-loan-cta h2 {
+                font-size: 18px !important;
+                margin: 8px 0 5px !important;
+                line-height: 1.15 !important;
+            }
+            .uld-loan-cta p {
+                font-size: 11px !important;
+                line-height: 1.35 !important;
+            }
+            .uld-loan-cta-action {
+                max-width: none !important;
+            }
+            .uld-loan-cta-action a {
+                padding: 12px 16px !important;
+                font-size: 14px !important;
+                border-radius: 14px !important;
             }
         }
     </style>
 
-    <?php if (empty($profile_completed)): ?>
-        <div class="uld-alert">
-            <div class="uld-alert-icon">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 9V13M12 17H12.01M10.29 3.86L1.82 18A2 2 0 0 0 3.54 21H20.46A2 2 0 0 0 22.18 18L13.71 3.86A2 2 0 0 0 10.29 3.86Z" stroke="#b45309" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-            </div>
-            <div class="uld-alert-body">
-                Your account is not active. Please fill all details before taking a loan.
-                <br>
-                <a href="<?php echo base_url('profile'); ?>">Complete Profile</a>
-            </div>
-        </div>
-    <?php endif; ?>
-
+    <!-- KPI Dashboard Stats Banner -->
     <section class="uld-hero">
         <div class="uld-hero-top">
-            <h1>Welcome back, <?php echo html_escape($user->name ?? 'User'); ?></h1>
-            <p>Your user loan dashboard is ready. You can manage profile, KYC, loans, and payments from here.</p>
+            <h1>Welcome back, <?php echo html_escape($user->name ?? 'User'); ?> 👋</h1>
+            <p>Your instant loan journey dashboard. Manage your loan details, complete KYC, and earn referral payouts easily.</p>
         </div>
         <div class="uld-hero-stats">
             <div class="uld-hero-stat">
                 <strong><?php echo $total_loans; ?></strong>
-                <span>Loans</span>
+                <span>Total Loans</span>
             </div>
             <div class="uld-hero-stat">
                 <strong>0</strong>
@@ -306,88 +210,223 @@
             </div>
             <div class="uld-hero-stat">
                 <strong>0</strong>
-                <span>Payments</span>
+                <span>Repayments</span>
             </div>
         </div>
     </section>
 
-    <section class="uld-grid">
-        <div class="uld-card">
-            <div class="uld-card-icon">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="#4338ca" stroke-width="1.8" />
-                    <path d="M20 21C20 16.5817 16.4183 13 12 13C7.58172 13 4 16.5817 4 21" stroke="#4338ca" stroke-width="1.8" stroke-linecap="round" />
-                </svg>
+    <!-- Prominent Action Center depending on KYC Status -->
+    <?php if (empty($profile_completed)): ?>
+        <!-- Incomplete KYC Prompt -->
+        <section style="background: #fff; border: 1px solid #fee2e2; border-radius: var(--uld-radius-lg); padding: clamp(20px, 4vw, 32px); box-shadow: var(--uld-shadow-lg); display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 260px; display: flex; gap: 16px; align-items: flex-start;">
+                <div style="width: 50px; height: 50px; border-radius: 50%; background: #fee2e2; color: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
+                    🔒
+                </div>
+                <div>
+                    <h3 style="margin: 0 0 6px; font-size: clamp(16px, 2vw, 19px); font-weight: 700; color: #991b1b;">Complete Your Profile to Unlock Loans</h3>
+                    <p style="margin: 0; color: var(--uld-text-soft); font-size: 13.5px; line-height: 1.5;">Please upload your Aadhaar, PAN details, bank credentials, and selfie to unlock instant borrowing limits.</p>
+                </div>
             </div>
-            <div class="uld-card-body">
-                <h3>Profile</h3>
-                <div class="uld-value"><?php echo html_escape($user->name ?? 'User'); ?></div>
-                <span class="uld-sub"><?php echo html_escape($user->mobile ?? ''); ?></span>
+            <div>
+                <a href="<?php echo base_url('profile'); ?>" style="display: inline-block; background: #ef4444; color: #fff; padding: 14px 28px; border-radius: 12px; font-weight: 700; text-decoration: none; font-size: 14px; box-shadow: 0 10px 20px rgba(239, 68, 68, 0.2); transition: background 0.15s ease;">Complete Profile</a>
+            </div>
+        </section>
+    <?php else: ?>
+        <!-- Premium Apply Loan CTA (Shown ONLY after full KYC) -->
+        <section class="uld-loan-cta" style="background: linear-gradient(135deg, var(--uld-primary) 0%, #115e59 100%); border-radius: var(--uld-radius-lg); padding: clamp(24px, 5vw, 36px); color: #fff; box-shadow: 0 20px 40px rgba(15, 118, 110, 0.25); display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; position: relative; overflow: hidden;">
+            <div style="position: absolute; right: -20px; bottom: -20px; opacity: 0.1; transform: rotate(-15deg); pointer-events: none;">
+                <svg width="200" height="200" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2-2 0-3 .9-3 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
+            </div>
+            <div style="flex: 1; min-width: 280px; z-index: 1;">
+                <span class="uld-loan-cta-badge" style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 99px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">KYC Verification Complete ✅</span>
+                <h2 style="font-size: clamp(22px, 3.5vw, 30px); font-weight: 800; margin: 12px 0 8px; line-height: 1.2;">Your Instant Loan Limit is Unlocked!</h2>
+                <p style="margin: 0; color: #ccfbf1; font-size: clamp(13px, 1.6vw, 14.5px); line-height: 1.5; max-width: 500px;">Get funding disbursed directly to your bank account with easy interest options and flexible EMI returns.</p>
+            </div>
+            <div class="uld-loan-cta-action" style="z-index: 1; width: 100%; max-width: 200px;">
+                <a href="<?php echo base_url('loans/apply'); ?>" style="display: block; text-align: center; background: #fff; color: #0f766e; padding: 16px 28px; border-radius: var(--uld-radius-md); font-weight: 800; font-size: 15.5px; text-decoration: none; box-shadow: 0 10px 25px rgba(0,0,0,0.1); transition: all 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='none';">Apply Now ⚡</a>
+            </div>
+        </section>
+    <?php endif; ?>
+
+    <!-- Overview Grid Info Cards -->
+    <section class="grid-cols-3">
+        <div class="dashboard-kpi-card">
+            <div class="kpi-icon" style="background: #e0f2fe; color: #0284c7;">👤</div>
+            <div>
+                <h4 style="margin: 0 0 2px; font-size: 12px; text-transform: uppercase; color: var(--uld-text-soft); font-weight: 600;">My Profile</h4>
+                <div style="font-size: 15px; font-weight: 700; color: var(--uld-text);"><?php echo html_escape($user->name ?? 'User'); ?></div>
+                <span style="font-size: 12px; color: var(--uld-text-soft);"><?php echo html_escape($user->mobile ?? ''); ?></span>
             </div>
         </div>
 
-        <div class="uld-card uld-loan">
-            <div class="uld-card-icon">
-                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="2" y="7" width="20" height="13" rx="2" stroke="#c2410c" stroke-width="1.8" />
-                    <path d="M16 7V5C16 3.89543 15.1046 3 14 3H10C8.89543 3 8 3.89543 8 5V7" stroke="#c2410c" stroke-width="1.8" />
-                    <path d="M2 12H22" stroke="#c2410c" stroke-width="1.8" />
-                </svg>
-            </div>
-            <div class="uld-card-body">
-                <h3>Loan Status</h3>
-                <div class="uld-value">
+        <div class="dashboard-kpi-card">
+            <div class="kpi-icon" style="background: #ffedd5; color: #ea580c;">💼</div>
+            <div>
+                <h4 style="margin: 0 0 2px; font-size: 12px; text-transform: uppercase; color: var(--uld-text-soft); font-weight: 600;">Latest Loan Request</h4>
+                <div style="font-size: 15px; font-weight: 700; color: var(--uld-text);">
                     <?php if ($latest_loan): ?>
-                        <span class="badge badge-<?php echo strtolower($latest_loan->status); ?>" style="display: inline-block; padding: 3px 11px; border-radius: 999px; font-size: 11px; font-weight: 600; text-transform: capitalize; <?php
-                            if ($latest_loan->status === 'pending') echo 'background: #fef3c7; color: #d97706;';
-                            elseif ($latest_loan->status === 'assigned') echo 'background: #e0f2fe; color: #0369a1;';
-                            elseif ($latest_loan->status === 'approved') echo 'background: #dcf5e4; color: #15803d;';
-                            elseif ($latest_loan->status === 'funded') echo 'background: #e0e7ff; color: #4338ca;';
-                            elseif ($latest_loan->status === 'active') echo 'background: #f3e8ff; color: #7e22ce;';
-                            elseif ($latest_loan->status === 'completed') echo 'background: #f1f5f9; color: #475569;';
-                            elseif ($latest_loan->status === 'rejected') echo 'background: #fee2e2; color: #b91c1c;';
-                        ?>">
-                            <?php echo html_escape($latest_loan->status); ?>
-                        </span>
+                        INR <?php echo number_format($latest_loan->amount, 2); ?>
                     <?php else: ?>
-                        0
+                        No active requests
                     <?php endif; ?>
                 </div>
-                <span class="uld-sub">
+                <span style="font-size: 12px;">
                     <?php if ($latest_loan): ?>
-                        Latest: INR <?php echo number_format($latest_loan->amount, 2); ?>
+                        <strong style="color: #ea580c; text-transform: capitalize;"><?php echo html_escape($latest_loan->status); ?></strong>
                     <?php else: ?>
-                        No loan record added yet.
+                        Apply to start
                     <?php endif; ?>
                 </span>
             </div>
         </div>
 
-        <?php $kyc_done = !empty($user->aadhaar_number) || !empty($user->pan_number); ?>
-        <div class="uld-card <?php echo $kyc_done ? 'uld-kyc-done' : 'uld-kyc-pending'; ?>">
-            <div class="uld-card-icon">
-                <?php if ($kyc_done): ?>
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M9 12L11 14L15 10" stroke="#15803d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        <circle cx="12" cy="12" r="9" stroke="#15803d" stroke-width="1.8" />
-                    </svg>
-                <?php else: ?>
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="12" cy="12" r="9" stroke="#b91c1c" stroke-width="1.8" />
-                        <path d="M12 7V12L15 14" stroke="#b91c1c" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                <?php endif; ?>
+        <div class="dashboard-kpi-card">
+            <?php $kyc_done = !empty($user->aadhaar_number) || !empty($user->pan_number); ?>
+            <div class="kpi-icon" style="background: <?php echo $kyc_done ? '#dcf5e4' : '#fee2e2'; ?>; color: <?php echo $kyc_done ? '#15803d' : '#ef4444'; ?>;">
+                <?php echo $kyc_done ? '✓' : '⚠'; ?>
             </div>
-            <div class="uld-card-body">
-                <h3>KYC Status</h3>
-                <div class="uld-value">
-                    <span class="uld-badge"><?php echo $kyc_done ? 'Done' : 'Pending'; ?></span>
-                </div>
-                <span class="uld-sub">Aadhaar and PAN details status.</span>
+            <div>
+                <h4 style="margin: 0 0 2px; font-size: 12px; text-transform: uppercase; color: var(--uld-text-soft); font-weight: 600;">KYC Validation</h4>
+                <div style="font-size: 15px; font-weight: 700; color: var(--uld-text);"><?php echo $kyc_done ? 'Verified' : 'Pending'; ?></div>
+                <span style="font-size: 12px; color: var(--uld-text-soft);">Aadhaar & PAN cards</span>
             </div>
         </div>
     </section>
+
+    <!-- User Journey Timeline Progress -->
+    <section style="background: #fff; border: 1px solid var(--uld-border); border-radius: var(--uld-radius-lg); padding: clamp(20px, 3vw, 24px); box-shadow: var(--uld-shadow-sm);">
+        <h3 style="margin: 0 0 20px; font-size: 16px; font-weight: 700; color: var(--uld-text); display: flex; align-items: center; gap: 8px;">
+            <span>📋 Your Loan Journey Timeline</span>
+        </h3>
+        <div style="display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; position: relative;">
+            <div style="flex: 1; min-width: 140px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px;">
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid #bae6fd;">1</div>
+                <strong style="font-size: 13px; color: var(--uld-text);">Fill Profile Info</strong>
+                <span style="font-size: 11px; color: #0284c7; font-weight: 600;">Completed ✓</span>
+            </div>
+            <div style="flex: 1; min-width: 140px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px;">
+                <?php $kyc_done = !empty($user->aadhaar_number) || !empty($user->pan_number); ?>
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: <?php echo $kyc_done ? '#dcf5e4' : '#f1f5f9'; ?>; color: <?php echo $kyc_done ? '#15803d' : '#64748b'; ?>; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid <?php echo $kyc_done ? '#bbf7d0' : '#e2e8f0'; ?>;">2</div>
+                <strong style="font-size: 13px; color: var(--uld-text);">KYC Verification</strong>
+                <span style="font-size: 11px; color: <?php echo $kyc_done ? '#15803d' : '#64748b'; ?>; font-weight: 600;"><?php echo $kyc_done ? 'Completed ✓' : 'Pending'; ?></span>
+            </div>
+            <div style="flex: 1; min-width: 140px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px;">
+                <?php $applied = !empty($latest_loan); ?>
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: <?php echo $applied ? '#dcf5e4' : '#f1f5f9'; ?>; color: <?php echo $applied ? '#15803d' : '#64748b'; ?>; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid <?php echo $applied ? '#bbf7d0' : '#e2e8f0'; ?>;">3</div>
+                <strong style="font-size: 13px; color: var(--uld-text);">Apply Loan</strong>
+                <span style="font-size: 11px; color: <?php echo $applied ? '#15803d' : '#64748b'; ?>; font-weight: 600;"><?php echo $applied ? 'Applied' : 'Not Started'; ?></span>
+            </div>
+            <div style="flex: 1; min-width: 140px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px;">
+                <?php $approved = ($latest_loan && in_array($latest_loan->status, ['approved', 'funded', 'active', 'completed'])); ?>
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: <?php echo $approved ? '#dcf5e4' : '#f1f5f9'; ?>; color: <?php echo $approved ? '#15803d' : '#64748b'; ?>; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid <?php echo $approved ? '#bbf7d0' : '#e2e8f0'; ?>;">4</div>
+                <strong style="font-size: 13px; color: var(--uld-text);">Disbursement</strong>
+                <span style="font-size: 11px; color: <?php echo $approved ? '#15803d' : '#64748b'; ?>; font-weight: 600;">
+                    <?php 
+                        if ($latest_loan) {
+                            echo html_escape($latest_loan->status);
+                        } else {
+                            echo 'Waiting';
+                        }
+                    ?>
+                </span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Actions grid -->
+    <section>
+        <h3 style="margin: 0 0 16px; font-size: 16px; font-weight: 700; color: var(--uld-text);">⚡ Quick Actions</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; width: 100%;">
+            <a href="<?php echo base_url('profile'); ?>" style="background: #fff; border: 1px solid var(--uld-border); border-radius: var(--uld-radius-md); padding: 16px; text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; box-shadow: var(--uld-shadow-sm); transition: transform 0.15s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+                <span style="font-size: 24px;">👤</span>
+                <span style="font-size: 13px; font-weight: 600; color: var(--uld-text);">My Profile</span>
+            </a>
+            <a href="<?php echo base_url('loans'); ?>" style="background: #fff; border: 1px solid var(--uld-border); border-radius: var(--uld-radius-md); padding: 16px; text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; box-shadow: var(--uld-shadow-sm); transition: transform 0.15s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+                <span style="font-size: 24px;">💼</span>
+                <span style="font-size: 13px; font-weight: 600; color: var(--uld-text);">My Loans</span>
+            </a>
+            <a href="<?php echo base_url('referrals'); ?>" style="background: #fff; border: 1px solid var(--uld-border); border-radius: var(--uld-radius-md); padding: 16px; text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; box-shadow: var(--uld-shadow-sm); transition: transform 0.15s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+                <span style="font-size: 24px;">🎁</span>
+                <span style="font-size: 13px; font-weight: 600; color: var(--uld-text);">Referrals</span>
+            </a>
+            <a href="mailto:support@loanmanagement.com" style="background: #fff; border: 1px solid var(--uld-border); border-radius: var(--uld-radius-md); padding: 16px; text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; box-shadow: var(--uld-shadow-sm); transition: transform 0.15s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+                <span style="font-size: 24px;">📞</span>
+                <span style="font-size: 13px; font-weight: 600; color: var(--uld-text);">Support</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- Refer & Earn Card -->
+    <section style="background: #fff; border: 1px solid var(--uld-border); border-radius: var(--uld-radius-lg); padding: clamp(20px, 3.5vw, 28px); box-shadow: var(--uld-shadow-sm);">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 20px;">
+            <div style="flex: 1; min-width: 250px;">
+                <h3 style="margin: 0 0 6px; font-size: 12px; color: var(--uld-primary); text-transform: uppercase; letter-spacing: .08em; font-weight: 700;">Refer & Earn</h3>
+                <div style="font-size: clamp(18px, 2.2vw, 22px); font-weight: 800; color: var(--uld-text); margin-bottom: 6px;">Invite Friends & Earn Payouts</div>
+                <span style="color: var(--uld-text-soft); font-size: 13.5px; line-height: 1.5;">Share your unique referral link. You will earn rewards when they apply, get approved, and get their loan disbursed!</span>
+            </div>
+            <div style="flex: 1; min-width: 280px; display: flex; flex-direction: column; gap: 12px;">
+                <?php $ref_link = base_url('register?ref=' . ($user->referral_code ?? '')); ?>
+                <div style="font-size: 14px; color: var(--uld-text); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+                    <span>Your Referral Code:</span>
+                    <strong style="color: var(--uld-primary); background: var(--uld-primary-light); padding: 4px 10px; border-radius: 6px; font-size: 15px; letter-spacing: 0.5px; border: 1px solid #b2eae2;" id="refCodeText"><?php echo html_escape($user->referral_code ?? ''); ?></strong>
+                    <button type="button" onclick="copyReferralCode()" style="background: none; border: 0; color: var(--uld-primary); font-weight: 700; cursor: pointer; font-size: 12.5px; display: inline-flex; align-items: center; gap: 4px; padding: 0;">📋 Copy Code</button>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <input type="text" id="refLinkInput" value="<?php echo html_escape($ref_link); ?>" readonly style="flex: 1; border: 1px solid var(--uld-border); border-radius: 12px; padding: 12px 14px; font-size: 13.5px; outline: none; background: #f8fafc; font-weight: 500;">
+                    <button type="button" onclick="copyReferralLink()" style="background: var(--uld-primary); color: #fff; border: 0; border-radius: 12px; padding: 0 20px; font-weight: 700; font-size: 13.5px; cursor: pointer; transition: background 0.15s ease;">
+                        Copy
+                    </button>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                    <a href="https://api.whatsapp.com/send?text=<?php echo urlencode('Apply for an instant loan using my link: ' . $ref_link); ?>" target="_blank" style="background: #25d366; color: #fff; border-radius: 12px; padding: 10px 18px; font-size: 13px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2); border: 0;">
+                        💬 Share on WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Helpful Tips Widget -->
+    <section style="background: #fff; border: 1px solid var(--uld-border); border-radius: var(--uld-radius-lg); padding: clamp(20px, 3vw, 24px); box-shadow: var(--uld-shadow-sm);">
+        <h3 style="margin: 0 0 12px; font-size: 16px; font-weight: 700; color: var(--uld-text);">💡 Fast Loan Approval Tips</h3>
+        <ul style="margin: 0; padding-left: 20px; color: var(--uld-text-soft); font-size: 13.5px; line-height: 1.6;">
+            <li>Keep your bank statements updated and match the holder name correctly.</li>
+            <li>Use the in-browser webcam kyc capture modal in a well-lit room for high quality profile photo validation.</li>
+            <li>Maintain a clean repayment history to unlock larger loan products instantly.</li>
+        </ul>
+    </section>
 </div>
+
+<script>
+    function copyReferralCode() {
+        var code = document.getElementById("refCodeText").textContent;
+        navigator.clipboard.writeText(code);
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Copied!',
+            text: 'Referral code copied to clipboard: ' + code,
+            timer: 1500,
+            showConfirmButton: false
+        });
+    }
+
+    function copyReferralLink() {
+        var copyText = document.getElementById("refLinkInput");
+        copyText.select();
+        copyText.setSelectionRange(0, 99999);
+        navigator.clipboard.writeText(copyText.value);
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Copied!',
+            text: 'Referral link copied to clipboard.',
+            timer: 1500,
+            showConfirmButton: false
+        });
+    }
+</script>
 
 <?php if (!empty($show_approved_alert)): ?>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

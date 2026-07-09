@@ -97,8 +97,98 @@
     .badge-funded { background: #e0e7ff; color: #4338ca; }
     .badge-active { background: #f3e8ff; color: #7e22ce; }
     .badge-completed { background: #f1f5f9; color: #475569; }
+    .badge-paid { background: #ecfdf5; color: #059669; }
     .badge-rejected { background: #fee2e2; color: #b91c1c; }
-    
+
+    .loan-mobile-list {
+        display: none;
+    }
+    .loan-mobile-card {
+        background: #fff;
+        border: 1px solid #e8eef6;
+        border-radius: 20px;
+        padding: 16px;
+        box-shadow: 0 16px 36px rgba(15, 23, 42, 0.07);
+        margin-bottom: 14px;
+    }
+    .loan-card-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+    .loan-card-amount {
+        font-size: 23px;
+        font-weight: 800;
+        color: #111827;
+        letter-spacing: -0.03em;
+    }
+    .loan-card-sub {
+        color: #667085;
+        font-size: 12px;
+        font-weight: 700;
+        margin-top: 4px;
+    }
+    .loan-card-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin: 14px 0;
+    }
+    .loan-card-item {
+        border: 1px solid #edf2f7;
+        background: #f8fafc;
+        border-radius: 14px;
+        padding: 11px;
+        min-width: 0;
+    }
+    .loan-card-item span {
+        display: block;
+        color: #667085;
+        font-size: 10.5px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .04em;
+        margin-bottom: 4px;
+    }
+    .loan-card-item strong {
+        display: block;
+        color: #172033;
+        font-size: 13px;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+    }
+    .loan-card-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+    }
+    .loan-card-link,
+    .loan-card-pay {
+        min-height: 40px;
+        border-radius: 13px;
+        padding: 0 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12.5px;
+        font-weight: 800;
+        text-decoration: none;
+    }
+    .loan-card-link {
+        background: #ecfdf5;
+        color: #0f766e;
+        border: 1px solid #b9ebe4;
+    }
+    .loan-card-pay {
+        background: #0f766e;
+        color: #fff;
+        border: 1px solid #0f766e;
+        flex: 1;
+    }
+
     .no-records {
         padding: 48px;
         text-align: center;
@@ -110,6 +200,33 @@
         height: 48px;
         margin: 0 auto 12px;
         color: #94a3b8;
+    }
+
+    @media (max-width: 640px) {
+        .my-loans-container {
+            width: 100%;
+        }
+
+        .alert-success-banner {
+            align-items: flex-start;
+            padding: 14px;
+        }
+
+        .table-card {
+            display: none;
+        }
+
+        .loan-mobile-list {
+            display: block;
+        }
+
+        .no-records {
+            padding: 34px 18px;
+        }
+
+        .loan-card-actions > * {
+            flex: 1 1 100%;
+        }
     }
 </style>
 
@@ -161,6 +278,27 @@
                                     <br>
                                     <span style="color: #65758b; font-size: 12px; font-weight: normal;"><?php echo (float)$loan->interest_rate; ?>% interest</span>
                                 <?php endif; ?>
+                                <br>
+                                <?php
+                                $terms_data = [
+                                    'id' => $loan->id,
+                                    'status' => $loan->status,
+                                    'amount' => (float) $loan->amount,
+                                    'interest_rate' => (float) $loan->interest_rate,
+                                    'processing_fee' => (float) $loan->processing_fee,
+                                    'platform_charge' => (float) $loan->platform_charge,
+                                    'gst_amount' => (float) $loan->gst_amount,
+                                    'total_payable' => (float) $loan->total_payable,
+                                    'is_emi' => (int) $loan->is_emi,
+                                    'emi_count' => (int) $loan->emi_count,
+                                    'emi_amount' => (float) $loan->emi_amount,
+                                    'due_date' => $loan->due_date ? date('d M Y', strtotime($loan->due_date)) : 'N/A'
+                                ];
+                                $json_terms = html_escape(json_encode($terms_data));
+                                ?>
+                                <a href="javascript:void(0)" onclick="viewTerms(<?php echo $json_terms; ?>)" style="color: #0f766e; font-weight: 700; text-decoration: none; font-size: 11px; margin-top: 6px; display: inline-flex; align-items: center; gap: 4px; background: #e6f6f4; border: 1px solid #b2eae2; padding: 4px 10px; border-radius: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='#0f766e'; this.style.color='#fff';" onmouseout="this.style.background='#e6f6f4'; this.style.color='#0f766e';">
+                                    🔍 View Terms
+                                </a>
                             </td>
                             <td><?php echo $loan->tenure_days; ?> Days</td>
                             <td><?php echo html_escape($loan->purpose ?: '-'); ?></td>
@@ -228,6 +366,107 @@
             </tbody>
         </table>
     </div>
+
+    <div class="loan-mobile-list">
+        <?php if (!empty($loans)): ?>
+            <?php $mobile_sno = 1; ?>
+            <?php foreach ($loans as $loan): ?>
+                <?php
+                $terms_data = [
+                    'id' => $loan->id,
+                    'status' => $loan->status,
+                    'amount' => (float) $loan->amount,
+                    'interest_rate' => (float) $loan->interest_rate,
+                    'processing_fee' => (float) $loan->processing_fee,
+                    'platform_charge' => (float) $loan->platform_charge,
+                    'gst_amount' => (float) $loan->gst_amount,
+                    'total_payable' => (float) $loan->total_payable,
+                    'is_emi' => (int) $loan->is_emi,
+                    'emi_count' => (int) $loan->emi_count,
+                    'emi_amount' => (float) $loan->emi_amount,
+                    'due_date' => $loan->due_date ? date('d M Y', strtotime($loan->due_date)) : 'N/A'
+                ];
+                $json_terms = html_escape(json_encode($terms_data));
+                $days_label = '-';
+                $days_style = '';
+                if ($loan->status === 'approved') {
+                    $tenure_days = (int) $loan->tenure_days;
+                    $start_date = new DateTime(date('Y-m-d', strtotime($loan->approved_at ?: $loan->updated_at ?: $loan->created_at)));
+                    $due_date = clone $start_date;
+                    $due_date->modify('+' . $tenure_days . ' days');
+                    $today = new DateTime(date('Y-m-d'));
+                    $remaining_days = (int) $today->diff($due_date)->format('%r%a');
+                    $remaining_days = min($remaining_days, $tenure_days);
+                    if ($remaining_days > 0) {
+                        $days_label = ($remaining_days === 1) ? '1 Day Remaining' : $remaining_days . ' Days Remaining';
+                        $days_style = 'background:#fffbeb; color:#b45309; border:1px solid #fef3c7;';
+                    } elseif ($remaining_days === 0) {
+                        $days_label = 'Due Today';
+                        $days_style = 'background:#fef2f2; color:#dc2626; border:1px solid #fecaca;';
+                    } else {
+                        $days_label = 'Overdue by ' . abs($remaining_days) . ' Days';
+                        $days_style = 'background:#fef2f2; color:#dc2626; border:1px solid #fecaca;';
+                    }
+                } elseif ($loan->status === 'paid') {
+                    $days_label = 'Paid';
+                    $days_style = 'background:#ecfdf5; color:#059669; border:1px solid #a7f3d0;';
+                }
+                ?>
+                <article class="loan-mobile-card">
+                    <div class="loan-card-top">
+                        <div>
+                            <div class="loan-card-amount">INR <?php echo number_format($loan->amount, 2); ?></div>
+                            <div class="loan-card-sub">Application #<?php echo $mobile_sno++; ?> · <?php echo date('d M Y', strtotime($loan->created_at)); ?></div>
+                        </div>
+                        <span class="badge badge-<?php echo strtolower($loan->status); ?>"><?php echo html_escape($loan->status); ?></span>
+                    </div>
+
+                    <div class="loan-card-grid">
+                        <div class="loan-card-item">
+                            <span>Tenure</span>
+                            <strong><?php echo $loan->tenure_days; ?> Days</strong>
+                        </div>
+                        <div class="loan-card-item">
+                            <span>Interest</span>
+                            <strong><?php echo !empty($loan->interest_rate) ? (float)$loan->interest_rate . '%' : '-'; ?></strong>
+                        </div>
+                        <div class="loan-card-item">
+                            <span>Purpose</span>
+                            <strong><?php echo html_escape($loan->purpose ?: '-'); ?></strong>
+                        </div>
+                        <div class="loan-card-item">
+                            <span>Days Left</span>
+                            <strong><?php echo html_escape($days_label); ?></strong>
+                        </div>
+                    </div>
+
+                    <?php if ($days_style): ?>
+                        <span class="badge" style="<?php echo $days_style; ?> text-transform:none;"><?php echo html_escape($days_label); ?></span>
+                    <?php endif; ?>
+
+                    <div class="loan-card-actions">
+                        <a href="javascript:void(0)" onclick="viewTerms(<?php echo $json_terms; ?>)" class="loan-card-link">View Terms</a>
+                        <?php if ($loan->status === 'approved'): ?>
+                            <?php if (!empty($loan->repayment_submitted_at)): ?>
+                                <span class="loan-card-link">Verification Pending</span>
+                            <?php else: ?>
+                                <a href="<?php echo base_url('loans/pay/' . $loan->id); ?>" class="loan-card-pay">Pay Loan</a>
+                            <?php endif; ?>
+                        <?php elseif ($loan->status === 'paid'): ?>
+                            <span class="loan-card-link">Completed</span>
+                        <?php endif; ?>
+                    </div>
+                </article>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <div class="loan-mobile-card no-records">
+                <svg class="no-records-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" />
+                </svg>
+                <p>No loan applications found.</p>
+            </div>
+        <?php endif; ?>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -252,3 +491,80 @@
 <?php if ($this->session->flashdata('error')): ?>
     <script>Swal.fire({icon:'error',title:'Error',text:<?php echo json_encode($this->session->flashdata('error')); ?>});</script>
 <?php endif; ?>
+
+<script>
+    function viewTerms(data) {
+        var planHtml = '';
+        if (data.is_emi === 1) {
+            planHtml = `
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px;">
+                    <span style="color:#64748b;">Repayment Mode:</span>
+                    <strong>EMI Plan</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px;">
+                    <span style="color:#64748b;">EMI Months Count:</span>
+                    <strong>${data.emi_count} Months</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px;">
+                    <span style="color:#64748b;">EMI Monthly Amount:</span>
+                    <strong>INR ${parseFloat(data.emi_amount).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</strong>
+                </div>
+            `;
+        } else {
+            planHtml = `
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px;">
+                    <span style="color:#64748b;">Repayment Mode:</span>
+                    <strong>Single Due Date</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px;">
+                    <span style="color:#64748b;">Due Date:</span>
+                    <strong>${data.due_date}</strong>
+                </div>
+            `;
+        }
+
+        var showPay = (data.status === 'approved');
+        Swal.fire({
+            title: 'Loan Offer Terms',
+            html: `
+                <div style="text-align:left; padding:10px 0;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">
+                        <span style="color:#64748b;">Principal Amount:</span>
+                        <strong>INR ${parseFloat(data.amount).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">
+                        <span style="color:#64748b;">Interest Rate:</span>
+                        <strong>${parseFloat(data.interest_rate)}%</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">
+                        <span style="color:#64748b;">Processing Fee:</span>
+                        <strong>INR ${parseFloat(data.processing_fee).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">
+                        <span style="color:#64748b;">Platform Charges:</span>
+                        <strong>INR ${parseFloat(data.platform_charge).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</strong>
+                    </div>
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">
+                        <span style="color:#64748b;">GST Amount:</span>
+                        <strong>INR ${parseFloat(data.gst_amount).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</strong>
+                    </div>
+                    ${planHtml}
+                    <div style="display:flex; justify-content:space-between; margin-top:20px; font-size:18px; border-top:1px dashed #cbd5e1; padding-top:12px;">
+                        <span style="color:#0f766e; font-weight:700;">Total Repayable:</span>
+                        <strong style="color:#0f766e;">INR ${parseFloat(data.total_payable).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</strong>
+                    </div>
+                </div>
+            `,
+            showCancelButton: showPay,
+            confirmButtonText: showPay ? 'Close' : 'Close',
+            confirmButtonColor: showPay ? '#64748b' : '#0f766e',
+            cancelButtonText: 'Pay Now 💳',
+            cancelButtonColor: '#0f766e',
+            reverseButtons: true
+        }).then((result) => {
+            if (showPay && result.dismiss === Swal.DismissReason.cancel) {
+                window.location.href = '<?php echo base_url("loans/pay/"); ?>' + data.id;
+            }
+        });
+    }
+</script>

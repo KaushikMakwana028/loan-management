@@ -39,5 +39,6 @@
         });
     })();
 </script>
+<script src="<?php echo base_url('assets/js/table-pagination.js'); ?>"></script>
 </body>
 </html>
