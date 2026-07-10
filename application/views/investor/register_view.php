@@ -10,17 +10,17 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         *{box-sizing:border-box;font-family:'Poppins',sans-serif;}
-        body{margin:0;min-height:100vh;background:#f7f4ff;color:#201a2f;display:grid;place-items:center;padding:24px;}
-        .wrap{width:100%;max-width:480px;background:#fff;border-radius:24px;padding:34px;box-shadow:0 24px 70px rgba(49,32,90,.14);}
+        body{margin:0;min-height:100vh;background:#f3f8f5;color:#0f241f;display:grid;place-items:center;padding:24px;}
+        .wrap{width:100%;max-width:480px;background:#fff;border-radius:24px;padding:34px;box-shadow:0 24px 70px rgba(6,72,61,.14);}
         .top{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;margin-bottom:26px;}
         h1{margin:0 0 8px;font-size:30px;}
         p{margin:0;color:#64748b;line-height:1.6;}
         .field{margin-bottom:18px;}
         label{display:block;font-size:13px;font-weight:600;margin-bottom:8px;}
-        input{width:100%;border:1px solid #ddd6fe;border-radius:12px;padding:13px 14px;font-size:15px;outline:none;background:#fff;}
-        input:focus{border-color:#6d28d9;box-shadow:0 0 0 4px rgba(109,40,217,.12);}
-        .btn{width:100%;border:0;border-radius:12px;background:#6d28d9;color:#fff;padding:14px 22px;font-weight:700;font-size:15px;cursor:pointer;}
-        a{color:#6d28d9;text-decoration:none;font-weight:600;}
+        input{width:100%;border:1px solid #dbe8e3;border-radius:12px;padding:13px 14px;font-size:15px;outline:none;background:#fff;}
+        input:focus{border-color:#06483d;box-shadow:0 0 0 4px rgba(6,72,61,.12);}
+        .btn{width:100%;border:0;border-radius:12px;background:#06483d;color:#fff;padding:14px 22px;font-weight:700;font-size:15px;cursor:pointer;}
+        a{color:#06483d;text-decoration:none;font-weight:600;}
         @media(max-width:560px){body{padding:14px}.wrap{padding:24px 18px}.top{display:block}.top a{display:inline-block;margin-top:12px}}
     </style>
 </head>
@@ -61,3 +61,4 @@
     <?php endif; ?>
 </body>
 </html>
+

@@ -38,8 +38,7 @@ class Login extends CI_Controller
         $mobile = $this->input->post('mobile');
         $user = $this->general->getOne('users', [
             'mobile' => $mobile,
-            'role' => $this->role,
-            'is_active' => 1
+            'role' => $this->role
         ]);
 
         if (!$user) {
@@ -72,8 +71,7 @@ class Login extends CI_Controller
         if ($input_otp == $session_otp) {
             $user = $this->general->getRowArray('users', [
                 'mobile' => $mobile,
-                'role' => $this->role,
-                'is_active' => 1
+                'role' => $this->role
             ]);
 
             if ($user) {

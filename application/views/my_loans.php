@@ -18,7 +18,7 @@
         font-weight: 700;
     }
     .btn-apply {
-        background: #0f766e;
+        background: #063d32;
         color: #fff;
         border-radius: 12px;
         padding: 12px 22px;
@@ -30,7 +30,7 @@
         gap: 8px;
     }
     .btn-apply:hover {
-        background: #0d5f58;
+        background: #042a22;
     }
     .alert-success-banner {
         background: #dcf5e4;
@@ -92,12 +92,12 @@
         text-transform: capitalize;
     }
     .badge-pending { background: #fef3c7; color: #d97706; }
-    .badge-assigned { background: #e0f2fe; color: #0369a1; }
+    .badge-assigned { background: #f8efd9; color: #8a5a10; }
     .badge-approved { background: #dcf5e4; color: #15803d; }
-    .badge-funded { background: #e0e7ff; color: #4338ca; }
+    .badge-funded { background: #f8efd9; color: #8a5a10; }
     .badge-active { background: #f3e8ff; color: #7e22ce; }
     .badge-completed { background: #f1f5f9; color: #475569; }
-    .badge-paid { background: #ecfdf5; color: #059669; }
+    .badge-paid { background: #eef8f4; color: #059669; }
     .badge-rejected { background: #fee2e2; color: #b91c1c; }
 
     .loan-mobile-list {
@@ -178,14 +178,14 @@
         text-decoration: none;
     }
     .loan-card-link {
-        background: #ecfdf5;
-        color: #0f766e;
-        border: 1px solid #b9ebe4;
+        background: #eef8f4;
+        color: #063d32;
+        border: 1px solid #bddbd2;
     }
     .loan-card-pay {
-        background: #0f766e;
+        background: #063d32;
         color: #fff;
-        border: 1px solid #0f766e;
+        border: 1px solid #063d32;
         flex: 1;
     }
 
@@ -252,6 +252,16 @@
         <?php endif; ?>
     </div>
 
+    <?php if (!empty($profile_review_pending)): ?>
+        <div class="alert-success-banner" style="background:#fffbeb; border-color:#fde68a; color:#92400e;">
+            <span>Your profile is under review. We will verify it within 24 hours, and loan applications will unlock after admin approval.</span>
+        </div>
+    <?php elseif (empty($profile_completed)): ?>
+        <div class="alert-success-banner" style="background:#fff8ee; border-color:#fadfb5; color:#b45309;">
+            <span>Please complete your profile details to become eligible for a loan.</span>
+        </div>
+    <?php endif; ?>
+
     <div class="table-card">
         <table>
             <thead>
@@ -289,14 +299,14 @@
                                     'platform_charge' => (float) $loan->platform_charge,
                                     'gst_amount' => (float) $loan->gst_amount,
                                     'total_payable' => (float) $loan->total_payable,
-                                    'is_emi' => (int) $loan->is_emi,
-                                    'emi_count' => (int) $loan->emi_count,
-                                    'emi_amount' => (float) $loan->emi_amount,
+                                    'is_emi' => isset($loan->is_emi) ? (int) $loan->is_emi : 0,
+                                    'emi_count' => isset($loan->emi_count) ? (int) $loan->emi_count : 0,
+                                    'emi_amount' => isset($loan->emi_amount) ? (float) $loan->emi_amount : 0.0,
                                     'due_date' => $loan->due_date ? date('d M Y', strtotime($loan->due_date)) : 'N/A'
                                 ];
                                 $json_terms = html_escape(json_encode($terms_data));
                                 ?>
-                                <a href="javascript:void(0)" onclick="viewTerms(<?php echo $json_terms; ?>)" style="color: #0f766e; font-weight: 700; text-decoration: none; font-size: 11px; margin-top: 6px; display: inline-flex; align-items: center; gap: 4px; background: #e6f6f4; border: 1px solid #b2eae2; padding: 4px 10px; border-radius: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='#0f766e'; this.style.color='#fff';" onmouseout="this.style.background='#e6f6f4'; this.style.color='#0f766e';">
+                                <a href="javascript:void(0)" onclick="viewTerms(<?php echo $json_terms; ?>)" style="color: #063d32; font-weight: 700; text-decoration: none; font-size: 11px; margin-top: 6px; display: inline-flex; align-items: center; gap: 4px; background: #eef8f4; border: 1px solid #bddbd2; padding: 4px 10px; border-radius: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='#063d32'; this.style.color='#fff';" onmouseout="this.style.background='#eef8f4'; this.style.color='#063d32';">
                                     🔍 View Terms
                                 </a>
                             </td>
@@ -328,7 +338,7 @@
                                     }
                                     ?>
                                 <?php elseif ($loan->status === 'paid'): ?>
-                                    <span class="badge" style="background:#ecfdf5; color:#059669; border: 1px solid #a7f3d0; text-transform:none;">Paid</span>
+                                    <span class="badge" style="background:#eef8f4; color:#059669; border: 1px solid #a7f3d0; text-transform:none;">Paid</span>
                                 <?php else: ?>
                                     -
                                 <?php endif; ?>
@@ -339,12 +349,12 @@
                                     <?php if (!empty($loan->repayment_submitted_at)): ?>
                                         <span class="badge" style="background:#f1f5f9; color:#475569; border:1px solid #e2e8f0; text-transform:none;">Verification Pending</span>
                                     <?php else: ?>
-                                        <a href="<?php echo base_url('loans/pay/' . $loan->id); ?>" style="background:#0f766e; color:#fff; border:0; padding:6px 12px; border-radius:8px; font-size:12.5px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:4px; transition:background 0.2s ease;">
+                                        <a href="<?php echo base_url('loans/pay/' . $loan->id); ?>" style="background:#063d32; color:#fff; border:0; padding:6px 12px; border-radius:8px; font-size:12.5px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:4px; transition:background 0.2s ease;">
                                             Pay Loan
                                         </a>
                                     <?php endif; ?>
                                 <?php elseif ($loan->status === 'paid'): ?>
-                                    <span class="badge" style="background:#ecfdf5; color:#059669; border: 1px solid #a7f3d0; text-transform:none;">Completed</span>
+                                    <span class="badge" style="background:#eef8f4; color:#059669; border: 1px solid #a7f3d0; text-transform:none;">Completed</span>
                                 <?php else: ?>
                                     -
                                 <?php endif; ?>
@@ -381,9 +391,9 @@
                     'platform_charge' => (float) $loan->platform_charge,
                     'gst_amount' => (float) $loan->gst_amount,
                     'total_payable' => (float) $loan->total_payable,
-                    'is_emi' => (int) $loan->is_emi,
-                    'emi_count' => (int) $loan->emi_count,
-                    'emi_amount' => (float) $loan->emi_amount,
+                    'is_emi' => isset($loan->is_emi) ? (int) $loan->is_emi : 0,
+                    'emi_count' => isset($loan->emi_count) ? (int) $loan->emi_count : 0,
+                    'emi_amount' => isset($loan->emi_amount) ? (float) $loan->emi_amount : 0.0,
                     'due_date' => $loan->due_date ? date('d M Y', strtotime($loan->due_date)) : 'N/A'
                 ];
                 $json_terms = html_escape(json_encode($terms_data));
@@ -409,7 +419,7 @@
                     }
                 } elseif ($loan->status === 'paid') {
                     $days_label = 'Paid';
-                    $days_style = 'background:#ecfdf5; color:#059669; border:1px solid #a7f3d0;';
+                    $days_style = 'background:#eef8f4; color:#059669; border:1px solid #a7f3d0;';
                 }
                 ?>
                 <article class="loan-mobile-card">
@@ -477,7 +487,7 @@
             title: 'Very Good!',
             html: '<strong>Your loan has been approved.</strong><br><span style="color:#64748b">Congratulations, your loan request is ready for the next step.</span>',
             confirmButtonText: 'Perfect',
-            confirmButtonColor: '#0f766e',
+            confirmButtonColor: '#063d32',
             background: '#ffffff',
             color: '#172033',
             width: 430,
@@ -550,16 +560,16 @@
                     </div>
                     ${planHtml}
                     <div style="display:flex; justify-content:space-between; margin-top:20px; font-size:18px; border-top:1px dashed #cbd5e1; padding-top:12px;">
-                        <span style="color:#0f766e; font-weight:700;">Total Repayable:</span>
-                        <strong style="color:#0f766e;">INR ${parseFloat(data.total_payable).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</strong>
+                        <span style="color:#063d32; font-weight:700;">Total Repayable:</span>
+                        <strong style="color:#063d32;">INR ${parseFloat(data.total_payable).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</strong>
                     </div>
                 </div>
             `,
             showCancelButton: showPay,
             confirmButtonText: showPay ? 'Close' : 'Close',
-            confirmButtonColor: showPay ? '#64748b' : '#0f766e',
+            confirmButtonColor: showPay ? '#64748b' : '#063d32',
             cancelButtonText: 'Pay Now 💳',
-            cancelButtonColor: '#0f766e',
+            cancelButtonColor: '#063d32',
             reverseButtons: true
         }).then((result) => {
             if (showPay && result.dismiss === Swal.DismissReason.cancel) {

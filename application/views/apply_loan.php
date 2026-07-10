@@ -47,8 +47,8 @@
         resize: vertical;
     }
     input:focus, select:focus, textarea:focus {
-        border-color: #0f766e;
-        box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
+        border-color: #063d32;
+        box-shadow: 0 0 0 4px rgba(6, 61, 50, 0.12);
     }
     .radio-grid {
         display: grid;
@@ -78,15 +78,15 @@
         border-color: #cbd5e1;
     }
     .radio-card.active {
-        border-color: #0f766e;
-        background: #e8f7f5;
-        color: #0f766e;
-        box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
+        border-color: #063d32;
+        background: #eef8f4;
+        color: #063d32;
+        box-shadow: 0 0 0 4px rgba(6, 61, 50, 0.12);
     }
     .btn {
         border: 0;
         border-radius: 12px;
-        background: #0f766e;
+        background: #063d32;
         color: #fff;
         padding: 14px 22px;
         font-weight: 700;
@@ -99,7 +99,7 @@
         margin-top: 10px;
     }
     .btn:hover {
-        background: #0d5f58;
+        background: #042a22;
     }
 
     @media (max-width: 640px) {

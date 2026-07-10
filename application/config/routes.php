@@ -66,6 +66,7 @@ $route['admin/verify-otp'] = 'admin/login/verify_otp';
 $route['admin/dashboard'] = 'admin/dashboard';
 $route['admin/users'] = 'admin/users';
 $route['admin/users/view/(:num)'] = 'admin/users/view/$1';
+$route['admin/users/status/(:num)/(:num)'] = 'admin/users/status/$1/$2';
 $route['admin/users/delete/(:num)'] = 'admin/users/delete/$1';
 $route['admin/profile'] = 'admin/profile';
 $route['admin/profile/update'] = 'admin/profile/update';
@@ -135,6 +136,27 @@ $route['admin/referral_settings/save'] = 'admin/ReferralSettings/save';
 // Admin Loan Actions
 $route['admin/loans/disburse/(:num)'] = 'admin/loans/disburse/$1';
 $route['admin/loans/update_offer/(:num)'] = 'admin/loans/update_offer/$1';
+
+// User API Routes
+$route['api/auth/login-send-otp'] = 'api/login_send_otp';
+$route['api/auth/login_send_otp'] = 'api/login_send_otp';
+$route['api/auth/login-verify-otp'] = 'api/login_verify_otp';
+$route['api/auth/login_verify_otp'] = 'api/login_verify_otp';
+$route['api/auth/register-send-otp'] = 'api/register_send_otp';
+$route['api/auth/register_send_otp'] = 'api/register_send_otp';
+$route['api/auth/register-verify-otp'] = 'api/register_verify_otp';
+$route['api/auth/register_verify_otp'] = 'api/register_verify_otp';
+$route['api/dashboard'] = 'api/dashboard';
+$route['api/profile'] = 'api/profile';
+$route['api/profile/update'] = 'api/profile_update';
+$route['api/loans'] = 'api/loans';
+$route['api/loans/apply'] = 'api/loans_apply';
+$route['api/loans/pay/(:num)'] = 'api/loans_pay/$1';
+$route['api/loans/terms/(:num)'] = 'api/loans_terms/$1';
+$route['api/loans/submit-pay/(:num)'] = 'api/loans_submit_pay/$1';
+$route['api/loans/submit_pay/(:num)'] = 'api/loans_submit_pay/$1';
+$route['api/referrals'] = 'api/referrals';
+$route['api/referrals/withdraw'] = 'api/referrals_withdraw';
 
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;

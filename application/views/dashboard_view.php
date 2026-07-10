@@ -5,10 +5,10 @@
         .uld-dashboard {
             --uld-bg: #f8fafc;
             --uld-surface: #ffffff;
-            --uld-primary: #0f766e;
+            --uld-primary: #063d32;
             --uld-primary-light: #f0fdfa;
-            --uld-accent: #6366f1;
-            --uld-accent-light: #e0e7ff;
+            --uld-accent: #c59b27;
+            --uld-accent-light: #f8efd9;
             --uld-text: #0f172a;
             --uld-text-soft: #64748b;
             --uld-border: #e2e8f0;
@@ -34,7 +34,7 @@
 
         /* Redesigned Hero Header Card */
         .uld-hero {
-            background: linear-gradient(135deg, var(--uld-primary) 0%, #1e1b4b 100%);
+            background: linear-gradient(135deg, var(--uld-primary) 0%, #042a22 100%);
             border-radius: var(--uld-radius-lg);
             padding: clamp(20px, 4vw, 32px);
             color: #fff;
@@ -216,7 +216,19 @@
     </section>
 
     <!-- Prominent Action Center depending on KYC Status -->
-    <?php if (empty($profile_completed)): ?>
+    <?php if (!empty($profile_review_pending)): ?>
+        <section style="background: #fffbeb; border: 1px solid #fde68a; border-radius: var(--uld-radius-lg); padding: clamp(20px, 4vw, 32px); box-shadow: var(--uld-shadow-lg); display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 260px; display: flex; gap: 16px; align-items: flex-start;">
+                <div style="width: 50px; height: 50px; border-radius: 50%; background: #fef3c7; color: #b45309; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
+                    !
+                </div>
+                <div>
+                    <h3 style="margin: 0 0 6px; font-size: clamp(16px, 2vw, 19px); font-weight: 700; color: #92400e;">Your profile is under review</h3>
+                    <p style="margin: 0; color: #78350f; font-size: 13.5px; line-height: 1.5;">We will verify your profile within 24 hours. Loan applications will be available as soon as an admin approves your profile.</p>
+                </div>
+            </div>
+        </section>
+    <?php elseif (empty($profile_completed)): ?>
         <!-- Incomplete KYC Prompt -->
         <section style="background: #fff; border: 1px solid #fee2e2; border-radius: var(--uld-radius-lg); padding: clamp(20px, 4vw, 32px); box-shadow: var(--uld-shadow-lg); display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap;">
             <div style="flex: 1; min-width: 260px; display: flex; gap: 16px; align-items: flex-start;">
@@ -233,8 +245,13 @@
             </div>
         </section>
     <?php else: ?>
+        <?php if (!empty($profile_active_message)): ?>
+            <section style="background: #ecfdf5; border: 1px solid #bbf7d0; border-radius: var(--uld-radius-lg); padding: 18px 20px; color: #166534; font-weight: 700; box-shadow: var(--uld-shadow-sm);">
+                <?php echo html_escape($profile_active_message); ?>
+            </section>
+        <?php endif; ?>
         <!-- Premium Apply Loan CTA (Shown ONLY after full KYC) -->
-        <section class="uld-loan-cta" style="background: linear-gradient(135deg, var(--uld-primary) 0%, #115e59 100%); border-radius: var(--uld-radius-lg); padding: clamp(24px, 5vw, 36px); color: #fff; box-shadow: 0 20px 40px rgba(15, 118, 110, 0.25); display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; position: relative; overflow: hidden;">
+        <section class="uld-loan-cta" style="background: linear-gradient(135deg, var(--uld-primary) 0%, #042a22 100%); border-radius: var(--uld-radius-lg); padding: clamp(24px, 5vw, 36px); color: #fff; box-shadow: 0 20px 40px rgba(6, 61, 50, 0.25); display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; position: relative; overflow: hidden;">
             <div style="position: absolute; right: -20px; bottom: -20px; opacity: 0.1; transform: rotate(-15deg); pointer-events: none;">
                 <svg width="200" height="200" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2-2 0-3 .9-3 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
             </div>
@@ -244,7 +261,7 @@
                 <p style="margin: 0; color: #ccfbf1; font-size: clamp(13px, 1.6vw, 14.5px); line-height: 1.5; max-width: 500px;">Get funding disbursed directly to your bank account with easy interest options and flexible EMI returns.</p>
             </div>
             <div class="uld-loan-cta-action" style="z-index: 1; width: 100%; max-width: 200px;">
-                <a href="<?php echo base_url('loans/apply'); ?>" style="display: block; text-align: center; background: #fff; color: #0f766e; padding: 16px 28px; border-radius: var(--uld-radius-md); font-weight: 800; font-size: 15.5px; text-decoration: none; box-shadow: 0 10px 25px rgba(0,0,0,0.1); transition: all 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='none';">Apply Now ⚡</a>
+                <a href="<?php echo base_url('loans/apply'); ?>" style="display: block; text-align: center; background: #fff; color: var(--uld-primary); padding: 16px 28px; border-radius: var(--uld-radius-md); font-weight: 800; font-size: 15.5px; text-decoration: none; box-shadow: 0 10px 25px rgba(0,0,0,0.1); transition: all 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='none';">Apply Now ⚡</a>
             </div>
         </section>
     <?php endif; ?>
@@ -252,7 +269,7 @@
     <!-- Overview Grid Info Cards -->
     <section class="grid-cols-3">
         <div class="dashboard-kpi-card">
-            <div class="kpi-icon" style="background: #e0f2fe; color: #0284c7;">👤</div>
+            <div class="kpi-icon" style="background: #f8efd9; color: #a87517;">👤</div>
             <div>
                 <h4 style="margin: 0 0 2px; font-size: 12px; text-transform: uppercase; color: var(--uld-text-soft); font-weight: 600;">My Profile</h4>
                 <div style="font-size: 15px; font-weight: 700; color: var(--uld-text);"><?php echo html_escape($user->name ?? 'User'); ?></div>
@@ -301,9 +318,9 @@
         </h3>
         <div style="display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; position: relative;">
             <div style="flex: 1; min-width: 140px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px;">
-                <div style="width: 36px; height: 36px; border-radius: 50%; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid #bae6fd;">1</div>
+                <div style="width: 36px; height: 36px; border-radius: 50%; background: #f8efd9; color: #a87517; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid #ead09b;">1</div>
                 <strong style="font-size: 13px; color: var(--uld-text);">Fill Profile Info</strong>
-                <span style="font-size: 11px; color: #0284c7; font-weight: 600;">Completed ✓</span>
+                <span style="font-size: 11px; color: #a87517; font-weight: 600;">Completed ✓</span>
             </div>
             <div style="flex: 1; min-width: 140px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px;">
                 <?php $kyc_done = !empty($user->aadhaar_number) || !empty($user->pan_number); ?>
@@ -369,7 +386,7 @@
                 <?php $ref_link = base_url('register?ref=' . ($user->referral_code ?? '')); ?>
                 <div style="font-size: 14px; color: var(--uld-text); margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
                     <span>Your Referral Code:</span>
-                    <strong style="color: var(--uld-primary); background: var(--uld-primary-light); padding: 4px 10px; border-radius: 6px; font-size: 15px; letter-spacing: 0.5px; border: 1px solid #b2eae2;" id="refCodeText"><?php echo html_escape($user->referral_code ?? ''); ?></strong>
+                    <strong style="color: var(--uld-primary); background: var(--uld-primary-light); padding: 4px 10px; border-radius: 6px; font-size: 15px; letter-spacing: 0.5px; border: 1px solid #bddbd2;" id="refCodeText"><?php echo html_escape($user->referral_code ?? ''); ?></strong>
                     <button type="button" onclick="copyReferralCode()" style="background: none; border: 0; color: var(--uld-primary); font-weight: 700; cursor: pointer; font-size: 12.5px; display: inline-flex; align-items: center; gap: 4px; padding: 0;">📋 Copy Code</button>
                 </div>
                 <div style="display: flex; gap: 8px;">
@@ -436,7 +453,7 @@
             title: 'Very Good!',
             html: '<strong>Your loan has been approved.</strong><br><span style="color:#64748b">Congratulations, your loan request is ready for the next step.</span>',
             confirmButtonText: 'Perfect',
-            confirmButtonColor: '#0f766e',
+            confirmButtonColor: '#063d32',
             background: '#ffffff',
             color: '#172033',
             width: 430,

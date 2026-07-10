@@ -13,7 +13,7 @@
     }
     .withdraw-card {
         background: #fff;
-        border: 1px solid #ede9fe;
+        border: 1px solid #dbe8e3;
         border-radius: 20px;
         padding: 24px;
         box-shadow: 0 14px 40px rgba(49, 32, 90, 0.05);
@@ -22,18 +22,18 @@
         margin: 0 0 8px;
         font-size: 18px;
         font-weight: 700;
-        color: #201a2f;
+        color: #0f241f;
     }
     .withdraw-card .subtitle {
-        color: #6b5c81;
+        color: #49645c;
         font-size: 13px;
         margin-top: 0;
         margin-bottom: 20px;
         line-height: 1.5;
     }
     .balance-badge-box {
-        background: linear-gradient(135deg, #f5f3ff, #ede9fe);
-        border: 1px solid #ddd6fe;
+        background: linear-gradient(135deg, #eef8f4, #dbe8e3);
+        border: 1px solid #dbe8e3;
         border-radius: 12px;
         padding: 15px;
         margin-bottom: 20px;
@@ -43,12 +43,12 @@
     }
     .balance-badge-box span {
         font-size: 13px;
-        color: #6b5c81;
+        color: #49645c;
         font-weight: 600;
     }
     .balance-badge-box strong {
         font-size: 18px;
-        color: #6d28d9;
+        color: #06483d;
         font-weight: 800;
     }
     .form-group {
@@ -59,11 +59,11 @@
         font-size: 13px;
         font-weight: 600;
         margin-bottom: 8px;
-        color: #201a2f;
+        color: #0f241f;
     }
     input[type="number"] {
         width: 100%;
-        border: 1px solid #ddd6fe;
+        border: 1px solid #dbe8e3;
         border-radius: 12px;
         padding: 13px 14px;
         font-size: 15px;
@@ -72,13 +72,13 @@
         transition: all 0.2s ease;
     }
     input[type="number"]:focus {
-        border-color: #6d28d9;
+        border-color: #06483d;
         box-shadow: 0 0 0 4px rgba(109, 40, 217, 0.12);
     }
     .btn-submit {
         border: 0;
         border-radius: 12px;
-        background: #6d28d9;
+        background: #06483d;
         color: #fff;
         padding: 14px 22px;
         font-weight: 700;
@@ -92,24 +92,24 @@
         gap: 8px;
     }
     .btn-submit:hover {
-        background: #5b21b6;
+        background: #04352d;
     }
     .bank-item {
         display: flex;
         justify-content: space-between;
         padding: 12px 0;
-        border-bottom: 1px solid #ede9fe;
+        border-bottom: 1px solid #dbe8e3;
         font-size: 14px;
     }
     .bank-item:last-child {
         border-bottom: 0;
     }
     .bank-item span:first-child {
-        color: #6b5c81;
+        color: #49645c;
         font-weight: 500;
     }
     .bank-item span:last-child {
-        color: #201a2f;
+        color: #0f241f;
         font-weight: 700;
     }
     .alert-info-box {
@@ -181,7 +181,7 @@
 
             <div class="alert-info-box">
                 💡 Need to change your linked bank account? Update details under the 
-                <a href="<?php echo base_url('investor/profile'); ?>" style="color: #6d28d9; font-weight: 700; text-decoration: underline;">Bank Details</a> sidebar menu.
+                <a href="<?php echo base_url('investor/profile'); ?>" style="color: #06483d; font-weight: 700; text-decoration: underline;">Bank Details</a> sidebar menu.
             </div>
         </div>
     </div>
@@ -190,3 +190,4 @@
 <?php if ($this->session->flashdata('error')): ?>
     <script>Swal.fire({icon:'error',title:'Error',text:<?php echo json_encode($this->session->flashdata('error')); ?>});</script>
 <?php endif; ?>
+

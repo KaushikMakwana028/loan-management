@@ -103,7 +103,7 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
         position: relative;
         border-radius: var(--pf-radius-lg);
         overflow: hidden;
-        background: linear-gradient(145deg, #0f766e 0%, #12a998 54%, #2563eb 100%);
+        background: linear-gradient(145deg, #063d32 0%, #0b5e4d 54%, #c59b27 100%);
         padding: 28px 22px 64px;
         color: #fff;
     }
@@ -1656,7 +1656,7 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
         <h3 id="camModalTitle" style="margin: 0 0 6px; font-size: 20px; color: #0f172a;">Capture Document</h3>
         <p id="camModalSub" style="color: #64748b; font-size: 13px; margin: 0 0 20px;">Align the item in the target area.</p>
 
-        <div id="camViewportContainer" style="width: 100%; aspect-ratio: 4/3; max-height: 280px; border-radius: 16px; border: 3px solid #0f766e; overflow: hidden; margin: 0 auto 20px; position: relative; background: #f8fafc; box-shadow: inset 0 4px 10px rgba(0,0,0,0.05);">
+        <div id="camViewportContainer" style="width: 100%; aspect-ratio: 4/3; max-height: 280px; border-radius: 16px; border: 3px solid #063d32; overflow: hidden; margin: 0 auto 20px; position: relative; background: #f8fafc; box-shadow: inset 0 4px 10px rgba(0,0,0,0.05);">
             <video id="captureVideo" autoplay playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
             <canvas id="captureCanvas" style="display: none;"></canvas>
             <img id="capturePreview" style="display: none; width: 100%; height: 100%; object-fit: cover;" />
@@ -1665,13 +1665,13 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
                 <span style="color: #fff; font-size: 12px; background: rgba(0,0,0,0.5); padding: 4px 10px; border-radius: 4px;">Align Here</span>
             </div>
 
-            <div id="captureCountdown" style="display: none; position: absolute; inset: 0; background: rgba(15, 118, 110, 0.25); color: #fff; font-size: 72px; font-weight: 800; align-items: center; justify-content: center; text-shadow: 0 4px 12px rgba(0,0,0,0.3);">3</div>
+            <div id="captureCountdown" style="display: none; position: absolute; inset: 0; background: rgba(6, 61, 50, 0.25); color: #fff; font-size: 72px; font-weight: 800; align-items: center; justify-content: center; text-shadow: 0 4px 12px rgba(0,0,0,0.3);">3</div>
         </div>
 
-        <div id="captureTimerText" style="font-size: 13.5px; font-weight: 600; color: #0f766e; height: 18px; margin-bottom: 20px;"></div>
+        <div id="captureTimerText" style="font-size: 13.5px; font-weight: 600; color: #063d32; height: 18px; margin-bottom: 20px;"></div>
 
         <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
-            <button type="button" id="btnCaptureSnap" onclick="triggerSnapCapture()" style="background: #0f766e; color: #fff; border: 0; border-radius: 12px; padding: 12px 28px; font-weight: 700; font-size: 14.5px; cursor: pointer; transition: background 0.15s ease;">Capture</button>
+            <button type="button" id="btnCaptureSnap" onclick="triggerSnapCapture()" style="background: #063d32; color: #fff; border: 0; border-radius: 12px; padding: 12px 28px; font-weight: 700; font-size: 14.5px; cursor: pointer; transition: background 0.15s ease;">Capture</button>
             <button type="button" id="btnCaptureRetake" style="display: none; background: #fee2e2; color: #b91c1c; border: 0; border-radius: 12px; padding: 12px 24px; font-weight: 700; font-size: 14.5px; cursor: pointer; transition: background 0.15s ease;">Retake</button>
             <button type="button" id="btnCaptureContinue" style="display: none; background: #10b981; color: #fff; border: 0; border-radius: 12px; padding: 12px 24px; font-weight: 700; font-size: 14.5px; cursor: pointer; transition: background 0.15s ease;">Use Photo</button>
             <button type="button" onclick="closeCameraCapture()" style="background: #f1f5f9; color: #475569; border: 0; border-radius: 12px; padding: 12px 24px; font-weight: 700; font-size: 14.5px; cursor: pointer;">Cancel</button>

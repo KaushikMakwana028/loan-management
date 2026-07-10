@@ -15,7 +15,7 @@
     }
     .return-card {
         background: #fff;
-        border: 1px solid #ede9fe;
+        border: 1px solid #dbe8e3;
         border-radius: 18px;
         padding: 24px;
         box-shadow: 0 14px 40px rgba(49, 32, 90, 0.05);
@@ -32,13 +32,13 @@
         justify-content: center;
         font-size: 20px;
     }
-    .icon-invested { background: #f5f3ff; color: #6d28d9; }
+    .icon-invested { background: #eef8f4; color: #06483d; }
     .icon-profit { background: #dcf5e4; color: #15803d; }
     
     .return-card-info h3 {
         margin: 0 0 4px;
         font-size: 13px;
-        color: #6b5c81;
+        color: #49645c;
         text-transform: uppercase;
         letter-spacing: 0.05em;
         font-weight: 600;
@@ -46,12 +46,12 @@
     .return-card-info .value {
         font-size: 26px;
         font-weight: 700;
-        color: #201a2f;
+        color: #0f241f;
         margin: 0;
     }
     .table-card {
         background: #fff;
-        border: 1px solid #ede9fe;
+        border: 1px solid #dbe8e3;
         border-radius: 20px;
         box-shadow: 0 14px 40px rgba(49, 32, 90, 0.06);
         overflow-x: auto;
@@ -65,20 +65,20 @@
     }
     th, td {
         padding: 16px 20px;
-        border-bottom: 1px solid #ede9fe;
+        border-bottom: 1px solid #dbe8e3;
         vertical-align: middle;
     }
     th {
         background: #faf8ff;
         font-weight: 600;
         font-size: 12px;
-        color: #6b5c81;
+        color: #49645c;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
     td {
         font-size: 14px;
-        color: #201a2f;
+        color: #0f241f;
     }
     tr:last-child td {
         border-bottom: 0;
@@ -90,7 +90,7 @@
     .no-records {
         padding: 48px;
         text-align: center;
-        color: #6b5c81;
+        color: #49645c;
         font-size: 15px;
     }
 </style>
@@ -114,7 +114,7 @@
     </div>
 
     <div class="table-card">
-        <h3 style="margin: 0 0 20px; font-size: 20px; font-weight: 700; color: #201a2f;">Active Returns</h3>
+        <h3 style="margin: 0 0 20px; font-size: 20px; font-weight: 700; color: #0f241f;">Active Returns</h3>
         <table>
             <thead>
                 <tr>
@@ -156,3 +156,4 @@
         </table>
     </div>
 </div>
+

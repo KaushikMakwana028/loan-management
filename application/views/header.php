@@ -10,7 +10,7 @@ $current_segment = $this->uri->segment(1);
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title><?php echo html_escape($page_title ?? 'User Dashboard'); ?> | Loan Management</title>
+    <title><?php echo html_escape($page_title ?? 'User Dashboard'); ?> | Kreditmitraa</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -18,9 +18,9 @@ $current_segment = $this->uri->segment(1);
         :root {
             --ui-bg: #f6f8fb;
             --ui-surface: #ffffff;
-            --ui-soft: #edf7f5;
-            --ui-primary: #0f766e;
-            --ui-primary-2: #2563eb;
+            --ui-soft: #eef8f4;
+            --ui-primary: #063d32;
+            --ui-primary-2: #c59b27;
             --ui-ink: #111827;
             --ui-muted: #667085;
             --ui-line: #e3ebf4;
@@ -44,8 +44,8 @@ $current_segment = $this->uri->segment(1);
             margin: 0;
             min-height: 100vh;
             background:
-                radial-gradient(circle at 12% -10%, rgba(15, 118, 110, .12), transparent 32%),
-                radial-gradient(circle at 100% 8%, rgba(37, 99, 235, .10), transparent 28%),
+                radial-gradient(circle at 12% -10%, rgba(6, 61, 50, .12), transparent 32%),
+                radial-gradient(circle at 100% 8%, rgba(197, 155, 39, .12), transparent 28%),
                 var(--ui-bg);
             color: var(--ui-ink);
         }
@@ -80,6 +80,10 @@ $current_segment = $this->uri->segment(1);
             transition: transform .22s ease;
         }
 
+        .mobile-logo {
+            display: none;
+        }
+
         .brand {
             min-height: 86px;
             padding: 0 22px;
@@ -89,16 +93,30 @@ $current_segment = $this->uri->segment(1);
             gap: 12px;
         }
 
+        .brand.logo-brand {
+            min-height: 88px;
+            padding: 10px 0 10px 22px;
+            justify-content: left;
+        }
+
+        .sidebar-logo {
+            width: 200px;
+            height: auto;
+            max-height: 68px;
+            object-fit: contain;
+            flex: none;
+        }
+
         .brand-mark {
             width: 42px;
             height: 42px;
             border-radius: 14px;
             display: grid;
             place-items: center;
-            background: linear-gradient(135deg, var(--ui-primary), #12b3a5);
+            background: linear-gradient(135deg, var(--ui-primary), #0b5e4d);
             color: #fff;
             font-weight: 800;
-            box-shadow: 0 14px 26px rgba(15, 118, 110, .22);
+            box-shadow: 0 14px 26px rgba(6, 61, 50, .22);
         }
 
         .brand-text strong {
@@ -159,9 +177,9 @@ $current_segment = $this->uri->segment(1);
         .sidebar-note {
             margin: auto 14px 18px;
             padding: 16px;
-            border: 1px solid #b9ebe4;
+            border: 1px solid #bddbd2;
             border-radius: 18px;
-            background: linear-gradient(135deg, #ecfdf5, #eff6ff);
+            background: linear-gradient(135deg, #eef8f4, #fbf3df);
             color: #0f3f3a;
         }
 
@@ -267,7 +285,7 @@ $current_segment = $this->uri->segment(1);
             place-items: center;
             overflow: hidden;
             flex: none;
-            background: linear-gradient(135deg, var(--ui-primary), #12b3a5);
+            background: linear-gradient(135deg, var(--ui-primary), #0b6b5f);
             color: #fff;
             font-weight: 800;
         }
@@ -375,6 +393,11 @@ $current_segment = $this->uri->segment(1);
                 transform: translateX(0);
             }
 
+            .mobile-logo {
+                display: flex !important;
+                margin-right: 12px;
+            }
+
             .main-area {
                 width: 100%;
                 margin-left: 0;
@@ -392,7 +415,7 @@ $current_segment = $this->uri->segment(1);
         @media (max-width: 640px) {
             body {
                 background:
-                    linear-gradient(180deg, rgba(15, 118, 110, .08), transparent 230px),
+                    linear-gradient(180deg, rgba(6, 61, 50, .08), transparent 230px),
                     var(--ui-bg);
             }
 
@@ -427,6 +450,16 @@ $current_segment = $this->uri->segment(1);
 
             .sidebar {
                 width: min(310px, 88vw);
+            }
+
+            .brand.logo-brand {
+                min-height: 86px;
+                padding: 10px 0;
+            }
+
+            .sidebar-logo {
+                width: 82px;
+                max-height: 64px;
             }
 
             .sidebar-note {
@@ -537,12 +570,8 @@ $current_segment = $this->uri->segment(1);
     <div class="mobile-backdrop" id="mobileBackdrop"></div>
     <div class="app-shell">
         <aside class="sidebar" id="sidebar">
-            <a class="brand" href="<?php echo base_url('dashboard'); ?>">
-                <span class="brand-mark">LM</span>
-                <span class="brand-text">
-                    <strong>Loan Mitra</strong>
-                    <span>Borrower Portal</span>
-                </span>
+            <a class="brand logo-brand" href="<?php echo base_url('dashboard'); ?>">
+                <img class="sidebar-logo" src="<?php echo base_url('assets/images/logo/bg-remove-sidelogo.png'); ?>" alt="Logo">
             </a>
             <nav class="menu">
                 <a class="<?php echo ($current_segment === 'dashboard' || empty($current_segment)) ? 'active' : ''; ?>" href="<?php echo base_url('dashboard'); ?>">
@@ -569,10 +598,15 @@ $current_segment = $this->uri->segment(1);
         </aside>
         <section class="main-area">
             <header class="topbar">
-                <div class="top-left">
+                <div class="top-left" style="display: flex; align-items: center;">
+                    <!--
                     <button class="sidebar-toggle" type="button" id="sidebarToggle" aria-label="Open menu">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
                     </button>
+                    -->
+                    <div class="mobile-logo">
+                        <img src="<?php echo base_url('assets/images/logo/bg-remove-logo.png'); ?>" alt="Logo" style="height: 34px; width: auto; object-fit: contain;">
+                    </div>
                     <div class="page-label">
                         <strong><?php echo html_escape($page_title ?? 'Dashboard'); ?></strong>
                         <span>Manage your loan journey</span>

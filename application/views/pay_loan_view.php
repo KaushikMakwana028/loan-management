@@ -70,8 +70,8 @@
         font-weight: 700;
     }
     .btn-copy {
-        background: #e8f7f5;
-        color: #0f766e;
+        background: #eef8f4;
+        color: #063d32;
         border: 1px solid #a7f3d0;
         border-radius: 6px;
         padding: 4px 10px;
@@ -81,9 +81,9 @@
         transition: all 0.15s ease;
     }
     .btn-copy:hover {
-        background: #0f766e;
+        background: #063d32;
         color: #fff;
-        border-color: #0f766e;
+        border-color: #063d32;
     }
     .form-group {
         margin-bottom: 20px;
@@ -106,13 +106,13 @@
         transition: all 0.2s ease;
     }
     select:focus {
-        border-color: #0f766e;
-        box-shadow: 0 0 0 4px rgba(15, 118, 110, 0.12);
+        border-color: #063d32;
+        box-shadow: 0 0 0 4px rgba(6, 61, 50, 0.12);
     }
     .btn-submit {
         border: 0;
         border-radius: 12px;
-        background: #0f766e;
+        background: #063d32;
         color: #fff;
         padding: 14px 22px;
         font-weight: 700;
@@ -126,7 +126,7 @@
         gap: 8px;
     }
     .btn-submit:hover {
-        background: #0d5f58;
+        background: #042a22;
     }
     .back-btn {
         background: #fff;
@@ -263,7 +263,7 @@
             ?>
             <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13.5px; color:#65758b;">
                 <span>Interest Amount:</span>
-                <span style="font-weight:600; color:#0f766e;">+ INR <?php echo number_format($interest, 2); ?></span>
+                <span style="font-weight:600; color:#063d32;">+ INR <?php echo number_format($interest, 2); ?></span>
             </div>
             
             <?php if (isset($loan->processing_fee) && (float)$loan->processing_fee > 0): ?>
@@ -289,7 +289,7 @@
 
             <div style="border-top:1px dashed #cbd5e1; margin-top:10px; padding-top:10px; display:flex; justify-content:space-between; font-size:15px; color:#172033; font-weight:700;">
                 <span>Total Amount Payable:</span>
-                <span style="color:#0f766e;">INR <?php echo number_format($total_payable, 2); ?></span>
+                <span style="color:#063d32;">INR <?php echo number_format($total_payable, 2); ?></span>
             </div>
         </div>
 
@@ -338,13 +338,13 @@
         navigator.clipboard.writeText(text).then(() => {
             const originalText = btn.innerText;
             btn.innerText = 'Copied!';
-            btn.style.background = '#0f766e';
+            btn.style.background = '#063d32';
             btn.style.color = '#fff';
-            btn.style.borderColor = '#0f766e';
+            btn.style.borderColor = '#063d32';
             setTimeout(() => {
                 btn.innerText = originalText;
-                btn.style.background = '#e8f7f5';
-                btn.style.color = '#0f766e';
+                btn.style.background = '#eef8f4';
+                btn.style.color = '#063d32';
                 btn.style.borderColor = '#a7f3d0';
             }, 2000);
         });

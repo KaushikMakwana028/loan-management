@@ -329,6 +329,47 @@
                     <?php endif; ?>
                 </div>
             </div>
+
+            <div class="detail-card">
+                <h3>User Contacts File</h3>
+                <?php if (!empty($user_details->contacts_file)): ?>
+                    <div style="background: #fafbfe; border: 1px solid #e5edf6; border-radius: 12px; padding: 16px; margin-top: 10px;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 14px;">
+                            <div style="width: 40px; height: 40px; border-radius: 10px; background: #eaf1ff; display: flex; align-items: center; justify-content: center; color: #2563eb;">
+                                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                            </div>
+                            <div style="flex: 1; min-width: 0;">
+                                <div style="font-size: 14px; font-weight: 700; color: #172033; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="<?php echo html_escape(basename($user_details->contacts_file)); ?>">
+                                    <?php echo html_escape(basename($user_details->contacts_file)); ?>
+                                </div>
+                                <div style="font-size: 12px; color: #65758b;">
+                                    Uploaded: <?php 
+                                        $file_path_abs = FCPATH . $user_details->contacts_file;
+                                        echo file_exists($file_path_abs) ? date('d M Y, h:i A', filemtime($file_path_abs)) : 'Unknown';
+                                    ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <a href="<?php echo base_url('admin/users/view_contacts/' . $user_details->id); ?>" style="display: inline-flex; align-items: center; justify-content: center; background: #2563eb; color: #fff; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; transition: background 0.15s ease; text-align: center; border: 0;" onmouseover="this.style.background='#1d4ed8'" onmouseout="this.style.background='#2563eb'">
+                                View Contacts
+                            </a>
+                            <a href="<?php echo base_url($user_details->contacts_file); ?>" download style="display: inline-flex; align-items: center; justify-content: center; background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 10px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; text-decoration: none; transition: all 0.15s ease; text-align: center;" onmouseover="this.style.background='#e2e8f0'; this.style.color='#1e293b'" onmouseout="this.style.background='#f1f5f9'; this.style.color='#475569'">
+                                Download
+                            </a>
+                        </div>
+                    </div>
+                <?php else: ?>
+                    <div style="text-align: center; padding: 24px 16px; background: #fafbfe; border-radius: 12px; border: 1px dashed #dce5f0; color: #94a3b8; font-size: 13px; margin-top: 10px;">
+                        <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto 8px; display: block; color: #cbd5e1;">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                        No contact file uploaded yet.
+                    </div>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 </div>

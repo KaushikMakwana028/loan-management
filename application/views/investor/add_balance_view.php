@@ -13,7 +13,7 @@
     }
     .step-card {
         background: #fff;
-        border: 1px solid #ede9fe;
+        border: 1px solid #dbe8e3;
         border-radius: 20px;
         padding: 24px;
         box-shadow: 0 14px 40px rgba(49, 32, 90, 0.05);
@@ -22,10 +22,10 @@
         margin: 0 0 8px;
         font-size: 18px;
         font-weight: 700;
-        color: #201a2f;
+        color: #0f241f;
     }
     .step-card .subtitle {
-        color: #6b5c81;
+        color: #49645c;
         font-size: 13px;
         margin-top: 0;
         margin-bottom: 20px;
@@ -36,7 +36,7 @@
         margin-bottom: 20px;
         padding: 15px;
         background: #faf8ff;
-        border: 1px dashed #ddd6fe;
+        border: 1px dashed #dbe8e3;
         border-radius: 16px;
     }
     .qr-container img {
@@ -50,14 +50,14 @@
         justify-content: space-between;
         align-items: center;
         padding: 12px 0;
-        border-bottom: 1px solid #ede9fe;
+        border-bottom: 1px solid #dbe8e3;
         font-size: 14px;
     }
     .detail-row:last-child {
         border-bottom: 0;
     }
     .detail-label {
-        color: #6b5c81;
+        color: #49645c;
         font-weight: 500;
     }
     .detail-value-wrapper {
@@ -66,13 +66,13 @@
         gap: 8px;
     }
     .detail-value {
-        color: #201a2f;
+        color: #0f241f;
         font-weight: 700;
     }
     .btn-copy {
-        background: #f5f3ff;
-        color: #6d28d9;
-        border: 1px solid #ddd6fe;
+        background: #eef8f4;
+        color: #06483d;
+        border: 1px solid #dbe8e3;
         border-radius: 6px;
         padding: 4px 10px;
         font-size: 11px;
@@ -81,9 +81,9 @@
         transition: all 0.15s ease;
     }
     .btn-copy:hover {
-        background: #6d28d9;
+        background: #06483d;
         color: #fff;
-        border-color: #6d28d9;
+        border-color: #06483d;
     }
     .form-group {
         margin-bottom: 20px;
@@ -93,11 +93,11 @@
         font-size: 13px;
         font-weight: 600;
         margin-bottom: 8px;
-        color: #201a2f;
+        color: #0f241f;
     }
     input[type="number"], input[type="file"] {
         width: 100%;
-        border: 1px solid #ddd6fe;
+        border: 1px solid #dbe8e3;
         border-radius: 12px;
         padding: 13px 14px;
         font-size: 15px;
@@ -106,7 +106,7 @@
         transition: all 0.2s ease;
     }
     input[type="number"]:focus {
-        border-color: #6d28d9;
+        border-color: #06483d;
         box-shadow: 0 0 0 4px rgba(109, 40, 217, 0.12);
     }
     .quick-amounts {
@@ -117,8 +117,8 @@
     }
     .btn-quick {
         background: #faf8ff;
-        color: #6d28d9;
-        border: 1px solid #ddd6fe;
+        color: #06483d;
+        border: 1px solid #dbe8e3;
         border-radius: 8px;
         padding: 10px;
         font-size: 13px;
@@ -128,14 +128,14 @@
         text-align: center;
     }
     .btn-quick:hover {
-        background: #6d28d9;
+        background: #06483d;
         color: #fff;
-        border-color: #6d28d9;
+        border-color: #06483d;
     }
     .btn-submit {
         border: 0;
         border-radius: 12px;
-        background: #6d28d9;
+        background: #06483d;
         color: #fff;
         padding: 14px 22px;
         font-weight: 700;
@@ -149,7 +149,7 @@
         gap: 8px;
     }
     .btn-submit:hover {
-        background: #5b21b6;
+        background: #04352d;
     }
     .alert-warning-info {
         background: #fffbeb;
@@ -172,7 +172,7 @@
         <?php if ($settings && !empty($settings->qr_image)): ?>
             <div class="qr-container">
                 <img src="<?php echo base_url($settings->qr_image); ?>" alt="UPI QR Code">
-                <div style="font-size:12px; color:#6b5c81; font-weight:600;">Scan QR to Pay</div>
+                <div style="font-size:12px; color:#49645c; font-weight:600;">Scan QR to Pay</div>
             </div>
         <?php endif; ?>
 
@@ -187,7 +187,7 @@
                 </div>
             </div>
             
-            <div style="margin-top:20px; font-weight:700; font-size:14px; color:#201a2f;">Bank Account Transfer Details:</div>
+            <div style="margin-top:20px; font-weight:700; font-size:14px; color:#0f241f;">Bank Account Transfer Details:</div>
             
             <div class="detail-row">
                 <span class="detail-label">Account Holder</span>
@@ -226,7 +226,7 @@
         <?php echo form_open_multipart('investor/funds/submit_deposit'); ?>
             <div class="form-group">
                 <label for="payment_method">Payment Method</label>
-                <select name="payment_method" id="payment_method" onchange="toggleReceiptRequired()" style="width: 100%; border: 1px solid #ddd6fe; border-radius: 12px; padding: 13px 14px; font-size: 15px; outline: none; background: #fff;" required>
+                <select name="payment_method" id="payment_method" onchange="toggleReceiptRequired()" style="width: 100%; border: 1px solid #dbe8e3; border-radius: 12px; padding: 13px 14px; font-size: 15px; outline: none; background: #fff;" required>
                     <option value="online">Online Transfer (UPI / Bank)</option>
                     <option value="cash">Cash Deposit</option>
                 </select>
@@ -325,3 +325,4 @@
 <?php if ($this->session->flashdata('error')): ?>
     <script>Swal.fire({icon:'error',title:'Error',text:<?php echo json_encode($this->session->flashdata('error')); ?>});</script>
 <?php endif; ?>
+

@@ -4,16 +4,16 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-    <title>Login | Loan Management</title>
+    <title>Login | Kreditmitraa</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root {
-            --primary: #0f766e;
-            --primary-dark: #0b5f58;
-            --blue: #2563eb;
+            --primary: #063d32;
+            --primary-dark: #042a22;
+            --accent: #c59b27;
             --ink: #101828;
             --muted: #667085;
             --line: #dce6f0;
@@ -29,8 +29,8 @@
             margin: 0;
             min-height: 100vh;
             background:
-                radial-gradient(circle at 10% 0%, rgba(15, 118, 110, .14), transparent 30%),
-                radial-gradient(circle at 90% 8%, rgba(37, 99, 235, .12), transparent 28%),
+                radial-gradient(circle at 10% 0%, rgba(6, 61, 50, .14), transparent 30%),
+                radial-gradient(circle at 90% 8%, rgba(197, 155, 39, .14), transparent 28%),
                 var(--bg);
             color: var(--ink);
         }
@@ -68,9 +68,9 @@
             border-radius: 15px;
             display: grid;
             place-items: center;
-            background: linear-gradient(135deg, var(--primary), #12b3a5);
+            background: linear-gradient(135deg, var(--primary), #0b5e4d);
             color: #fff;
-            box-shadow: 0 18px 32px rgba(15, 118, 110, .22);
+            box-shadow: 0 18px 32px rgba(6, 61, 50, .22);
         }
 
         .hero-copy {
@@ -82,10 +82,10 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            border: 1px solid #b9ebe4;
+            border: 1px solid #bddbd2;
             border-radius: 999px;
-            background: #ecfdf5;
-            color: #0f766e;
+            background: #eef8f4;
+            color: #063d32;
             padding: 8px 13px;
             font-size: 12px;
             font-weight: 800;
@@ -159,7 +159,7 @@
             border-radius: 18px;
             display: grid;
             place-items: center;
-            background: #ecfdf5;
+            background: #eef8f4;
             color: var(--primary);
             margin-bottom: 18px;
         }
@@ -208,7 +208,7 @@
 
         input:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(15, 118, 110, .12);
+            box-shadow: 0 0 0 4px rgba(6, 61, 50, .12);
         }
 
         .btn {
@@ -216,12 +216,12 @@
             min-height: 52px;
             border: 0;
             border-radius: 16px;
-            background: linear-gradient(135deg, var(--primary), #12a998);
+            background: linear-gradient(135deg, var(--primary), var(--accent));
             color: #fff;
             font-weight: 800;
             font-size: 15px;
             cursor: pointer;
-            box-shadow: 0 18px 34px rgba(15, 118, 110, .22);
+            box-shadow: 0 18px 34px rgba(6, 61, 50, .22);
         }
 
         .links {
@@ -317,8 +317,7 @@
     <main class="auth-page">
         <section class="auth-brand">
             <a class="brand" href="<?php echo base_url(); ?>">
-                <span class="brand-mark">LM</span>
-                <span>Loan Mitra</span>
+                <img src="<?php echo base_url('assets/images/logo/bg-remove-logo.png'); ?>" alt="Logo" style="height: 60px; width: auto; object-fit: contain;">
             </a>
 
             <div class="hero-copy">
@@ -336,8 +335,8 @@
 
         <section class="auth-panel" id="login">
             <div class="login-card">
-                <div class="card-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"></rect><path d="M12 18h.01"></path></svg>
+                <div style="text-align: center; margin-bottom: 24px;">
+                    <img src="<?php echo base_url('assets/images/logo/logo.jpeg'); ?>" alt="Logo" style="height: 72px; width: auto; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
                 </div>
                 <h2>Welcome back</h2>
                 <p class="subtitle">Enter your mobile number and we will send an OTP to continue.</p>

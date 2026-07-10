@@ -11,12 +11,12 @@
     .page-header h1 {
         margin: 0;
         font-size: 26px;
-        color: #201a2f;
+        color: #0f241f;
         font-weight: 700;
     }
     .table-card {
         background: #fff;
-        border: 1px solid #ede9fe;
+        border: 1px solid #dbe8e3;
         border-radius: 20px;
         box-shadow: 0 14px 40px rgba(49, 32, 90, 0.06);
         overflow-x: auto;
@@ -30,20 +30,20 @@
     }
     th, td {
         padding: 16px 20px;
-        border-bottom: 1px solid #ede9fe;
+        border-bottom: 1px solid #dbe8e3;
         vertical-align: middle;
     }
     th {
         background: #faf8ff;
         font-weight: 600;
         font-size: 12px;
-        color: #6b5c81;
+        color: #49645c;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
     td {
         font-size: 14px;
-        color: #201a2f;
+        color: #0f241f;
     }
     tr:last-child td {
         border-bottom: 0;
@@ -69,7 +69,7 @@
     .no-records {
         padding: 48px;
         text-align: center;
-        color: #6b5c81;
+        color: #49645c;
         font-size: 15px;
     }
 </style>
@@ -104,7 +104,7 @@
                                 <strong>INR <?php echo number_format($inv['loan_amount'], 2); ?></strong>
                                 <?php if ($inv['status'] === 'selected' && !empty($inv['invested_amount'])): ?>
                                     <br>
-                                    <span style="font-size: 12px; color: #6b5c81; font-weight: normal;">My Share: INR <?php echo number_format($inv['invested_amount'], 2); ?></span>
+                                    <span style="font-size: 12px; color: #49645c; font-weight: normal;">My Share: INR <?php echo number_format($inv['invested_amount'], 2); ?></span>
                                 <?php endif; ?>
                             </td>
                             <td><?php echo $inv['tenure_days']; ?> Days</td>
@@ -135,3 +135,4 @@
         </table>
     </div>
 </div>
+

@@ -18,11 +18,11 @@
         body {
             margin: 0;
             min-height: 100vh;
-            background: #f7f4ff;
+            background: #f3f8f5;
             display: grid;
             place-items: center;
             padding: 22px;
-            color: #201a2f
+            color: #0f241f
         }
 
         .card {
@@ -53,7 +53,7 @@
 
         input {
             width: 100%;
-            border: 1px solid #ddd6fe;
+            border: 1px solid #dbe8e3;
             border-radius: 12px;
             padding: 14px 15px;
             font-size: 15px;
@@ -61,7 +61,7 @@
         }
 
         input:focus {
-            border-color: #6d28d9;
+            border-color: #06483d;
             box-shadow: 0 0 0 4px rgba(109, 40, 217, .12)
         }
 
@@ -69,7 +69,7 @@
             width: 100%;
             border: 0;
             border-radius: 12px;
-            background: #6d28d9;
+            background: #06483d;
             color: #fff;
             padding: 14px 18px;
             font-weight: 700;
@@ -87,7 +87,7 @@
         a {
             display: inline-block;
             margin-top: 18px;
-            color: #6d28d9;
+            color: #06483d;
             text-decoration: none;
             font-weight: 600
         }

@@ -10,9 +10,9 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         *{box-sizing:border-box;font-family:'Poppins';}
-        body{margin:0;min-height:100vh;background:#f7f4ff;color:#201a2f;display:flex;align-items:center;justify-content:center;padding:24px;}
-        .auth{width:100%;max-width:920px;display:grid;grid-template-columns:400px 1fr;background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 24px 70px rgba(49,32,90,.14);}
-        .side{background:#6d28d9;color:#fff;padding:42px;display:flex;flex-direction:column;justify-content:center;}
+        body{margin:0;min-height:100vh;background:#f3f8f5;color:#0f241f;display:flex;align-items:center;justify-content:center;padding:24px;}
+        .auth{width:100%;max-width:920px;display:grid;grid-template-columns:400px 1fr;background:#fff;border-radius:24px;overflow:hidden;box-shadow:0 24px 70px rgba(6,72,61,.14);}
+        .side{background:#06483d;color:#fff;padding:42px;display:flex;flex-direction:column;justify-content:center;}
         .side h1{margin:0 0 14px;font-size:34px;line-height:1.15;}
         .side p{margin:0;color:rgba(255,255,255,.85);line-height:1.7;}
         .panel{padding:42px;}
@@ -20,11 +20,11 @@
         .muted{margin:0 0 28px;color:#64748b;}
         .field{margin-bottom:18px;}
         label{display:block;font-size:13px;font-weight:600;margin-bottom:8px;}
-        input{width:100%;border:1px solid #ddd6fe;border-radius:12px;padding:14px 15px;font-size:15px;outline:none;}
-        input:focus{border-color:#6d28d9;box-shadow:0 0 0 4px rgba(109,40,217,.12);}
-        .btn{width:100%;border:0;border-radius:12px;background:#6d28d9;color:#fff;padding:14px 18px;font-weight:700;font-size:15px;cursor:pointer;}
+        input{width:100%;border:1px solid #dbe8e3;border-radius:12px;padding:14px 15px;font-size:15px;outline:none;}
+        input:focus{border-color:#06483d;box-shadow:0 0 0 4px rgba(6,72,61,.12);}
+        .btn{width:100%;border:0;border-radius:12px;background:#06483d;color:#fff;padding:14px 18px;font-weight:700;font-size:15px;cursor:pointer;}
         .links{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:18px;font-size:14px;}
-        a{color:#6d28d9;text-decoration:none;font-weight:600;}
+        a{color:#06483d;text-decoration:none;font-weight:600;}
         @media(max-width:780px){.auth{grid-template-columns:1fr}.side{padding:30px}.panel{padding:30px 22px}}
     </style>
 </head>
@@ -61,3 +61,4 @@
     <?php endif; ?>
 </body>
 </html>
+

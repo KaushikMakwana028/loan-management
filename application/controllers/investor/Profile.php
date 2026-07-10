@@ -44,8 +44,6 @@ class Profile extends CI_Controller
             'email' => trim($this->input->post('email', TRUE)) ?: NULL,
             'mobile' => trim($this->input->post('mobile', TRUE)),
             'address' => trim($this->input->post('address', TRUE)) ?: NULL,
-            'aadhaar_number' => trim($this->input->post('aadhaar_number', TRUE)) ?: NULL,
-            'pan_number' => trim($this->input->post('pan_number', TRUE)) ?: NULL,
             'account_holder_name' => trim($this->input->post('account_holder_name', TRUE)) ?: NULL,
             'bank_name' => trim($this->input->post('bank_name', TRUE)) ?: NULL,
             'account_number' => trim($this->input->post('account_number', TRUE)) ?: NULL,
@@ -54,7 +52,7 @@ class Profile extends CI_Controller
             'branch_name' => trim($this->input->post('branch_name', TRUE)) ?: NULL
         ];
 
-        foreach (['profile_image', 'aadhaar_photo', 'pan_photo'] as $field) {
+        foreach (['profile_image'] as $field) {
             $file = $this->upload_file($field);
             if ($file) {
                 $data[$field] = $file;

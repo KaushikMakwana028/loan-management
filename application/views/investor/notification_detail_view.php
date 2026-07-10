@@ -22,7 +22,7 @@
     .back-btn:hover {
         background: #fdfaff;
         border-color: #c084fc;
-        color: #6d28d9;
+        color: #06483d;
         transform: translateX(-3px);
     }
     .detail-grid {
@@ -38,7 +38,7 @@
     }
     .profile-card {
         background: #fff;
-        border: 1px solid #ede9fe;
+        border: 1px solid #dbe8e3;
         border-radius: 24px;
         padding: 30px;
         box-shadow: 0 14px 40px rgba(49, 32, 90, 0.05);
@@ -51,7 +51,7 @@
         width: 100px;
         height: 100px;
         border-radius: 50%;
-        background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+        background: linear-gradient(135deg, #0a5f51, #06483d);
         color: #fff;
         display: inline-flex;
         align-items: center;
@@ -70,7 +70,7 @@
     .profile-name {
         font-size: 22px;
         font-weight: 700;
-        color: #201a2f;
+        color: #0f241f;
         margin: 0 0 6px;
     }
     .profile-role {
@@ -82,7 +82,7 @@
         margin: 0 0 16px;
     }
     .details-section {
-        border-top: 1px solid #f5f3ff;
+        border-top: 1px solid #eef8f4;
         padding-top: 20px;
     }
     .info-list-premium {
@@ -101,12 +101,12 @@
     }
     .info-item-premium span:last-child {
         font-size: 14.5px;
-        color: #201a2f;
+        color: #0f241f;
         font-weight: 600;
     }
     .opportunity-card {
         background: #fff;
-        border: 1px solid #ede9fe;
+        border: 1px solid #dbe8e3;
         border-radius: 24px;
         padding: 30px;
         box-shadow: 0 14px 40px rgba(49, 32, 90, 0.05);
@@ -115,8 +115,8 @@
         margin: 0 0 24px;
         font-size: 20px;
         font-weight: 700;
-        color: #201a2f;
-        border-bottom: 1px solid #f5f3ff;
+        color: #0f241f;
+        border-bottom: 1px solid #eef8f4;
         padding-bottom: 12px;
     }
     .financial-blocks {
@@ -168,16 +168,16 @@
     .fin-value {
         font-size: 18px;
         font-weight: 700;
-        color: #201a2f;
+        color: #0f241f;
     }
     .notif-body-message {
         background: #fdfaff;
-        border-left: 4px solid #8b5cf6;
+        border-left: 4px solid #0a5f51;
         padding: 16px;
         border-radius: 0 16px 16px 0;
         font-size: 14.5px;
         line-height: 1.6;
-        color: #5f5472;
+        color: #334b44;
         margin-bottom: 28px;
     }
     .action-row {
@@ -199,12 +199,12 @@
         transition: all 0.2s ease;
     }
     .btn-action-invest {
-        background: #6d28d9;
+        background: #06483d;
         color: #fff;
         box-shadow: 0 10px 20px rgba(109, 40, 217, 0.15);
     }
     .btn-action-invest:hover {
-        background: #5b21b6;
+        background: #04352d;
         transform: translateY(-2px);
         box-shadow: 0 12px 24px rgba(109, 40, 217, 0.25);
     }
@@ -302,7 +302,7 @@
             </div>
 
             <?php if ($loan): ?>
-                <div style="font-weight:700; font-size:15px; color:#201a2f; margin-bottom:16px;">Loan Financial Terms:</div>
+                <div style="font-weight:700; font-size:15px; color:#0f241f; margin-bottom:16px;">Loan Financial Terms:</div>
                 <div class="financial-blocks">
                     <div class="fin-block">
                         <div class="fin-icon fin-icon-amount">💰</div>
@@ -336,8 +336,8 @@
                     </div>
                 </div>
 
-                <div style="font-weight:700; font-size:15px; color:#201a2f; margin-top:24px; margin-bottom:12px;">Purpose of Loan (Reason):</div>
-                <div style="background: #fdfaff; border: 1px dashed #c084fc; border-radius: 12px; padding: 14px 18px; color: #5b21b6; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 10px; margin-bottom: 24px;">
+                <div style="font-weight:700; font-size:15px; color:#0f241f; margin-top:24px; margin-bottom:12px;">Purpose of Loan (Reason):</div>
+                <div style="background: #fdfaff; border: 1px dashed #c084fc; border-radius: 12px; padding: 14px 18px; color: #04352d; font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 10px; margin-bottom: 24px;">
                     <span style="font-size: 18px;">💡</span>
                     <span><?php echo html_escape($loan->purpose ?: 'Not specified'); ?></span>
                 </div>
@@ -381,3 +381,4 @@
         </div>
     </div>
 </div>
+

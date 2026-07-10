@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        *{box-sizing:border-box;font-family:'Poppins',sans-serif;}body{margin:0;min-height:100vh;background:#f7f4ff;display:grid;place-items:center;padding:22px;color:#201a2f}.card{width:100%;max-width:430px;background:#fff;border-radius:22px;padding:34px;box-shadow:0 24px 70px rgba(49,32,90,.14)}h1{margin:0 0 8px;font-size:28px}p{margin:0 0 24px;color:#64748b}label{display:block;font-size:13px;font-weight:600;margin-bottom:8px}input{width:100%;border:1px solid #ddd6fe;border-radius:12px;padding:14px 15px;font-size:15px;outline:none}input:focus{border-color:#6d28d9;box-shadow:0 0 0 4px rgba(109,40,217,.12)}button{width:100%;border:0;border-radius:12px;background:#6d28d9;color:#fff;padding:14px 18px;font-weight:700;font-size:15px;cursor:pointer;margin-top:18px}.msg{margin-top:14px;color:#b91c1c;font-size:14px}a{display:inline-block;margin-top:18px;color:#6d28d9;text-decoration:none;font-weight:600}
+        *{box-sizing:border-box;font-family:'Poppins',sans-serif;}body{margin:0;min-height:100vh;background:#f3f8f5;display:grid;place-items:center;padding:22px;color:#0f241f}.card{width:100%;max-width:430px;background:#fff;border-radius:22px;padding:34px;box-shadow:0 24px 70px rgba(6,72,61,.14)}h1{margin:0 0 8px;font-size:28px}p{margin:0 0 24px;color:#64748b}label{display:block;font-size:13px;font-weight:600;margin-bottom:8px}input{width:100%;border:1px solid #dbe8e3;border-radius:12px;padding:14px 15px;font-size:15px;outline:none}input:focus{border-color:#06483d;box-shadow:0 0 0 4px rgba(6,72,61,.12)}button{width:100%;border:0;border-radius:12px;background:#06483d;color:#fff;padding:14px 18px;font-weight:700;font-size:15px;cursor:pointer;margin-top:18px}.msg{margin-top:14px;color:#b91c1c;font-size:14px}a{display:inline-block;margin-top:18px;color:#06483d;text-decoration:none;font-weight:600}
     </style>
 </head>
 <body>
@@ -38,3 +38,4 @@
     </script>
 </body>
 </html>
+

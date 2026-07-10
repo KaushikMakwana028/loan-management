@@ -15,7 +15,7 @@
         }
     }
     .wallet-card {
-        background: linear-gradient(135deg, #4c1d95, #8b5cf6);
+        background: linear-gradient(135deg, #4c1d95, #0a5f51);
         border-radius: 20px;
         padding: 30px;
         color: #fff;
@@ -45,7 +45,7 @@
     }
     .actions-card {
         background: #fff;
-        border: 1px solid #ede9fe;
+        border: 1px solid #dbe8e3;
         border-radius: 20px;
         padding: 24px;
         box-shadow: 0 14px 40px rgba(49, 32, 90, 0.05);
@@ -57,7 +57,7 @@
         margin: 0 0 10px;
         font-size: 18px;
         font-weight: 700;
-        color: #201a2f;
+        color: #0f241f;
     }
     .actions-buttons-grid {
         display: grid;
@@ -73,7 +73,7 @@
     .btn {
         border: 0;
         border-radius: 12px;
-        background: #6d28d9;
+        background: #06483d;
         color: #fff;
         padding: 14px 22px;
         font-weight: 700;
@@ -87,21 +87,21 @@
         justify-content: center;
     }
     .btn:hover {
-        background: #5b21b6;
+        background: #04352d;
     }
     .btn-outline {
         background: transparent;
-        color: #6d28d9;
-        border: 2px solid #6d28d9;
+        color: #06483d;
+        border: 2px solid #06483d;
         padding: 12px 20px;
     }
     .btn-outline:hover {
-        background: #f5f3ff;
-        color: #5b21b6;
+        background: #eef8f4;
+        color: #04352d;
     }
     .table-card {
         background: #fff;
-        border: 1px solid #ede9fe;
+        border: 1px solid #dbe8e3;
         border-radius: 20px;
         box-shadow: 0 14px 40px rgba(49, 32, 90, 0.06);
         padding: 24px;
@@ -110,13 +110,13 @@
         margin: 0 0 20px;
         font-size: 20px;
         font-weight: 700;
-        color: #201a2f;
+        color: #0f241f;
     }
     .filter-tabs {
         display: flex;
         gap: 8px;
         margin-bottom: 20px;
-        border-bottom: 2px solid #f5f3ff;
+        border-bottom: 2px solid #eef8f4;
         padding-bottom: 12px;
         overflow-x: auto;
     }
@@ -126,19 +126,19 @@
         padding: 8px 16px;
         font-size: 13px;
         font-weight: 600;
-        color: #6b5c81;
+        color: #49645c;
         cursor: pointer;
         border-radius: 8px;
         transition: all 0.2s ease;
         white-space: nowrap;
     }
     .tab-btn:hover {
-        color: #6d28d9;
-        background: #f5f3ff;
+        color: #06483d;
+        background: #eef8f4;
     }
     .tab-btn.active {
         color: #fff;
-        background: #6d28d9;
+        background: #06483d;
     }
     .table-wrapper {
         overflow-x: auto;
@@ -151,20 +151,20 @@
     }
     th, td {
         padding: 16px 20px;
-        border-bottom: 1px solid #ede9fe;
+        border-bottom: 1px solid #dbe8e3;
         vertical-align: middle;
     }
     th {
         background: #faf8ff;
         font-weight: 600;
         font-size: 12px;
-        color: #6b5c81;
+        color: #49645c;
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
     td {
         font-size: 14px;
-        color: #201a2f;
+        color: #0f241f;
     }
     tr:last-child td {
         border-bottom: 0;
@@ -186,7 +186,7 @@
     .no-records {
         padding: 40px;
         text-align: center;
-        color: #6b5c81;
+        color: #49645c;
         font-size: 15px;
     }
 </style>
@@ -205,7 +205,7 @@
 
         <div class="actions-card">
             <h3>Quick Actions</h3>
-            <p style="color: #6b5c81; font-size: 14px; margin-top: 0; margin-bottom: 15px; line-height: 1.5;">
+            <p style="color: #49645c; font-size: 14px; margin-top: 0; margin-bottom: 15px; line-height: 1.5;">
                 Manage your balance. Add funds using UPI/Bank transfer or request a withdrawal directly to your linked bank account.
             </p>
             <div class="actions-buttons-grid">
@@ -329,3 +329,4 @@
 <?php if ($this->session->flashdata('error')): ?>
     <script>Swal.fire({icon:'error',title:'Error',text:<?php echo json_encode($this->session->flashdata('error')); ?>});</script>
 <?php endif; ?>
+

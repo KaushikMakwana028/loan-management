@@ -38,26 +38,27 @@ class Profile extends CI_Controller
         $updated_user = $this->general->getById('users', $user->id);
         
         $fields_to_check = [
-            'name', 'mobile', 'address', 'aadhaar_number', 'aadhaar_photo', 
-            'pan_number', 'pan_photo', 'account_holder_name', 'bank_name', 
-            'account_number', 'ifsc_code', 'profile_image'
+            'name', 'mobile', 'email', 'marriage_status', 'dob', 'education', 'employment', 'address',
+            'aadhaar_number', 'pan_number', 'account_holder_name', 'bank_name', 'account_number', 'ifsc_code',
+            'account_type', 'branch_name', 'reference_name_1', 'reference_mobile_1', 'reference_name_2', 'reference_mobile_2',
+            'profile_image', 'aadhaar_photo', 'pan_photo'
         ];
         
         $is_complete = true;
-        if ((int) $updated_user->is_active !== 1) {
-            $is_complete = false;
-        } else {
-            foreach ($fields_to_check as $field) {
-                if (is_null($updated_user->$field) || trim($updated_user->$field) === '') {
-                    $is_complete = false;
-                    break;
-                }
+        foreach ($fields_to_check as $field) {
+            if (is_null($updated_user->$field) || trim($updated_user->$field) === '') {
+                $is_complete = false;
+                break;
             }
         }
 
         if ($is_complete) {
-            $this->session->set_flashdata('success', 'Profile and KYC completed! Redirecting you to apply for a loan.');
-            redirect('loans/apply');
+            $this->general->update('users', ['id' => $user->id], [
+                'is_active' => 0,
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+            $this->session->set_flashdata('success', 'Your profile has been submitted for review. We will verify it within 24 hours.');
+            redirect('dashboard');
         } else {
             $this->session->set_flashdata('success', 'Profile updated successfully.');
             redirect('profile');

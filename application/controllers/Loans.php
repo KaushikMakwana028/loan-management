@@ -18,7 +18,9 @@ class Loans extends CI_Controller
         $user_id = $this->session->userdata('user_id');
         $data['user'] = $this->general->getById('users', $user_id);
         $data['page_title'] = 'My Loans';
-        $data['profile_completed'] = $this->profile_completed($data['user']);
+        $data['profile_details_completed'] = $this->profile_details_completed($data['user']);
+        $data['profile_completed'] = $data['profile_details_completed'] && (int) $data['user']->is_active === 1;
+        $data['profile_review_pending'] = $data['profile_details_completed'] && (int) $data['user']->is_active !== 1;
         
         // Fetch user's loans
         $data['loans'] = $this->general->getAll('loans', ['user_id' => $user_id]);
@@ -44,7 +46,11 @@ class Loans extends CI_Controller
         
         $profile_completed = $this->profile_completed($data['user']);
         if (!$profile_completed) {
-            $this->session->set_flashdata('error', 'Please complete your profile details first to be eligible for a loan.');
+            if ($this->profile_details_completed($data['user']) && (int) $data['user']->is_active !== 1) {
+                $this->session->set_flashdata('error', 'Your profile is under review. We verify submitted profiles within 24 hours, and loan applications unlock after admin approval.');
+            } else {
+                $this->session->set_flashdata('error', 'Please complete your profile details first to be eligible for a loan.');
+            }
             redirect('loans');
             return;
         }
@@ -99,26 +105,38 @@ class Loans extends CI_Controller
 
     private function profile_completed($user)
     {
+        return $this->profile_details_completed($user) && (int) $user->is_active === 1;
+    }
+
+    private function profile_details_completed($user)
+    {
         if (!$user) {
             return false;
         }
-        if ((int) $user->is_active !== 1) {
-            return false;
-        }
-
         $required = [
             'name',
             'mobile',
+            'email',
+            'marriage_status',
+            'dob',
+            'education',
+            'employment',
             'address',
             'aadhaar_number',
-            'aadhaar_photo',
             'pan_number',
-            'pan_photo',
             'account_holder_name',
             'bank_name',
             'account_number',
             'ifsc_code',
-            'profile_image'
+            'account_type',
+            'branch_name',
+            'reference_name_1',
+            'reference_mobile_1',
+            'reference_name_2',
+            'reference_mobile_2',
+            'profile_image',
+            'aadhaar_photo',
+            'pan_photo'
         ];
 
         foreach ($required as $field) {

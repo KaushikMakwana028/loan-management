@@ -123,6 +123,24 @@
         background: #ef4444;
         color: #fff;
     }
+    .btn-activate {
+        background: #dcf5e4;
+        color: #15803d;
+        border: 1px solid #bbf7d0;
+    }
+    .btn-activate:hover {
+        background: #15803d;
+        color: #fff;
+    }
+    .btn-inactivate {
+        background: #fff8ee;
+        color: #b45309;
+        border: 1px solid #fadfb5;
+    }
+    .btn-inactivate:hover {
+        background: #b45309;
+        color: #fff;
+    }
 </style>
 
 <div class="admin-container">
@@ -169,7 +187,12 @@
                             </td>
                             <td class="actions-cell">
                                 <a href="<?php echo base_url('admin/users/view/' . $usr['id']); ?>" class="btn-action btn-view">View</a>
-                                <button class="btn-action btn-delete" onclick="deleteUser(<?php echo $usr['id']; ?>, '<?php echo html_escape($usr['name']); ?>')">Delete</button>
+                                <?php if ((int) $usr['is_active'] === 1): ?>
+                                    <button class="btn-action btn-inactivate" onclick="changeUserStatus(<?php echo $usr['id']; ?>, 0, <?php echo html_escape(json_encode($usr['name'])); ?>)">Inactive</button>
+                                <?php else: ?>
+                                    <button class="btn-action btn-activate" onclick="changeUserStatus(<?php echo $usr['id']; ?>, 1, <?php echo html_escape(json_encode($usr['name'])); ?>)">Active</button>
+                                <?php endif; ?>
+                                <button class="btn-action btn-delete" onclick="deleteUser(<?php echo $usr['id']; ?>, <?php echo html_escape(json_encode($usr['name'])); ?>)">Delete</button>
                             </td>
                         </tr>
                     <?php endforeach; ?>
@@ -201,6 +224,25 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 window.location.href = `<?php echo base_url('admin/users/delete/'); ?>${id}`;
+            }
+        });
+    }
+
+    function changeUserStatus(id, status, name) {
+        const activate = status === 1;
+        Swal.fire({
+            title: activate ? 'Activate User Profile?' : 'Mark User Inactive?',
+            text: activate
+                ? `Approve "${name}" and allow this user to apply for loans?`
+                : `Block "${name}" from applying for loans until reactivated?`,
+            icon: activate ? 'question' : 'warning',
+            showCancelButton: true,
+            confirmButtonColor: activate ? '#15803d' : '#b45309',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: activate ? 'Yes, Activate' : 'Yes, Inactive'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = `<?php echo base_url('admin/users/status/'); ?>${id}/${status}`;
             }
         });
     }

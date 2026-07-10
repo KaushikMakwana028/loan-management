@@ -29,7 +29,12 @@ class Dashboard extends CI_Controller
         }
         $data['user'] = $user;
         $data['page_title'] = 'User Dashboard';
-        $data['profile_completed'] = $this->profile_completed($data['user']);
+        $data['profile_details_completed'] = $this->profile_details_completed($data['user']);
+        $data['profile_completed'] = $data['profile_details_completed'] && (int) $data['user']->is_active === 1;
+        $data['profile_review_pending'] = $data['profile_details_completed'] && (int) $data['user']->is_active !== 1;
+        $data['profile_active_message'] = $data['profile_completed']
+            ? 'Your profile is approved. You can now apply for a loan whenever you are ready.'
+            : '';
         
         // Fetch dynamic loan details
         $data['total_loans'] = $this->general->getCount('loans', ['user_id' => $user_id]);
@@ -43,28 +48,36 @@ class Dashboard extends CI_Controller
         $this->load->view('footer', $data);
     }
 
-    private function profile_completed($user)
+    private function profile_details_completed($user)
     {
         if (!$user) {
-            return false;
-        }
-        if ((int) $user->is_active !== 1) {
             return false;
         }
 
         $required = [
             'name',
             'mobile',
+            'email',
+            'marriage_status',
+            'dob',
+            'education',
+            'employment',
             'address',
             'aadhaar_number',
-            'aadhaar_photo',
             'pan_number',
-            'pan_photo',
             'account_holder_name',
             'bank_name',
             'account_number',
             'ifsc_code',
-            'profile_image'
+            'account_type',
+            'branch_name',
+            'reference_name_1',
+            'reference_mobile_1',
+            'reference_name_2',
+            'reference_mobile_2',
+            'profile_image',
+            'aadhaar_photo',
+            'pan_photo'
         ];
 
         foreach ($required as $field) {

@@ -12,8 +12,23 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
     <title><?php echo html_escape($page_title ?? 'Investor Dashboard'); ?> | Loan Management</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --inv-primary: #063d32;
+            /* Deep Forest Green */
+            --inv-primary-2: #c59b27;
+            /* Gold */
+            --inv-primary-soft: #eef8f4;
+            /* Soft Green tint */
+            --inv-bg: #f6f8fb;
+            /* Soft background */
+            --inv-ink: #111827;
+            /* Dark ink */
+            --inv-border: #e3ebf4;
+            /* Subtle line color */
+        }
+
         * {
             box-sizing: border-box;
             font-family: 'Poppins', sans-serif;
@@ -21,8 +36,8 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
 
         body {
             margin: 0;
-            background: #f7f4ff;
-            color: #201a2f;
+            background: var(--inv-bg);
+            color: var(--inv-ink);
         }
 
         a {
@@ -38,32 +53,45 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
         .sidebar {
             position: fixed;
             inset: 0 auto 0 0;
-            width: 272px;
+            width: 252px;
             background: #fff;
-            border-right: 1px solid #ede9fe;
+            border-right: 1px solid #dbe8e3;
             z-index: 30;
             transition: .25s ease;
             display: flex;
             flex-direction: column;
         }
 
+        /* ============ Brand / Logo (fixed sizing so it never dominates the sidebar) ============ */
         .brand {
-            height: 82px;
+            min-height: 78px;
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--inv-border);
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 12px;
-            padding: 0 24px;
-            border-bottom: 1px solid #ede9fe;
-            font-weight: 700;
-            font-size: 20px;
-            color: #6d28d9;
+            text-decoration: none;
+        }
+
+        .brand.logo-brand {
+            justify-content: center;
+            box-shadow: 0 1px 0 rgba(6, 72, 61, .04);
+        }
+
+        .sidebar-logo {
+            width: auto;
+            height: 60px;
+            max-width: 170px;
+            object-fit: contain;
+            flex: none;
         }
 
         .brand-mark {
             width: 34px;
             height: 34px;
             border-radius: 12px;
-            background: #6d28d9;
+            background: #06483d;
             color: #fff;
             display: grid;
             place-items: center;
@@ -71,26 +99,26 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
         }
 
         .menu {
-            padding: 22px 16px;
+            padding: 14px 12px 20px;
             display: grid;
-            gap: 8px;
+            gap: 6px;
         }
 
         .menu a {
             display: flex;
             align-items: center;
             gap: 12px;
-            padding: 13px 16px;
+            padding: 11px 14px;
             border-radius: 12px;
-            color: #5f5472;
+            color: #334b44;
             font-weight: 500;
             transition: all 0.2s ease;
         }
 
         .menu a.active,
         .menu a:hover {
-            background: #f0eaff;
-            color: #6d28d9;
+            background: #eef8f4;
+            color: #06483d;
         }
 
         .menu-icon {
@@ -100,8 +128,8 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #f5f3ff;
-            color: #6d28d9;
+            background: #eef8f4;
+            color: #06483d;
             transition: all 0.2s ease;
             flex-shrink: 0;
             font-size: 14px;
@@ -109,20 +137,22 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
 
         .menu a.active .menu-icon,
         .menu a:hover .menu-icon {
-            background: #6d28d9;
+            background: #06483d;
             color: #fff;
         }
 
         .main-area {
-            margin-left: 272px;
-            width: calc(100% - 272px);
+            margin-left: 252px;
+            width: calc(100% - 252px);
             min-height: 100vh;
         }
 
+        /* ============ Topbar ============ */
         .topbar {
-            height: 82px;
-            background: #fff;
-            border-bottom: 1px solid #ede9fe;
+            height: 68px;
+            background: rgba(255, 255, 255, .92);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid #dbe8e3;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -130,29 +160,35 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
             position: sticky;
             top: 0;
             z-index: 20;
+            gap: 12px;
         }
 
         .top-left {
             display: flex;
             align-items: center;
             gap: 16px;
+            min-width: 0;
         }
 
         .sidebar-toggle {
             width: 42px;
             height: 42px;
-            border: 1px solid #ddd6fe;
+            flex: none;
+            border: 1px solid #dbe8e3;
             background: #fff;
             border-radius: 12px;
             cursor: pointer;
             font-size: 20px;
-            color: #6b5c81;
+            color: #49645c;
         }
 
         .page-label {
             font-weight: 700;
             font-size: 18px;
-            color: #201a2f;
+            color: #0f241f;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .top-actions {
@@ -160,20 +196,23 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
             align-items: center;
             gap: 12px;
             position: relative;
+            flex: none;
         }
 
         .mode-btn {
             width: 42px;
             height: 42px;
-            border: 1px solid #ddd6fe;
+            flex: none;
+            border: 1px solid #dbe8e3;
             background: #fff;
             border-radius: 12px;
-            color: #6b5c81;
+            color: #49645c;
             font-weight: 700;
+            position: relative;
         }
 
         .profile-btn {
-            border: 1px solid #ddd6fe;
+            border: 1px solid #dbe8e3;
             background: #fff;
             border-radius: 14px;
             padding: 8px 12px;
@@ -181,7 +220,7 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
             align-items: center;
             gap: 10px;
             cursor: pointer;
-            color: #201a2f;
+            color: #0f241f;
             font-weight: 600;
             max-width: 240px;
         }
@@ -200,7 +239,7 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
             width: 34px;
             height: 34px;
             border-radius: 50%;
-            background: #6d28d9;
+            background: #06483d;
             color: #fff;
             display: grid;
             place-items: center;
@@ -221,8 +260,9 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
             right: 0;
             top: 54px;
             width: 220px;
+            max-width: calc(100vw - 24px);
             background: #fff;
-            border: 1px solid #ede9fe;
+            border: 1px solid #dbe8e3;
             border-radius: 16px;
             box-shadow: 0 18px 50px rgba(49, 32, 90, .13);
             padding: 10px;
@@ -238,13 +278,135 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
             display: block;
             padding: 11px 12px;
             border-radius: 10px;
-            color: #5f5472;
+            color: #334b44;
             font-size: 14px;
         }
 
         .profile-menu a:hover {
-            background: #f7f4ff;
-            color: #6d28d9;
+            background: #f3f8f5;
+            color: #06483d;
+        }
+
+        /* ============ Notifications dropdown ============ */
+        .notif-wrapper {
+            position: relative;
+            display: inline-flex;
+        }
+
+        .notif-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ef4444;
+            color: #fff;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+            border: 2px solid #fff;
+        }
+
+        .notif-dropdown {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 52px;
+            width: 320px;
+            max-width: calc(100vw - 32px);
+            background: #fff;
+            border: 1px solid #dbe8e3;
+            border-radius: 16px;
+            box-shadow: 0 18px 50px rgba(6, 61, 50, .13);
+            padding: 12px;
+            z-index: 100;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .notif-dropdown.open {
+            display: block;
+        }
+
+        .notif-dropdown h4 {
+            margin: 0 0 12px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #06483d;
+            border-bottom: 1px solid #dbe8e3;
+            padding-bottom: 8px;
+        }
+
+        .notif-item {
+            display: block;
+            padding: 10px;
+            border-bottom: 1px solid #eef8f4;
+            border-radius: 10px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background .15s ease;
+        }
+
+        .notif-item:hover {
+            background: #fbfcfe;
+        }
+
+        .notif-item-title {
+            font-weight: 600;
+            color: #1f2937;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .notif-item-title span:first-child {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .notif-unread-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #06483d;
+            flex: none;
+        }
+
+        .notif-item-msg {
+            color: #6b7280;
+            font-size: 11px;
+            margin-top: 2px;
+        }
+
+        .notif-item-time {
+            color: #9ca3af;
+            font-size: 10px;
+            margin-top: 4px;
+        }
+
+        .notif-empty {
+            text-align: center;
+            color: #9ca3af;
+            font-size: 13px;
+            padding: 16px 0;
+        }
+
+        .notif-footer {
+            border-top: 1px solid #eef8f4;
+            margin-top: 8px;
+            padding-top: 8px;
+            text-align: center;
+        }
+
+        .notif-footer a {
+            font-size: 12.5px;
+            font-weight: 600;
+            color: #06483d;
+            display: block;
         }
 
         .content {
@@ -257,7 +419,7 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
         }
 
         .hero-card {
-            background: linear-gradient(135deg, #4c1d95, #8b5cf6);
+            background: linear-gradient(135deg, #4c1d95, #0a5f51);
             border-radius: 26px;
             color: #fff;
             padding: 34px;
@@ -308,7 +470,7 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
 
         .dash-card {
             background: #fff;
-            border: 1px solid #ede9fe;
+            border: 1px solid #dbe8e3;
             border-radius: 18px;
             padding: 24px;
             box-shadow: 0 14px 40px rgba(49, 32, 90, .08);
@@ -325,7 +487,7 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
         .dash-card .value {
             font-size: 32px;
             font-weight: 700;
-            color: #201a2f;
+            color: #0f241f;
             margin-bottom: 6px;
         }
 
@@ -334,10 +496,25 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
             font-size: 14px;
         }
 
+        /* Ensure all tables are scrollable on mobile */
+        .table-card {
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow-x: auto !important;
+            display: block !important;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .table-card table {
+            min-width: 800px !important;
+            width: 100% !important;
+        }
+
         .mobile-backdrop {
             display: none;
         }
 
+        /* ============ Tablet breakpoint ============ */
         @media(max-width:980px) {
             .hero-card {
                 grid-template-columns: 1fr
@@ -350,15 +527,55 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
             .dash-grid {
                 grid-template-columns: 1fr 1fr
             }
+
+            .topbar {
+                padding: 0 20px;
+            }
+
+            .content {
+                padding: 24px;
+            }
         }
 
+        /* ============ Mobile breakpoint ============ */
         @media(max-width:760px) {
             .sidebar {
+                width: min(236px, 74vw);
                 transform: translateX(-100%)
             }
 
             .sidebar.open {
                 transform: translateX(0)
+            }
+
+            .brand.logo-brand {
+                min-height: 60px;
+                padding: 10px 16px;
+                justify-content: center;
+            }
+
+            .sidebar-logo {
+                width: auto;
+                height: 34px;
+                max-width: 130px;
+            }
+
+            .menu {
+                padding: 12px 10px 18px;
+                gap: 5px;
+            }
+
+            .menu a {
+                gap: 10px;
+                padding: 10px 12px;
+                border-radius: 11px;
+                font-size: 13.5px;
+            }
+
+            .menu-icon {
+                width: 24px;
+                height: 24px;
+                border-radius: 7px;
             }
 
             .main-area {
@@ -367,11 +584,20 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
             }
 
             .topbar {
-                padding: 0 16px
+                padding: 0 14px;
+                gap: 8px;
             }
 
             .page-label {
                 font-size: 15px
+            }
+
+            .top-actions {
+                gap: 8px;
+            }
+
+            .profile-btn {
+                padding: 7px 9px;
             }
 
             .topbar .profile-name {
@@ -406,6 +632,321 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
                 z-index: 25
             }
         }
+
+        /* ============ Small phones ============ */
+        @media(max-width:480px) {
+            .notif-dropdown {
+                width: calc(100vw - 24px);
+                right: -6px;
+            }
+
+            .avatar {
+                width: 30px;
+                height: 30px;
+            }
+
+            .sidebar-toggle,
+            .mode-btn {
+                width: 38px;
+                height: 38px;
+            }
+        }
+
+        /* =========================================================================
+           Global Theme Color Corrections (Forest Green & Gold)
+           ========================================================================= */
+
+        body {
+            background: var(--inv-bg) !important;
+            color: var(--inv-ink) !important;
+        }
+
+        /* Sidebar & Navigation */
+        .sidebar {
+            background: #ffffff !important;
+            border-right: 1px solid var(--inv-border) !important;
+        }
+
+        .brand {
+            border-bottom: 1px solid var(--inv-border) !important;
+        }
+
+        .brand.logo-brand {
+            box-shadow: 0 1px 0 var(--inv-border) !important;
+        }
+
+        .brand-mark {
+            background: var(--inv-primary) !important;
+        }
+
+        .menu a {
+            color: #475569 !important;
+        }
+
+        .menu a.active,
+        .menu a:hover {
+            background: var(--inv-primary-soft) !important;
+            color: var(--inv-primary) !important;
+        }
+
+        .menu-icon {
+            background: var(--inv-primary-soft) !important;
+            color: var(--inv-primary) !important;
+        }
+
+        .menu a.active .menu-icon,
+        .menu a:hover .menu-icon {
+            background: var(--inv-primary) !important;
+            color: #fff !important;
+        }
+
+        /* Topbar & Header */
+        .topbar {
+            background: rgba(255, 255, 255, .92) !important;
+            border-bottom: 1px solid var(--inv-border) !important;
+        }
+
+        .sidebar-toggle,
+        .mode-btn,
+        .profile-btn {
+            border: 1px solid var(--inv-border) !important;
+            color: var(--inv-primary) !important;
+        }
+
+        .page-label {
+            color: var(--inv-ink) !important;
+            font-family: 'Poppins', sans-serif !important;
+        }
+
+        .avatar {
+            background: var(--inv-primary) !important;
+        }
+
+        .profile-menu {
+            border: 1px solid var(--inv-border) !important;
+            box-shadow: 0 18px 50px rgba(6, 61, 50, .08) !important;
+        }
+
+        .profile-menu a:hover {
+            background: var(--inv-primary-soft) !important;
+            color: var(--inv-primary) !important;
+        }
+
+        .notif-dropdown {
+            border: 1px solid var(--inv-border) !important;
+        }
+
+        .notif-dropdown h4 {
+            color: var(--inv-primary) !important;
+            border-bottom: 1px solid var(--inv-border) !important;
+        }
+
+        .notif-unread-dot {
+            background: var(--inv-primary) !important;
+        }
+
+        .notif-footer {
+            border-top: 1px solid var(--inv-border) !important;
+        }
+
+        .notif-footer a {
+            color: var(--inv-primary) !important;
+        }
+
+        /* Hero and Wallet Cards */
+        .hero-card,
+        .wallet-card {
+            background: linear-gradient(135deg, var(--inv-primary), #0a5244) !important;
+            box-shadow: 0 24px 60px rgba(6, 61, 50, .15) !important;
+        }
+
+        .dash-card,
+        .actions-card,
+        .table-card,
+        .notif-list-card,
+        .profile-card,
+        .card {
+            border: 1px solid var(--inv-border) !important;
+            box-shadow: 0 14px 40px rgba(6, 61, 50, .04) !important;
+        }
+
+        .dash-card h3,
+        .actions-card h3,
+        .table-card h3,
+        .notif-header h2,
+        .profile-card h3 {
+            color: var(--inv-ink) !important;
+        }
+
+        .dash-card .value,
+        .dash-card span {
+            color: var(--inv-ink) !important;
+        }
+
+        /* Buttons & Forms */
+        .btn,
+        .btn-primary,
+        button[type="submit"] {
+            background: var(--inv-primary) !important;
+            color: #fff !important;
+            font-family: 'Poppins', sans-serif !important;
+        }
+
+        .btn:hover,
+        .btn-primary:hover,
+        button[type="submit"]:hover {
+            background: #042a22 !important;
+        }
+
+        .btn-outline {
+            background: transparent !important;
+            color: var(--inv-primary) !important;
+            border: 2px solid var(--inv-primary) !important;
+        }
+
+        .btn-outline:hover {
+            background: var(--inv-primary-soft) !important;
+            color: var(--inv-primary) !important;
+        }
+
+        .filter-tabs {
+            border-bottom: 2px solid var(--inv-primary-soft) !important;
+        }
+
+        /* Notification & rows */
+        .notif-header,
+        .notif-row-item {
+            border-bottom: 1px solid var(--inv-border) !important;
+        }
+
+        .notif-row-item {
+            border: 1px solid var(--inv-border) !important;
+        }
+
+        .notif-row-item:hover {
+            box-shadow: 0 8px 20px rgba(6, 61, 50, 0.05) !important;
+            border-color: var(--inv-primary) !important;
+        }
+
+        .notif-row-item.unread {
+            background: #f4faf8 !important;
+            border-color: var(--inv-primary) !important;
+        }
+
+        .notif-icon-unread,
+        .unread-dot {
+            background: var(--inv-primary) !important;
+            color: #fff !important;
+        }
+
+        /* Badges */
+        .badge-active,
+        .badge-approved,
+        .badge-paid,
+        .status-pill.active,
+        .status-pill.paid {
+            background: var(--inv-primary-soft) !important;
+            color: var(--inv-primary) !important;
+        }
+
+        .badge-pending,
+        .status-pill.pending {
+            background: #fff8eb !important;
+            color: var(--inv-primary-2) !important;
+        }
+
+        /* ============ Mobile Topbar Logo (replaces hamburger on mobile) ============ */
+        .topbar-mobile-logo {
+            display: none;
+        }
+
+        .topbar-mobile-logo img {
+            height: 30px;
+            width: auto;
+            max-width: 110px;
+            object-fit: contain;
+        }
+
+        /* ============ Bottom Mobile Tab Bar ============ */
+        .bottom-nav {
+            display: none;
+        }
+
+        .bottom-nav a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            font-size: 10.5px;
+            font-weight: 600;
+            color: #8a9a95;
+            padding: 6px 2px;
+            border-radius: 12px;
+            flex: 1;
+            min-width: 0;
+            transition: color .2s ease;
+        }
+
+        .bottom-nav .bn-icon {
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .bottom-nav .bn-icon svg {
+            width: 20px;
+            height: 20px;
+            stroke: #8a9a95;
+            transition: stroke .2s ease;
+        }
+
+        .bottom-nav a.active {
+            color: var(--inv-primary) !important;
+        }
+
+        .bottom-nav a.active .bn-icon svg {
+            stroke: var(--inv-primary) !important;
+        }
+
+        @media (max-width: 760px) {
+            .sidebar-toggle {
+                display: none !important;
+            }
+
+            .topbar-mobile-logo {
+                display: flex !important;
+                align-items: center;
+            }
+
+            .bottom-nav {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: #fff;
+                border-top: 1px solid var(--inv-border);
+                z-index: 50;
+                justify-content: space-around;
+                padding: 6px 4px calc(6px + env(safe-area-inset-bottom, 0px));
+                box-shadow: 0 -6px 20px rgba(6, 61, 50, .06);
+            }
+
+            .content {
+                padding-bottom: 92px !important;
+            }
+
+            .page-label {
+                display: none !important;
+            }
+
+            .top-left {
+                gap: 10px !important;
+            }
+        }
     </style>
 </head>
 
@@ -413,7 +954,9 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
     <div class="mobile-backdrop" id="mobileBackdrop"></div>
     <div class="app-shell">
         <aside class="sidebar" id="sidebar">
-            <div class="brand"><span class="brand-mark">LM</span> Investor Panel</div>
+            <a class="brand logo-brand" href="<?php echo base_url('investor/dashboard'); ?>">
+                <img src="<?php echo base_url('assets/images/logo/bg-remove-sidelogo.png'); ?>" alt="Logo" class="sidebar-logo">
+            </a>
             <nav class="menu">
                 <a class="<?php echo ($this->uri->segment(2) === 'dashboard' || empty($this->uri->segment(2))) ? 'active' : ''; ?>" href="<?php echo base_url('investor/dashboard'); ?>">
                     <span class="menu-icon">
@@ -477,7 +1020,10 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
             <header class="topbar">
                 <div class="top-left">
                     <button class="sidebar-toggle" type="button" id="sidebarToggle">=</button>
-                    <div class="page-label"><?php echo html_escape($page_title ?? 'Dashboard'); ?></div>
+                    <a href="<?php echo base_url('investor/dashboard'); ?>" class="topbar-mobile-logo">
+                        <img src="<?php echo base_url('assets/images/logo/bg-remove-sidelogo.png'); ?>" alt="Logo">
+                    </a>
+                    <div class="page-label"><?php echo html_escape($page_meta ?? $page_title ?? 'Dashboard'); ?></div>
                 </div>
                 <div class="top-actions">
                     <!-- Notification Bell -->
@@ -499,37 +1045,37 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
                         $notifications_list = $CI->db->query($sql, [$investor_id])->result_array();
                     }
                     ?>
-                    <div class="notif-wrapper" style="position: relative; display: inline-block;">
-                        <button class="mode-btn" type="button" id="notifToggle" style="position: relative; font-size: 16px; cursor: pointer;">
+                    <div class="notif-wrapper">
+                        <button class="mode-btn" type="button" id="notifToggle">
                             🔔
                             <?php if ($unread_count > 0): ?>
-                                <span style="position: absolute; top: -5px; right: -5px; background: #ef4444; color: #fff; border-radius: 50%; width: 18px; height: 18px; font-size: 10px; display: grid; place-items: center; font-weight: 700; border: 2px solid #fff;"><?php echo $unread_count; ?></span>
+                                <span class="notif-badge"><?php echo $unread_count; ?></span>
                             <?php endif; ?>
                         </button>
 
                         <!-- Notification Dropdown -->
-                        <div class="notif-dropdown" id="notifDropdown" style="display: none; position: absolute; right: 0; top: 48px; width: 320px; background: #fff; border: 1px solid #ede9fe; border-radius: 16px; box-shadow: 0 10px 25px rgba(109,40,217,0.1); z-index: 100; padding: 12px; max-height: 400px; overflow-y: auto;">
-                            <h4 style="margin: 0 0 12px; font-size: 14px; font-weight: 700; color: #6d28d9; border-bottom: 1px solid #ede9fe; padding-bottom: 8px;">Notifications</h4>
+                        <div class="notif-dropdown" id="notifDropdown">
+                            <h4>Notifications</h4>
                             <?php if (!empty($notifications_list)): ?>
                                 <?php foreach ($notifications_list as $notif): ?>
-                                    <div class="notif-item" style="padding: 10px; border-bottom: 1px solid #f5f3ff; font-size: 13px; cursor: pointer; transition: background 0.15s ease;" onclick="window.location.href='<?php echo base_url('investor/notifications/view/' . $notif['id']); ?>'" onmouseover="this.style.background='#fdfaff'" onmouseout="this.style.background='none'">
-                                        <div style="font-weight: 600; color: #1f2937; display: flex; justify-content: space-between; align-items: center;">
+                                    <a class="notif-item" href="<?php echo base_url('investor/notifications/view/' . $notif['id']); ?>">
+                                        <div class="notif-item-title">
                                             <span><?php echo html_escape($notif['title']); ?></span>
                                             <?php if (!$notif['is_read']): ?>
-                                                <span style="width: 6px; height: 6px; background: #6d28d9; border-radius: 50%;"></span>
+                                                <span class="notif-unread-dot"></span>
                                             <?php endif; ?>
                                         </div>
-                                        <div style="color: #6b7280; font-size: 11px; margin-top: 2px;"><?php echo html_escape($notif['message']); ?></div>
-                                        <div style="color: #9ca3af; font-size: 10px; margin-top: 4px;"><?php echo date('d M, h:i A', strtotime($notif['created_at'])); ?></div>
-                                    </div>
+                                        <div class="notif-item-msg"><?php echo html_escape($notif['message']); ?></div>
+                                        <div class="notif-item-time"><?php echo date('d M, h:i A', strtotime($notif['created_at'])); ?></div>
+                                    </a>
                                 <?php endforeach; ?>
-                                <div style="border-top:1px solid #f5f3ff; margin-top:8px; padding-top:8px; text-align:center;">
-                                    <a href="<?php echo base_url('investor/notifications'); ?>" style="font-size:12.5px; font-weight:600; color:#6d28d9; display:block;">View All Notifications</a>
+                                <div class="notif-footer">
+                                    <a href="<?php echo base_url('investor/notifications'); ?>">View All Notifications</a>
                                 </div>
                             <?php else: ?>
-                                <div style="text-align: center; color: #9ca3af; font-size: 13px; padding: 16px 0;">No notifications found.</div>
-                                <div style="border-top:1px solid #f5f3ff; margin-top:8px; padding-top:8px; text-align:center;">
-                                    <a href="<?php echo base_url('investor/notifications'); ?>" style="font-size:12.5px; font-weight:600; color:#6d28d9; display:block;">View All Notifications</a>
+                                <div class="notif-empty">No notifications found.</div>
+                                <div class="notif-footer">
+                                    <a href="<?php echo base_url('investor/notifications'); ?>">View All Notifications</a>
                                 </div>
                             <?php endif; ?>
                         </div>
@@ -556,12 +1102,12 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
                 if (notifToggle && notifDropdown) {
                     notifToggle.addEventListener('click', function(e) {
                         e.stopPropagation();
-                        notifDropdown.style.display = notifDropdown.style.display === 'none' ? 'block' : 'none';
+                        notifDropdown.classList.toggle('open');
                     });
 
                     document.addEventListener('click', function(e) {
                         if (!notifDropdown.contains(e.target) && e.target !== notifToggle) {
-                            notifDropdown.style.display = 'none';
+                            notifDropdown.classList.remove('open');
                         }
                     });
                 }

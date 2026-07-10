@@ -13,11 +13,11 @@
             font-weight: 700;
         }
         .reward-summary-card {
-            background: linear-gradient(135deg, #0f766e, #14b8a6);
+            background: linear-gradient(135deg, #063d32, #c59b27);
             color: #fff;
             padding: 24px;
             border-radius: 18px;
-            box-shadow: 0 14px 40px rgba(15, 118, 110, 0.15);
+            box-shadow: 0 14px 40px rgba(6, 61, 50, 0.15);
             margin-bottom: 24px;
             display: flex;
             justify-content: space-between;
@@ -89,12 +89,21 @@
         }
         .badge-invited { background: #f1f5f9; color: #475569; border-color: #cbd5e1; }
         .badge-applied { background: #fef3c7; color: #d97706; border-color: #fde68a; }
-        .badge-approved { background: #e0f2fe; color: #0369a1; border-color: #bae6fd; }
-        .badge-disbursed { background: #e0e7ff; color: #4338ca; border-color: #c7d2fe; }
-        .badge-reward_credited { background: #ecfdf5; color: #059669; border-color: #a7f3d0; }
+        .badge-approved { background: #f8efd9; color: #8a5a10; border-color: #ead09b; }
+        .badge-disbursed { background: #f8efd9; color: #8a5a10; border-color: #ead09b; }
+        .badge-reward_credited { background: #eef8f4; color: #059669; border-color: #a7f3d0; }
 
         .referral-mobile-list {
             display: none;
+        }
+        .mobile-history-section {
+            margin-top: 18px;
+        }
+        .mobile-history-title {
+            margin: 0 0 12px;
+            color: #172033;
+            font-size: 17px;
+            font-weight: 800;
         }
         .referral-mobile-card {
             background: #fff;
@@ -123,8 +132,8 @@
             border-radius: 15px;
             display: grid;
             place-items: center;
-            background: #ecfdf5;
-            color: #0f766e;
+            background: #eef8f4;
+            color: #063d32;
             font-weight: 800;
             flex: none;
         }
@@ -174,6 +183,22 @@
             place-items: center;
             text-align: center;
         }
+        .mobile-card-note {
+            margin-top: 10px;
+            color: #64748b;
+            font-size: 12.5px;
+            line-height: 1.45;
+            overflow-wrap: anywhere;
+        }
+        .mobile-amount {
+            color: #059669;
+            font-size: 15px;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        .mobile-amount.requested {
+            color: #172033;
+        }
 
         .no-records {
             padding: 48px;
@@ -216,6 +241,10 @@
                 display: block;
             }
 
+            .mobile-history-section {
+                margin-top: 16px;
+            }
+
             .my-referrals-container > div[style*="grid-template-columns"] {
                 grid-template-columns: 1fr !important;
                 gap: 14px !important;
@@ -238,6 +267,10 @@
             #refLinkInput {
                 min-width: 0;
             }
+
+            .referral-card-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 
@@ -247,7 +280,7 @@
 
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-bottom: 24px;">
         <!-- Card 1: Wallet stats -->
-        <div class="reward-summary-card" style="margin-bottom: 0; max-width: 100%; background: linear-gradient(135deg, #0f766e 0%, #115e59 100%); display: flex; flex-direction: column; justify-content: space-between;">
+        <div class="reward-summary-card" style="margin-bottom: 0; max-width: 100%; background: linear-gradient(135deg, #063d32 0%, #042a22 100%); display: flex; flex-direction: column; justify-content: space-between;">
             <div>
                 <h3 style="color: #ccfbf1; font-size: 13.5px; text-transform: uppercase; margin: 0 0 6px;">Total Rewards Earned</h3>
                 <div class="reward-value" style="color: #fff; font-size: 24px;">INR <?php echo number_format($total_earned, 2); ?></div>
@@ -262,13 +295,13 @@
         <div style="background: #fff; border: 1px solid #e8eef6; border-radius: 18px; padding: 24px; box-shadow: 0 14px 40px rgba(22, 34, 51, 0.07); display: flex; flex-direction: column; justify-content: center; gap: 12px;">
             <div style="font-size: 14px; color:#475569; display: flex; align-items: center; gap: 8px;">
                 <span>Your Referral Code:</span>
-                <strong style="color: #0f766e; background: #e8f7f5; padding: 4px 10px; border-radius: 6px; font-size: 15px; letter-spacing: 0.5px; border: 1px solid #b2eae2;" id="refCodeText"><?php echo html_escape($user->referral_code ?? ''); ?></strong>
-                <button type="button" onclick="copyReferralCode()" style="background: none; border: 0; color: #0f766e; font-weight: 700; cursor: pointer; font-size: 12.5px; display: inline-flex; align-items: center; gap: 4px; padding: 0;">Copy Code</button>
+                <strong style="color: #063d32; background: #eef8f4; padding: 4px 10px; border-radius: 6px; font-size: 15px; letter-spacing: 0.5px; border: 1px solid #bddbd2;" id="refCodeText"><?php echo html_escape($user->referral_code ?? ''); ?></strong>
+                <button type="button" onclick="copyReferralCode()" style="background: none; border: 0; color: #063d32; font-weight: 700; cursor: pointer; font-size: 12.5px; display: inline-flex; align-items: center; gap: 4px; padding: 0;">Copy Code</button>
             </div>
             <?php $ref_link = base_url('register?ref=' . ($user->referral_code ?? '')); ?>
             <div style="display: flex; gap: 8px;">
                 <input type="text" id="refLinkInput" value="<?php echo html_escape($ref_link); ?>" readonly style="flex: 1; border: 1px solid #dbe3ef; border-radius: 12px; padding: 10px 14px; font-size: 13.5px; outline: none; background: #f8fafc; font-weight: 500; height: 42px;">
-                <button type="button" onclick="copyReferralLink()" style="background: #0f766e; color: #fff; border: 0; border-radius: 12px; padding: 0 18px; font-weight: 600; font-size: 13.5px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.15s ease; height: 42px;">
+                <button type="button" onclick="copyReferralLink()" style="background: #063d32; color: #fff; border: 0; border-radius: 12px; padding: 0 18px; font-weight: 600; font-size: 13.5px; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: background 0.15s ease; height: 42px;">
                     Copy
                 </button>
             </div>
@@ -280,7 +313,7 @@
             <?php echo form_open('referrals/withdraw', ['style' => 'display: flex; gap: 8px; flex-direction: column; margin: 0;']); ?>
                 <div style="display: flex; gap: 8px; margin: 0;">
                     <input type="number" step="0.01" min="<?php echo (float)$min_withdrawal; ?>" max="<?php echo (float)$wallet_balance; ?>" name="amount" placeholder="Min INR <?php echo number_format($min_withdrawal, 2); ?>" style="flex: 1; border: 1px solid #dbe3ef; border-radius: 12px; padding: 10px 14px; font-size: 13.5px; outline: none; height: 42px; background: #fff;" required>
-                    <button type="submit" style="background: #0f766e; color: #fff; border: 0; border-radius: 12px; padding: 0 18px; font-weight: 700; font-size: 13.5px; cursor: pointer; height: 42px;">
+                    <button type="submit" style="background: #063d32; color: #fff; border: 0; border-radius: 12px; padding: 0 18px; font-weight: 700; font-size: 13.5px; cursor: pointer; height: 42px;">
                         Withdraw
                     </button>
                 </div>
@@ -350,6 +383,58 @@
         </table>
     </div>
 
+    <div class="referral-mobile-list mobile-history-section">
+        <h2 class="mobile-history-title">Referral History</h2>
+        <?php if (!empty($referrals)): ?>
+            <?php foreach ($referrals as $ref): ?>
+                <?php
+                $mobile_status_labels = [
+                    'invited' => 'Invited',
+                    'applied' => 'Applied',
+                    'approved' => 'Approved',
+                    'disbursed' => 'Disbursed',
+                    'reward_credited' => 'Reward Credited'
+                ];
+                $mobile_label = $mobile_status_labels[$ref['status']] ?? ucfirst($ref['status']);
+                $mobile_initial = strtoupper(substr(trim($ref['referred_name'] ?? 'R'), 0, 1));
+                ?>
+                <article class="referral-mobile-card">
+                    <div class="referral-card-top">
+                        <div class="referral-person">
+                            <div class="referral-avatar"><?php echo html_escape($mobile_initial); ?></div>
+                            <div>
+                                <div class="referral-name"><?php echo html_escape($ref['referred_name']); ?></div>
+                                <div class="referral-mobile"><?php echo html_escape($ref['referred_mobile']); ?></div>
+                            </div>
+                        </div>
+                        <span class="badge badge-<?php echo strtolower($ref['status']); ?>"><?php echo html_escape($mobile_label); ?></span>
+                    </div>
+                    <div class="referral-card-grid">
+                        <div class="referral-card-item">
+                            <span>Registered</span>
+                            <strong><?php echo date('d M Y', strtotime($ref['registration_date'])); ?></strong>
+                        </div>
+                        <div class="referral-card-item">
+                            <span>Reward</span>
+                            <?php if ($ref['status'] === 'reward_credited' && !empty($ref['reward_amount'])): ?>
+                                <strong class="mobile-amount">+INR <?php echo number_format($ref['reward_amount'], 2); ?></strong>
+                            <?php else: ?>
+                                <strong>Pending</strong>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </article>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <div class="referral-mobile-card referral-empty-card">
+                <div>
+                    <strong>No referrals yet</strong>
+                    <p class="mobile-card-note">Share your referral link to start earning rewards.</p>
+                </div>
+            </div>
+        <?php endif; ?>
+    </div>
+
     <!-- Withdrawal Requests Table Card -->
     <div class="table-card" style="margin-top: 32px;">
         <div style="padding: 20px 24px 10px;">
@@ -377,7 +462,7 @@
                                 <span class="badge badge-<?php echo strtolower($req->status); ?>" style="
                                     <?php 
                                         if ($req->status === 'pending') echo 'background: #fef3c7; color: #d97706; border-color: #fde68a;';
-                                        elseif ($req->status === 'approved') echo 'background: #ecfdf5; color: #059669; border-color: #a7f3d0;';
+                                        elseif ($req->status === 'approved') echo 'background: #eef8f4; color: #059669; border-color: #a7f3d0;';
                                         elseif ($req->status === 'rejected') echo 'background: #fee2e2; color: #b91c1c; border-color: #fca5a5;';
                                     ?>
                                 ">
@@ -398,6 +483,48 @@
                 <?php endif; ?>
             </tbody>
         </table>
+    </div>
+
+    <div class="referral-mobile-list mobile-history-section">
+        <h2 class="mobile-history-title">Withdrawal History</h2>
+        <?php if (!empty($withdrawal_requests)): ?>
+            <?php foreach ($withdrawal_requests as $req): ?>
+                <article class="referral-mobile-card">
+                    <div class="referral-card-top">
+                        <div>
+                            <div class="referral-name">Withdrawal Request</div>
+                            <div class="referral-mobile"><?php echo date('d M Y, h:i A', strtotime($req->created_at)); ?></div>
+                        </div>
+                        <span class="badge badge-<?php echo strtolower($req->status); ?>" style="
+                            <?php 
+                                if ($req->status === 'pending') echo 'background: #fef3c7; color: #d97706; border-color: #fde68a;';
+                                elseif ($req->status === 'approved') echo 'background: #eef8f4; color: #059669; border-color: #a7f3d0;';
+                                elseif ($req->status === 'rejected') echo 'background: #fee2e2; color: #b91c1c; border-color: #fca5a5;';
+                            ?>
+                        ">
+                            <?php echo html_escape($req->status); ?>
+                        </span>
+                    </div>
+                    <div class="referral-card-grid">
+                        <div class="referral-card-item">
+                            <span>Amount Requested</span>
+                            <strong class="mobile-amount requested">INR <?php echo number_format($req->amount, 2); ?></strong>
+                        </div>
+                        <div class="referral-card-item">
+                            <span>Admin Note</span>
+                            <strong><?php echo html_escape($req->admin_note ?: '-'); ?></strong>
+                        </div>
+                    </div>
+                </article>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <div class="referral-mobile-card referral-empty-card">
+                <div>
+                    <strong>No withdrawal requests</strong>
+                    <p class="mobile-card-note">Your withdrawal requests will appear here.</p>
+                </div>
+            </div>
+        <?php endif; ?>
     </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
