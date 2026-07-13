@@ -201,6 +201,7 @@ class Api extends CI_Controller
 
     public function register_send_otp()
     {
+        // Validation Rules
         $this->form_validation->set_rules('name', 'Name', 'required|trim');
         $this->form_validation->set_rules(
             'mobile',
@@ -212,39 +213,56 @@ class Api extends CI_Controller
 
         if ($this->form_validation->run() == FALSE) {
             $this->response(null, strip_tags(validation_errors()), 400);
+            return;
         }
 
-        $mobile = trim($this->input->post('mobile', TRUE));
+        // Safely fetch POST values (PHP 8+ compatible)
+        $name       = trim($this->input->post('name', TRUE) ?? '');
+        $mobile     = trim($this->input->post('mobile', TRUE) ?? '');
+        $email      = trim($this->input->post('email', TRUE) ?? '');
+        $manual_ref = trim($this->input->post('referred_by_code', TRUE) ?? '');
 
-        $manual_ref = trim($this->input->post('referred_by_code'));
-        if (!empty($manual_ref)) {
+        // Extra validation
+        if ($mobile === '') {
+            $this->response(null, 'Mobile number is required.', 400);
+            return;
+        }
+
+        // Validate referral code
+        if ($manual_ref !== '') {
             $referrer = $this->general->getOne('users', ['referral_code' => $manual_ref]);
+
             if (!$referrer) {
                 $this->response(null, 'The referral code entered is invalid.', 400);
+                return;
             }
         }
 
+        // Registration data
         $form_data = [
-            'name' => trim($this->input->post('name', TRUE)),
-            'email' => trim($this->input->post('email', TRUE)) ?: NULL,
-            'mobile' => $mobile,
-            'referred_by_code' => $manual_ref ?: NULL
+            'name'             => $name,
+            'email'            => $email !== '' ? $email : NULL,
+            'mobile'           => $mobile,
+            'referred_by_code' => $manual_ref !== '' ? $manual_ref : NULL
         ];
 
         // Send OTP
         $this->send_otp_via_sms($mobile, $this->otp);
 
-        // Store pending registration in session, keyed by mobile
-        $pending = $this->session->userdata('pending_registrations') ?: [];
+        // Store pending registration in session
+        $pending = $this->session->userdata('pending_registrations') ?? [];
+
         $pending[$mobile] = [
-            'form_data' => $form_data,
-            'otp' => $this->otp,
+            'form_data'  => $form_data,
+            'otp'        => $this->otp,
             'expires_at' => time() + 600 // 10 minutes
         ];
+
         $this->session->set_userdata('pending_registrations', $pending);
 
+        // Response
         $this->response([
-            'mobile' => $mobile,
+            'mobile'   => $mobile,
             'otp_hint' => 'For testing, you can use ' . $this->otp
         ], 'Registration OTP sent successfully.', 200);
     }

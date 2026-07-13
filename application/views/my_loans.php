@@ -3,6 +3,7 @@
     .my-loans-container {
         margin-top: 10px;
     }
+
     .loans-header {
         display: flex;
         justify-content: space-between;
@@ -11,12 +12,14 @@
         flex-wrap: wrap;
         gap: 16px;
     }
+
     .loans-header h1 {
         margin: 0;
         font-size: 26px;
         color: #172033;
         font-weight: 700;
     }
+
     .btn-apply {
         background: #063d32;
         color: #fff;
@@ -29,9 +32,11 @@
         align-items: center;
         gap: 8px;
     }
+
     .btn-apply:hover {
         background: #042a22;
     }
+
     .alert-success-banner {
         background: #dcf5e4;
         border: 1px solid #bbf7d0;
@@ -45,11 +50,13 @@
         font-weight: 600;
         box-shadow: 0 4px 12px rgba(21, 128, 61, 0.05);
     }
+
     .alert-success-banner svg {
         width: 20px;
         height: 20px;
         flex-shrink: 0;
     }
+
     .table-card {
         background: #fff;
         border: 1px solid #e8eef6;
@@ -57,17 +64,21 @@
         box-shadow: 0 14px 40px rgba(22, 34, 51, 0.07);
         overflow-x: auto;
     }
+
     table {
         width: 100%;
         border-collapse: collapse;
         text-align: left;
         min-width: 600px;
     }
-    th, td {
+
+    th,
+    td {
         padding: 16px 24px;
         border-bottom: 1px solid #eef3f8;
         vertical-align: middle;
     }
+
     th {
         background: #f8fafc;
         font-weight: 600;
@@ -76,13 +87,16 @@
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
+
     td {
         font-size: 14px;
         color: #172033;
     }
+
     tr:last-child td {
         border-bottom: 0;
     }
+
     .badge {
         display: inline-block;
         padding: 5px 12px;
@@ -91,18 +105,51 @@
         font-weight: 600;
         text-transform: capitalize;
     }
-    .badge-pending { background: #fef3c7; color: #d97706; }
-    .badge-assigned { background: #f8efd9; color: #8a5a10; }
-    .badge-approved { background: #dcf5e4; color: #15803d; }
-    .badge-funded { background: #f8efd9; color: #8a5a10; }
-    .badge-active { background: #f3e8ff; color: #7e22ce; }
-    .badge-completed { background: #f1f5f9; color: #475569; }
-    .badge-paid { background: #eef8f4; color: #059669; }
-    .badge-rejected { background: #fee2e2; color: #b91c1c; }
+
+    .badge-pending {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .badge-assigned {
+        background: #f8efd9;
+        color: #8a5a10;
+    }
+
+    .badge-approved {
+        background: #dcf5e4;
+        color: #15803d;
+    }
+
+    .badge-funded {
+        background: #f8efd9;
+        color: #8a5a10;
+    }
+
+    .badge-active {
+        background: #f3e8ff;
+        color: #7e22ce;
+    }
+
+    .badge-completed {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .badge-paid {
+        background: #eef8f4;
+        color: #059669;
+    }
+
+    .badge-rejected {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
 
     .loan-mobile-list {
         display: none;
     }
+
     .loan-mobile-card {
         background: #fff;
         border: 1px solid #e8eef6;
@@ -111,6 +158,7 @@
         box-shadow: 0 16px 36px rgba(15, 23, 42, 0.07);
         margin-bottom: 14px;
     }
+
     .loan-card-top {
         display: flex;
         justify-content: space-between;
@@ -118,24 +166,28 @@
         gap: 12px;
         margin-bottom: 14px;
     }
+
     .loan-card-amount {
         font-size: 23px;
         font-weight: 800;
         color: #111827;
         letter-spacing: -0.03em;
     }
+
     .loan-card-sub {
         color: #667085;
         font-size: 12px;
         font-weight: 700;
         margin-top: 4px;
     }
+
     .loan-card-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 10px;
         margin: 14px 0;
     }
+
     .loan-card-item {
         border: 1px solid #edf2f7;
         background: #f8fafc;
@@ -143,6 +195,7 @@
         padding: 11px;
         min-width: 0;
     }
+
     .loan-card-item span {
         display: block;
         color: #667085;
@@ -152,6 +205,7 @@
         letter-spacing: .04em;
         margin-bottom: 4px;
     }
+
     .loan-card-item strong {
         display: block;
         color: #172033;
@@ -159,12 +213,14 @@
         line-height: 1.35;
         overflow-wrap: anywhere;
     }
+
     .loan-card-actions {
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
         margin-top: 12px;
     }
+
     .loan-card-link,
     .loan-card-pay {
         min-height: 40px;
@@ -177,11 +233,13 @@
         font-weight: 800;
         text-decoration: none;
     }
+
     .loan-card-link {
         background: #eef8f4;
         color: #063d32;
         border: 1px solid #bddbd2;
     }
+
     .loan-card-pay {
         background: #063d32;
         color: #fff;
@@ -195,6 +253,7 @@
         color: #65758b;
         font-size: 15px;
     }
+
     .no-records-icon {
         width: 48px;
         height: 48px;
@@ -224,7 +283,7 @@
             padding: 34px 18px;
         }
 
-        .loan-card-actions > * {
+        .loan-card-actions>* {
             flex: 1 1 100%;
         }
     }
@@ -319,7 +378,7 @@
                             </td>
                             <td>
                                 <?php if ($loan->status === 'approved'): ?>
-                                    <?php 
+                                    <?php
                                     $tenure_days = (int) $loan->tenure_days;
                                     $start_date = new DateTime(date('Y-m-d', strtotime($loan->approved_at ?: $loan->updated_at ?: $loan->created_at)));
                                     $due_date = clone $start_date;
@@ -327,7 +386,7 @@
                                     $today = new DateTime(date('Y-m-d'));
                                     $remaining_days = (int) $today->diff($due_date)->format('%r%a');
                                     $remaining_days = min($remaining_days, $tenure_days);
-                                    
+
                                     if ($remaining_days > 0) {
                                         $label = ($remaining_days === 1) ? '1 Day Remaining' : $remaining_days . ' Days Remaining';
                                         echo '<span class="badge" style="background:#fffbeb; color:#b45309; border: 1px solid #fef3c7; text-transform:none;">' . $label . '</span>';
@@ -496,10 +555,22 @@
     </script>
 <?php endif; ?>
 <?php if ($this->session->flashdata('success')): ?>
-    <script>Swal.fire({icon:'success',title:'Success',text:<?php echo json_encode($this->session->flashdata('success')); ?>});</script>
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: <?php echo json_encode($this->session->flashdata('success')); ?>
+        });
+    </script>
 <?php endif; ?>
 <?php if ($this->session->flashdata('error')): ?>
-    <script>Swal.fire({icon:'error',title:'Error',text:<?php echo json_encode($this->session->flashdata('error')); ?>});</script>
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: <?php echo json_encode($this->session->flashdata('error')); ?>
+        });
+    </script>
 <?php endif; ?>
 
 <script>

@@ -3,6 +3,7 @@
     .detail-container {
         margin-top: 10px;
     }
+
     .back-btn {
         background: #f1f5f9;
         color: #475569;
@@ -19,20 +20,24 @@
         margin-bottom: 20px;
         transition: all 0.15s ease;
     }
+
     .back-btn:hover {
         background: #e2e8f0;
         color: #1e293b;
     }
+
     .detail-grid {
         display: grid;
         grid-template-columns: 1fr 1.2fr;
         gap: 24px;
     }
+
     @media (max-width: 980px) {
         .detail-grid {
             grid-template-columns: 1fr;
         }
     }
+
     .detail-card {
         background: #fff;
         border: 1px solid #e5edf6;
@@ -41,6 +46,7 @@
         box-shadow: 0 14px 40px rgba(22, 34, 51, .07);
         margin-bottom: 24px;
     }
+
     .detail-card h3 {
         margin: 0 0 20px;
         font-size: 18px;
@@ -49,12 +55,14 @@
         border-bottom: 1px solid #eef3f8;
         padding-bottom: 12px;
     }
+
     .profile-header-section {
         text-align: center;
         padding-bottom: 20px;
         border-bottom: 1px solid #eef3f8;
         margin-bottom: 20px;
     }
+
     .profile-avatar-large {
         width: 120px;
         height: 120px;
@@ -70,26 +78,31 @@
         border: 4px solid #fff;
         box-shadow: 0 8px 24px rgba(37, 99, 235, 0.15);
     }
+
     .profile-avatar-large img {
         width: 100%;
         height: 100%;
         object-fit: cover;
     }
+
     .profile-header-section h2 {
         margin: 0 0 6px;
         font-size: 22px;
         color: #172033;
     }
+
     .profile-header-section p {
         margin: 0;
         color: #65758b;
         font-size: 14px;
     }
+
     .info-list {
         display: flex;
         flex-direction: column;
         gap: 12px;
     }
+
     .info-row {
         display: flex;
         justify-content: space-between;
@@ -97,29 +110,35 @@
         border-bottom: 1px solid #f8fafc;
         font-size: 14px;
     }
+
     .info-row:last-child {
         border-bottom: 0;
     }
+
     .info-label {
         color: #65758b;
         font-weight: 500;
     }
+
     .info-value {
         color: #172033;
         font-weight: 600;
         text-align: right;
     }
+
     .kyc-photos-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 16px;
         margin-top: 15px;
     }
+
     @media (max-width: 480px) {
         .kyc-photos-grid {
             grid-template-columns: 1fr;
         }
     }
+
     .kyc-photo-card {
         border: 1px solid #e5edf6;
         border-radius: 12px;
@@ -127,12 +146,14 @@
         background: #fafbfe;
         text-align: center;
     }
+
     .kyc-photo-card h4 {
         margin: 0 0 10px;
         font-size: 13px;
         font-weight: 600;
         color: #51657f;
     }
+
     .kyc-image-wrapper {
         width: 100%;
         height: 140px;
@@ -146,14 +167,17 @@
         cursor: pointer;
         transition: transform 0.2s ease;
     }
+
     .kyc-image-wrapper:hover {
         transform: scale(1.02);
     }
+
     .kyc-image-wrapper img {
         width: 100%;
         height: 100%;
         object-fit: cover;
     }
+
     .kyc-missing {
         font-size: 12px;
         color: #94a3b8;
@@ -345,10 +369,10 @@
                                     <?php echo html_escape(basename($user_details->contacts_file)); ?>
                                 </div>
                                 <div style="font-size: 12px; color: #65758b;">
-                                    Uploaded: <?php 
-                                        $file_path_abs = FCPATH . $user_details->contacts_file;
-                                        echo file_exists($file_path_abs) ? date('d M Y, h:i A', filemtime($file_path_abs)) : 'Unknown';
-                                    ?>
+                                    Uploaded: <?php
+                                                $file_path_abs = FCPATH . $user_details->contacts_file;
+                                                echo file_exists($file_path_abs) ? date('d M Y, h:i A', filemtime($file_path_abs)) : 'Unknown';
+                                                ?>
                                 </div>
                             </div>
                         </div>

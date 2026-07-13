@@ -49,8 +49,7 @@ class Referrals extends CI_Controller
 
         // Fetch referral settings
         $settings = $this->general->getById('referral_settings', 1);
-        $data['min_withdrawal'] = $settings ? (float) $settings->min_withdrawal_amount : 500.00;
-
+$data['min_withdrawal'] = 500.00;
         // Fetch withdrawal requests
         $data['withdrawal_requests'] = $this->general->getAll('withdrawal_requests', ['investor_id' => $user_id], 'id DESC');
 
