@@ -58,7 +58,7 @@ class Dashboard extends CI_Controller
         $data['investment_stats'] = $stats;
 
         // 4. Fetch active loan requests / opportunities (unread invites)
-        $sql_opportunities = "SELECT n.*, l.amount as loan_amount, l.tenure_days, l.interest_rate, u.name as borrower_name 
+        $sql_opportunities = "SELECT n.*, l.amount as loan_amount, l.tenure_days, l.interest_rate, l.is_emi, l.emi_count, u.name as borrower_name 
                                FROM notifications n 
                                LEFT JOIN loans l ON n.loan_id = l.id 
                                LEFT JOIN users u ON l.user_id = u.id 
@@ -68,7 +68,7 @@ class Dashboard extends CI_Controller
         $data['recent_opportunities'] = $this->db->query($sql_opportunities, [$investor_id])->result_array();
 
         // 5. Fetch recent investments (interested or selected)
-        $sql_recent_invests = "SELECT li.*, l.amount as loan_amount, l.tenure_days, l.interest_rate, l.status as loan_status, u.name as borrower_name 
+        $sql_recent_invests = "SELECT li.*, l.amount as loan_amount, l.tenure_days, l.interest_rate, l.is_emi, l.emi_count, l.status as loan_status, u.name as borrower_name 
                                FROM loan_investors li 
                                JOIN loans l ON li.loan_id = l.id 
                                JOIN users u ON l.user_id = u.id 

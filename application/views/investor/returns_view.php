@@ -139,7 +139,7 @@
                             <td><strong>INR <?php echo number_format($row['invested_amount'], 2); ?></strong></td>
                             <td><?php echo (float)$row['interest_rate']; ?>%</td>
                             <td><span class="profit-text">+INR <?php echo number_format($row['profit_amount'], 2); ?></span></td>
-                            <td><?php echo $row['tenure_days']; ?> Days</td>
+                            <td><?php echo ((int)$row['is_emi'] === 1) ? html_escape($row['emi_count']) . ' Months' : html_escape($row['tenure_days']) . ' Days'; ?></td>
                             <td><?php echo date('d M Y, h:i A', strtotime($row['responded_at'])); ?></td>
                         </tr>
                     <?php endforeach; ?>

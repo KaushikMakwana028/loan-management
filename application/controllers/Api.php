@@ -5,10 +5,16 @@ class Api extends CI_Controller
     private $role = 0; // 0 = User
     private $otp = '000000';
     private $jwt_secret = 'KreditmitraaKey2026!@#$';
+    private $current_token = null;
+    private $current_token_payload = null;
 
     public function __construct()
     {
         parent::__construct();
+
+        // Suppress PHP 8.1+ deprecation notices from leaking into API responses
+        error_reporting(E_ALL & ~E_DEPRECATED & ~E_NOTICE);
+
         $this->load->model('General_model', 'general');
         $this->load->library(['upload', 'form_validation', 'session']);
 
@@ -17,7 +23,6 @@ class Api extends CI_Controller
             $_POST = array_merge($_POST, $json_input);
         }
     }
-
     /* =========================================================================
        JWT Token Helpers
        ========================================================================= */
@@ -110,6 +115,12 @@ class Api extends CI_Controller
             $this->response(null, 'Token missing or invalid format', 401);
         }
 
+        // Reject if token has been blacklisted (i.e. user logged out)
+        $blacklisted = $this->general->getOne('token_blacklist', ['token' => $token]);
+        if ($blacklisted) {
+            $this->response(null, 'Token has been invalidated. Please log in again.', 401);
+        }
+
         $payload = $this->verify_jwt($token);
         if (!$payload || !isset($payload['user_id'])) {
             $this->response(null, 'Invalid or expired token', 401);
@@ -119,6 +130,10 @@ class Api extends CI_Controller
         if (!$user || (int) $user->role !== $this->role) {
             $this->response(null, 'Unauthorized user account', 403);
         }
+
+        // Stash payload on the request so logout() can reuse it without re-parsing
+        $this->current_token = $token;
+        $this->current_token_payload = $payload;
 
         return $user;
     }
@@ -520,40 +535,74 @@ class Api extends CI_Controller
     {
         $user = $this->authenticate();
 
-        $education = trim($this->input->post('education', TRUE));
-        if ($education === 'Other') {
-            $education = trim($this->input->post('education_other', TRUE));
-        }
+        $update_data = [];
 
-        $employment = trim($this->input->post('employment', TRUE));
-        if ($employment === 'Other') {
-            $employment = trim($this->input->post('employment_other', TRUE));
-        }
+        // Helper: only include a field in update_data if it was actually sent in the request
+        $set_if_present = function ($key, $value) use (&$update_data) {
+            if ($value !== null) {
+                $update_data[$key] = ($value === '') ? NULL : $value;
+            }
+        };
 
-        $update_data = [
-            'name' => trim($this->input->post('name', TRUE)),
-            'email' => trim($this->input->post('email', TRUE)) ?: NULL,
-            'mobile' => trim($this->input->post('mobile', TRUE)),
-            'marriage_status' => trim($this->input->post('marriage_status', TRUE)) ?: NULL,
-            'dob' => trim($this->input->post('dob', TRUE)) ?: NULL,
-            'education' => $education ?: NULL,
-            'employment' => $employment ?: NULL,
-            'address' => trim($this->input->post('address', TRUE)) ?: NULL,
-            'aadhaar_number' => trim($this->input->post('aadhaar_number', TRUE)) ?: NULL,
-            'pan_number' => trim($this->input->post('pan_number', TRUE)) ?: NULL,
-            'account_holder_name' => trim($this->input->post('account_holder_name', TRUE)) ?: NULL,
-            'bank_name' => trim($this->input->post('bank_name', TRUE)) ?: NULL,
-            'account_number' => trim($this->input->post('account_number', TRUE)) ?: NULL,
-            'ifsc_code' => trim($this->input->post('ifsc_code', TRUE)) ?: NULL,
-            'account_type' => trim($this->input->post('account_type', TRUE)) ?: NULL,
-            'branch_name' => trim($this->input->post('branch_name', TRUE)) ?: NULL,
-            'reference_name_1' => trim($this->input->post('reference_name_1', TRUE)) ?: NULL,
-            'reference_mobile_1' => trim($this->input->post('reference_mobile_1', TRUE)) ?: NULL,
-            'reference_name_2' => trim($this->input->post('reference_name_2', TRUE)) ?: NULL,
-            'reference_mobile_2' => trim($this->input->post('reference_mobile_2', TRUE)) ?: NULL
+        // Simple text fields - only touched if present in the POST payload
+        $fields = [
+            'name',
+            'email',
+            'mobile',
+            'marriage_status',
+            'dob',
+            'address',
+            'aadhaar_number',
+            'pan_number',
+            'account_holder_name',
+            'bank_name',
+            'account_number',
+            'ifsc_code',
+            'account_type',
+            'branch_name',
+            'reference_name_1',
+            'reference_mobile_1',
+            'reference_name_2',
+            'reference_mobile_2'
         ];
 
-        // Process File Uploads (profile photo / documents)
+        foreach ($fields as $field) {
+            $raw = $this->input->post($field, TRUE);
+            if ($raw !== null) {
+                $set_if_present($field, trim($raw));
+            }
+        }
+
+        // name/mobile are required-not-null columns typically - don't let them become NULL
+        // if sent but empty, keep original value instead of nulling out
+        if (isset($update_data['name']) && $update_data['name'] === NULL) {
+            unset($update_data['name']);
+        }
+        if (isset($update_data['mobile']) && $update_data['mobile'] === NULL) {
+            unset($update_data['mobile']);
+        }
+
+        // Education (with "Other" handling) - only touched if present
+        $education_raw = $this->input->post('education', TRUE);
+        if ($education_raw !== null) {
+            $education = trim($education_raw);
+            if ($education === 'Other') {
+                $education = trim($this->input->post('education_other', TRUE) ?? '');
+            }
+            $update_data['education'] = $education ?: NULL;
+        }
+
+        // Employment (with "Other" handling) - only touched if present
+        $employment_raw = $this->input->post('employment', TRUE);
+        if ($employment_raw !== null) {
+            $employment = trim($employment_raw);
+            if ($employment === 'Other') {
+                $employment = trim($this->input->post('employment_other', TRUE) ?? '');
+            }
+            $update_data['employment'] = $employment ?: NULL;
+        }
+
+        // Process File Uploads (profile photo / documents) - only if a new file was sent
         foreach (['profile_image', 'aadhaar_photo', 'pan_photo'] as $field) {
             $file = $this->upload_file($field);
             if ($file) {
@@ -567,7 +616,27 @@ class Api extends CI_Controller
             $update_data['contacts_file'] = $contacts_file_path;
         }
 
-        $this->general->update('users', ['id' => $user->id], $update_data);
+        if (isset($update_data['mobile'])) {
+            $existing_mobile = $this->general->getOne('users', ['mobile' => $update_data['mobile'], 'id !=' => $user->id]);
+            if ($existing_mobile) {
+                $this->response(null, 'This mobile number is already registered.', 400);
+                return;
+            }
+        }
+
+        if (isset($update_data['email'])) {
+            $existing_email = $this->general->getOne('users', ['email' => $update_data['email'], 'id !=' => $user->id]);
+            if ($existing_email) {
+                $this->response(null, 'This email address is already registered.', 400);
+                return;
+            }
+        }
+
+        // Only hit the DB if there's actually something to update
+        if (!empty($update_data)) {
+            $update_data['updated_at'] = date('Y-m-d H:i:s');
+            $this->general->update('users', ['id' => $user->id], $update_data);
+        }
 
         // Fetch updated user
         $updated_user = $this->general->getById('users', $user->id);
@@ -864,7 +933,7 @@ class Api extends CI_Controller
             $this->response(null, 'Invalid loan or loan status.', 400);
         }
 
-        $this->form_validation->set_rules('payment_method', 'Payment Method', 'required|in_list[online,cash]');
+        $this->form_validation->set_rules('payment_method', 'Payment Method', 'required|in_list[online]');
 
         if ($this->form_validation->run() === FALSE) {
             $this->response(null, strip_tags(validation_errors()), 400);
@@ -925,8 +994,8 @@ class Api extends CI_Controller
     }
 
     /* =========================================================================
-       Referrals Endpoints (Authenticated)
-       ========================================================================= */
+   Referrals Endpoints (Authenticated)
+   ========================================================================= */
 
     public function referrals()
     {
@@ -944,10 +1013,10 @@ class Api extends CI_Controller
 
         // Query referred users
         $sql = "SELECT r.*, u.name as referred_name, u.mobile as referred_mobile, u.created_at as registration_date
-                FROM referrals r
-                JOIN users u ON r.referred_user_id = u.id
-                WHERE r.referrer_id = ?
-                ORDER BY r.id DESC";
+            FROM referrals r
+            JOIN users u ON r.referred_user_id = u.id
+            WHERE r.referrer_id = ?
+            ORDER BY r.id DESC";
         $referrals = $this->db->query($sql, [$user->id])->result_array();
 
         $formatted_referrals = [];
@@ -972,6 +1041,17 @@ class Api extends CI_Controller
                 'is_reward_credited' => ($ref['status'] === 'reward_credited')
             ];
         }
+
+        $this->response([
+            'referral_code' => $user->referral_code,
+            'referral_link' => base_url('register?ref=' . $user->referral_code),
+            'referrals' => $formatted_referrals
+        ], 'Referral data fetched successfully.', 200);
+    }
+
+    public function wallet_transaction()
+    {
+        $user = $this->authenticate();
 
         // Calculate total earnings
         $sum_sql = "SELECT SUM(reward_amount) as total_earned FROM referrals WHERE referrer_id = ? AND status = 'reward_credited'";
@@ -1001,14 +1081,11 @@ class Api extends CI_Controller
         }
 
         $this->response([
-            'referral_code' => $user->referral_code,
-            'referral_link' => base_url('register?ref=' . $user->referral_code),
-            'referrals' => $formatted_referrals,
             'total_earned' => $total_earned,
             'wallet_balance' => $wallet_balance,
             'min_withdrawal' => $min_withdrawal,
             'withdrawal_requests' => $formatted_withdrawals
-        ], 'Referral data fetched successfully.', 200);
+        ], 'Wallet transaction data fetched successfully.', 200);
     }
 
     public function referrals_withdraw()
@@ -1046,5 +1123,31 @@ class Api extends CI_Controller
         ]);
 
         $this->response(null, 'Withdrawal request of INR ' . number_format($amount, 2) . ' submitted successfully.', 200);
+    }
+
+    /* =========================================================================
+   Logout (Authenticated)
+   ========================================================================= */
+
+    public function logout()
+    {
+        $user = $this->authenticate();
+
+        $expires_at = isset($this->current_token_payload['exp'])
+            ? date('Y-m-d H:i:s', $this->current_token_payload['exp'])
+            : date('Y-m-d H:i:s', time() + (86400 * 30));
+
+        // Avoid duplicate blacklist entries if logout is somehow called twice
+        $already_blacklisted = $this->general->getOne('token_blacklist', ['token' => $this->current_token]);
+        if (!$already_blacklisted) {
+            $this->general->insert('token_blacklist', [
+                'token' => $this->current_token,
+                'user_id' => $user->id,
+                'expires_at' => $expires_at,
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+        }
+
+        $this->response(null, 'Logged out successfully.', 200);
     }
 }

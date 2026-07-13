@@ -19,7 +19,7 @@ class Investments extends CI_Controller
         $data['page_title'] = 'My Investments';
 
         // Query loans where status is interested or selected
-        $sql = "SELECT li.*, l.amount as loan_amount, l.tenure_days, l.interest_rate, l.status as loan_status, u.name as borrower_name 
+        $sql = "SELECT li.*, l.amount as loan_amount, l.tenure_days, l.interest_rate, l.is_emi, l.emi_count, l.status as loan_status, u.name as borrower_name 
                 FROM loan_investors li 
                 JOIN loans l ON li.loan_id = l.id 
                 JOIN users u ON l.user_id = u.id 

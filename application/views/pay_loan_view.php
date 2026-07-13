@@ -296,9 +296,8 @@
         <?php echo form_open_multipart('loans/submit_pay/' . $loan->id); ?>
             <div class="form-group">
                 <label for="payment_method">Payment Method</label>
-                <select name="payment_method" id="payment_method" onchange="toggleReceipt()" required>
-                    <option value="online">Online Transfer (UPI/IMPS/NEFT)</option>
-                    <option value="cash">Cash Payment</option>
+                <select name="payment_method" id="payment_method" required style="background-color: #f8fafc; color: #475569; cursor: not-allowed;" readonly>
+                    <option value="online" selected>Online Transfer (UPI/IMPS/NEFT)</option>
                 </select>
             </div>
 
@@ -319,20 +318,6 @@
 </div>
 
 <script>
-    function toggleReceipt() {
-        const method = document.getElementById('payment_method').value;
-        const receiptGroup = document.getElementById('receipt-group');
-        const receiptInput = document.getElementById('receipt_image');
-        
-        if (method === 'cash') {
-            receiptGroup.style.display = 'none';
-            receiptInput.removeAttribute('required');
-        } else {
-            receiptGroup.style.display = 'block';
-            receiptInput.setAttribute('required', 'required');
-        }
-    }
-
     function copyToClipboard(elementId, btn) {
         const text = document.getElementById(elementId).innerText;
         navigator.clipboard.writeText(text).then(() => {
@@ -349,7 +334,4 @@
             }, 2000);
         });
     }
-
-    // Run toggle check initially
-    document.addEventListener('DOMContentLoaded', toggleReceipt);
 </script>

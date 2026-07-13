@@ -107,7 +107,7 @@
                                     <span style="font-size: 12px; color: #49645c; font-weight: normal;">My Share: INR <?php echo number_format($inv['invested_amount'], 2); ?></span>
                                 <?php endif; ?>
                             </td>
-                            <td><?php echo $inv['tenure_days']; ?> Days</td>
+                            <td><?php echo ((int)$inv['is_emi'] === 1) ? html_escape($inv['emi_count']) . ' Months' : html_escape($inv['tenure_days']) . ' Days'; ?></td>
                             <td><?php echo (float)$inv['interest_rate']; ?>%</td>
                             <td>
                                 <span class="badge badge-<?php echo strtolower($inv['status']); ?>">

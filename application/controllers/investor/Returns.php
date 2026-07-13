@@ -19,7 +19,7 @@ class Returns extends CI_Controller
         $data['page_title'] = 'My Returns';
 
         // Query loans where investor has been selected (successfully funded)
-        $sql = "SELECT li.*, l.amount as loan_amount, l.tenure_days, l.interest_rate, u.name as borrower_name 
+        $sql = "SELECT li.*, l.amount as loan_amount, l.tenure_days, l.interest_rate, l.is_emi, l.emi_count, u.name as borrower_name 
                 FROM loan_investors li 
                 JOIN loans l ON li.loan_id = l.id 
                 JOIN users u ON l.user_id = u.id 

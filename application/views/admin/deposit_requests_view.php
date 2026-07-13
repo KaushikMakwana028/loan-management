@@ -190,19 +190,29 @@
     function viewReceipt(url, isPdf) {
         if (isPdf) {
             Swal.fire({
-                title: 'Receipt PDF',
-                html: `<iframe src="${url}" style="width:100%; height:500px;" frameborder="0"></iframe>`,
-                width: '80%',
+                html: `
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 10px 0; font-family: 'Poppins', sans-serif;">
+                        <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #1e293b; text-align: center;">Receipt PDF</h3>
+                        <div style="width: 100%; height: 500px; max-height: 60vh; border-radius: 12px; overflow: hidden; border: 1px solid #cbd5e1;">
+                            <iframe src="${url}" style="width: 100%; height: 100%;" frameborder="0"></iframe>
+                        </div>
+                    </div>
+                `,
+                width: '800px',
                 showCloseButton: true,
                 showConfirmButton: false
             });
         } else {
             Swal.fire({
-                title: 'Receipt Image',
-                imageUrl: url,
-                imageAlt: 'Receipt Image',
-                width: 'auto',
-                imageHeight: 500,
+                html: `
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 10px 0; font-family: 'Poppins', sans-serif;">
+                        <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #1e293b; text-align: center;">Receipt Image</h3>
+                        <div style="width: 100%; max-width: 100%; display: flex; justify-content: center; align-items: center; background-color: #f8fafc; border-radius: 12px; padding: 8px; border: 1px dashed #cbd5e1; box-sizing: border-box;">
+                            <img src="${url}" alt="Receipt Image" style="max-width: 100%; max-height: 70vh; height: auto; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" />
+                        </div>
+                    </div>
+                `,
+                width: '550px',
                 showCloseButton: true,
                 showConfirmButton: false
             });

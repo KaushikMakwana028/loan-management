@@ -246,9 +246,36 @@
         </section>
     <?php else: ?>
         <?php if (!empty($profile_active_message)): ?>
-            <section style="background: #ecfdf5; border: 1px solid #bbf7d0; border-radius: var(--uld-radius-lg); padding: 18px 20px; color: #166534; font-weight: 700; box-shadow: var(--uld-shadow-sm);">
-                <?php echo html_escape($profile_active_message); ?>
+            <section id="profile-approved-banner" style="display: none; background: #ecfdf5; border: 1px solid #bbf7d0; border-radius: var(--uld-radius-lg); padding: 18px 20px; color: #166534; font-weight: 700; box-shadow: var(--uld-shadow-sm); justify-content: space-between; align-items: center; gap: 15px; margin-bottom: 20px;">
+                <span><?php echo html_escape($profile_active_message); ?></span>
+                <button onclick="dismissProfileAlert()" style="background: none; border: none; color: #166534; font-size: 20px; font-weight: bold; cursor: pointer; line-height: 1; padding: 4px 8px; border-radius: 4px; display: inline-flex; align-items: center; justify-content: center; transition: background 0.15s ease;" onmouseover="this.style.background='rgba(22, 101, 52, 0.1)'" onmouseout="this.style.background='none'">
+                    &times;
+                </button>
             </section>
+            <script>
+                (function() {
+                    var userId = '<?php echo $user->id; ?>';
+                    var userUpdatedAt = '<?php echo strtotime($user->updated_at); ?>';
+                    var storageKey = 'profile_approved_dismissed_' + userId + '_' + userUpdatedAt;
+                    var banner = document.getElementById('profile-approved-banner');
+                    
+                    if (localStorage.getItem(storageKey) !== '1') {
+                        banner.style.display = 'flex';
+                    }
+                })();
+
+                function dismissProfileAlert() {
+                    var userId = '<?php echo $user->id; ?>';
+                    var userUpdatedAt = '<?php echo strtotime($user->updated_at); ?>';
+                    var storageKey = 'profile_approved_dismissed_' + userId + '_' + userUpdatedAt;
+                    
+                    var banner = document.getElementById('profile-approved-banner');
+                    if (banner) {
+                        banner.style.display = 'none';
+                    }
+                    localStorage.setItem(storageKey, '1');
+                }
+            </script>
         <?php endif; ?>
         <!-- Premium Apply Loan CTA (Shown ONLY after full KYC) -->
         <section class="uld-loan-cta" style="background: linear-gradient(135deg, var(--uld-primary) 0%, #042a22 100%); border-radius: var(--uld-radius-lg); padding: clamp(24px, 5vw, 36px); color: #fff; box-shadow: 0 20px 40px rgba(6, 61, 50, 0.25); display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; position: relative; overflow: hidden;">

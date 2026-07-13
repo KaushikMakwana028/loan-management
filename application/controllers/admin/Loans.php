@@ -211,11 +211,16 @@ class Loans extends CI_Controller
                  ->update('loan_investors', ['status' => 'declined']);
 
         // 5. Update loan status
-        $this->general->update('loans', ['id' => $id], [
+        $approved_at = date('Y-m-d H:i:s');
+        $update_data = [
             'status' => 'approved',
-            'approved_at' => date('Y-m-d H:i:s'),
+            'approved_at' => $approved_at,
             'updated_at' => date('Y-m-d H:i:s')
-        ]);
+        ];
+        if (!(int)$loan->is_emi) {
+            $update_data['due_date'] = date('Y-m-d', strtotime($approved_at . ' + ' . (int)$loan->tenure_days . ' days'));
+        }
+        $this->general->update('loans', ['id' => $id], $update_data);
 
         // Update referral status to approved
         $referral = $this->general->getOne('referrals', ['referred_user_id' => $loan->user_id, 'status' => 'applied']);
@@ -574,13 +579,12 @@ class Loans extends CI_Controller
         $this->form_validation->set_rules('processing_fee', 'Processing Fee', 'required|numeric|greater_than_equal_to[0]');
         $this->form_validation->set_rules('platform_charge', 'Platform Charge', 'required|numeric|greater_than_equal_to[0]');
         $this->form_validation->set_rules('gst_amount', 'GST Amount', 'required|numeric|greater_than_equal_to[0]');
+        $this->form_validation->set_rules('due_charges', 'Due Charges', 'required|numeric|greater_than_equal_to[0]');
         
         $is_emi = (int) $this->input->post('is_emi');
         if ($is_emi === 1) {
             $this->form_validation->set_rules('emi_count', 'EMI Count', 'required|integer|greater_than[0]');
             $this->form_validation->set_rules('emi_amount', 'EMI Amount', 'required|numeric|greater_than[0]');
-        } else {
-            $this->form_validation->set_rules('due_date', 'Due Date', 'required');
         }
 
         if ($this->form_validation->run() === FALSE) {
@@ -594,12 +598,21 @@ class Loans extends CI_Controller
         $processing_fee = (float) $this->input->post('processing_fee');
         $platform_charge = (float) $this->input->post('platform_charge');
         $gst_amount = (float) $this->input->post('gst_amount');
+        $due_charges = (float) $this->input->post('due_charges');
         
-        $total_payable = $amount + ($amount * $interest_rate / 100.0) + $processing_fee + $platform_charge + $gst_amount;
+        $total_payable = $amount + ($amount * $interest_rate / 100.0) + $processing_fee + $platform_charge + $gst_amount + $due_charges;
 
         $emi_count = $is_emi ? (int) $this->input->post('emi_count') : NULL;
         $emi_amount = $is_emi ? (float) $this->input->post('emi_amount') : NULL;
-        $due_date = !$is_emi ? $this->input->post('due_date') : NULL;
+        
+        $due_date = NULL;
+        if (!$is_emi) {
+            $due_date = $this->input->post('due_date');
+            if (empty($due_date)) {
+                $start_date_temp = !empty($loan->approved_at) ? $loan->approved_at : (!empty($loan->created_at) ? $loan->created_at : date('Y-m-d H:i:s'));
+                $due_date = date('Y-m-d', strtotime($start_date_temp . ' + ' . (int)$loan->tenure_days . ' days'));
+            }
+        }
 
         $this->db->trans_start();
 
@@ -610,6 +623,7 @@ class Loans extends CI_Controller
             'processing_fee' => $processing_fee,
             'platform_charge' => $platform_charge,
             'gst_amount' => $gst_amount,
+            'due_charges' => $due_charges,
             'is_emi' => $is_emi,
             'emi_count' => $emi_count,
             'emi_amount' => $emi_amount,
@@ -617,6 +631,12 @@ class Loans extends CI_Controller
             'total_payable' => $total_payable,
             'updated_at' => date('Y-m-d H:i:s')
         ]);
+
+        // Update any existing investor invitation notifications for this loan to reflect the new terms
+        $new_notif_message = 'You are invited to invest in Loan #' . $id . ' of INR ' . number_format($amount, 2) . ' at ' . $interest_rate . '% interest.';
+        $this->db->where('loan_id', $id)
+                 ->where('title', 'New Investment Opportunity')
+                 ->update('notifications', ['message' => $new_notif_message]);
 
         // 2. Insert into loan_offer_history
         $this->general->insert('loan_offer_history', [
@@ -626,6 +646,7 @@ class Loans extends CI_Controller
             'interest_rate' => $interest_rate,
             'platform_charge' => $platform_charge,
             'gst_amount' => $gst_amount,
+            'due_charges' => $due_charges,
             'is_emi' => $is_emi,
             'emi_count' => $emi_count,
             'emi_amount' => $emi_amount,

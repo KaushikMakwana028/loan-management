@@ -211,7 +211,7 @@ class Loans extends CI_Controller
             return;
         }
 
-        $this->form_validation->set_rules('payment_method', 'Payment Method', 'required|in_list[online,cash]');
+        $this->form_validation->set_rules('payment_method', 'Payment Method', 'required|in_list[online]');
 
         if ($this->form_validation->run() === FALSE) {
             $this->session->set_flashdata('error', validation_errors());

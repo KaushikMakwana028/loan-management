@@ -483,14 +483,24 @@ $total_payout = $total_invested + $total_profit;
             </svg>
             Back to Loans
         </a>
-        <span class="status-pill status-<?php echo html_escape($status); ?>">
-            <span class="status-dot"></span>
-            <?php echo html_escape($loan->status); ?>
-        </span>
+        <?php
+        $is_repayment_submitted = (!empty($loan->repayment_submitted_at) && $status !== 'paid');
+        ?>
+        <?php if ($is_repayment_submitted): ?>
+            <span class="status-pill" style="background: #fef08a; color: #854d0e; border: 1px solid #fde047; font-weight: 700;">
+                <span class="status-dot" style="background: currentColor;"></span>
+                Repayment Submitted
+            </span>
+        <?php else: ?>
+            <span class="status-pill status-<?php echo html_escape($status); ?>">
+                <span class="status-dot"></span>
+                <?php echo html_escape($loan->status); ?>
+            </span>
+        <?php endif; ?>
     </div>
 
     <!-- Hero -->
-    <section class="loan-hero">
+    <section class="loan-hero" <?php echo $is_repayment_submitted ? 'style="background: linear-gradient(135deg, #ca8a04, #eab308); box-shadow: 0 24px 60px rgba(234, 179, 8, .24);"' : ''; ?>>
         <div class="loan-hero-content">
             <div>
                 <p class="loan-kicker">Loan #<?php echo (int) $loan->id; ?></p>
@@ -502,9 +512,14 @@ $total_payout = $total_invested + $total_profit;
                     <?php endif; ?>
                 </p>
             </div>
-            <div class="hero-amount">
+            <div class="hero-amount" style="position: relative;">
                 <span>Loan Amount</span>
-                <strong>INR <?php echo number_format($loan->amount, 2); ?></strong>
+                <div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; flex-wrap: wrap;">
+                    <strong>INR <?php echo number_format($loan->amount, 2); ?></strong>
+                    <?php if ($loan->is_emi): ?>
+                        <span class="badge" style="background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe; font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: 700; text-transform: uppercase;">EMI</span>
+                    <?php endif; ?>
+                </div>
             </div>
         </div>
     </section>
@@ -522,7 +537,13 @@ $total_payout = $total_invested + $total_profit;
             <div class="stat-icon">D</div>
             <div>
                 <span>Tenure</span>
-                <strong><?php echo (int) $loan->tenure_days; ?> Days</strong>
+                <strong>
+                    <?php if ($loan->is_emi): ?>
+                        <?php echo html_escape($loan->emi_count); ?> Months
+                    <?php else: ?>
+                        <?php echo (int) $loan->tenure_days; ?> Days
+                    <?php endif; ?>
+                </strong>
             </div>
         </div>
         <div class="stat-card">
@@ -545,10 +566,17 @@ $total_payout = $total_invested + $total_profit;
     <div class="detail-card">
         <div class="card-head">
             <h3>Loan Specifications</h3>
-            <span class="status-pill status-<?php echo html_escape($status); ?>">
-                <span class="status-dot"></span>
-                <?php echo html_escape($loan->status); ?>
-            </span>
+            <?php if ($is_repayment_submitted): ?>
+                <span class="status-pill" style="background: #fef08a; color: #854d0e; border: 1px solid #fde047; font-weight: 700;">
+                    <span class="status-dot" style="background: currentColor;"></span>
+                    Repayment Submitted
+                </span>
+            <?php else: ?>
+                <span class="status-pill status-<?php echo html_escape($status); ?>">
+                    <span class="status-dot"></span>
+                    <?php echo html_escape($loan->status); ?>
+                </span>
+            <?php endif; ?>
         </div>
         <div class="info-list">
             <div class="info-row">
@@ -557,16 +585,49 @@ $total_payout = $total_invested + $total_profit;
             </div>
             <div class="info-row">
                 <span class="info-label">Amount</span>
-                <span class="info-value">INR <?php echo number_format($loan->amount, 2); ?></span>
+                <span class="info-value">
+                    INR <?php echo number_format($loan->amount, 2); ?>
+                    <?php if ($loan->is_emi): ?>
+                        <span class="badge" style="background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe; font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: 700; text-transform: uppercase;">EMI</span>
+                    <?php endif; ?>
+                </span>
             </div>
             <div class="info-row">
                 <span class="info-label">Interest Rate</span>
                 <span class="info-value"><?php echo $interest_rate ? $interest_rate . '%' : 'N/A'; ?></span>
             </div>
+            <?php if (isset($loan->due_charges) && (float)$loan->due_charges > 0): ?>
+            <div class="info-row">
+                <span class="info-label">Due Charges</span>
+                <span class="info-value">INR <?php echo number_format($loan->due_charges, 2); ?></span>
+            </div>
+            <?php endif; ?>
             <div class="info-row">
                 <span class="info-label">Tenure</span>
-                <span class="info-value"><?php echo (int) $loan->tenure_days; ?> Days</span>
+                <span class="info-value">
+                    <?php if ($loan->is_emi): ?>
+                        <?php echo html_escape($loan->emi_count); ?> Months
+                    <?php else: ?>
+                        <?php echo (int) $loan->tenure_days; ?> Days
+                    <?php endif; ?>
+                </span>
             </div>
+            <?php if (!$loan->is_emi): ?>
+            <div class="info-row">
+                <span class="info-label">Due Date</span>
+                <span class="info-value">
+                    <?php 
+                    if (!empty($loan->due_date)) {
+                        echo date('d M Y', strtotime($loan->due_date));
+                    } elseif (!empty($loan->approved_at)) {
+                        echo date('d M Y', strtotime($loan->approved_at . ' + ' . (int)$loan->tenure_days . ' days'));
+                    } else {
+                        echo '<span style="color:#64748b; font-style:italic;">TBD (calculated on approval)</span>';
+                    }
+                    ?>
+                </span>
+            </div>
+            <?php endif; ?>
             <div class="info-row">
                 <span class="info-label">Applied Date</span>
                 <span class="info-value"><?php echo date('d M Y, h:i A', strtotime($loan->created_at)); ?></span>
@@ -627,6 +688,10 @@ $total_payout = $total_invested + $total_profit;
                     <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">GST Amount (INR)</label>
                     <input type="number" step="0.01" name="gst_amount" id="offer_gst" value="<?php echo (float) $loan->gst_amount; ?>" required style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
                 </div>
+                <div>
+                    <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">Due Charges (INR)</label>
+                    <input type="number" step="0.01" name="due_charges" id="offer_due_charges" value="<?php echo (float) ($loan->due_charges ?? 0.00); ?>" required style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
+                </div>
             </div>
 
             <div style="margin-bottom: 20px;">
@@ -643,13 +708,21 @@ $total_payout = $total_invested + $total_profit;
                 </div>
                 <div>
                     <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">EMI Amount (INR / month)</label>
-                    <input type="number" step="0.01" name="emi_amount" id="offer_emi_amount" value="<?php echo (float) $loan->emi_amount; ?>" style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
+                    <input type="number" step="1" name="emi_amount" id="offer_emi_amount" value="<?php echo (int) $loan->emi_amount; ?>" style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
                 </div>
             </div>
 
-            <div id="due_date_field" style="display: <?php echo $loan->is_emi ? 'none' : 'block'; ?>; margin-bottom: 20px; max-width: 250px;">
+            <?php
+            $calculated_due_date = $loan->due_date;
+            if (empty($calculated_due_date)) {
+                $start_date_temp = !empty($loan->approved_at) ? $loan->approved_at : (!empty($loan->created_at) ? $loan->created_at : date('Y-m-d H:i:s'));
+                $calculated_due_date = date('Y-m-d', strtotime($start_date_temp . ' + ' . (int)$loan->tenure_days . ' days'));
+            }
+            ?>
+            <div id="due_date_field" style="display: <?php echo $loan->is_emi ? 'none' : 'block'; ?>; margin-bottom: 20px; max-width: 280px;">
                 <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">Due Date</label>
-                <input type="date" name="due_date" id="offer_due_date" value="<?php echo $loan->due_date; ?>" style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
+                <input type="date" name="due_date" id="offer_due_date" value="<?php echo $calculated_due_date; ?>" style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
+                <span style="font-size:12px; color:#64748b; margin-top:4px; display:block; line-height: 1.4;">Calculated automatically based on approval date and tenure (<?php echo (int) $loan->tenure_days; ?> Days), but can be changed manually.</span>
             </div>
 
             <hr style="border:0; border-top:1px solid #e2e8f0; margin:20px 0;">
@@ -690,37 +763,21 @@ $total_payout = $total_invested + $total_profit;
         </div>
     </div>
 
-    <!-- Borrower References -->
-    <div class="detail-card">
-        <div class="card-head">
-            <h3>References</h3>
-        </div>
-        <div class="info-list">
-            <div class="info-row">
-                <span class="info-label">Reference 1 Name</span>
-                <span class="info-value"><?php echo html_escape($loan->reference_name_1 ?: 'Not provided'); ?></span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Reference 1 Contact</span>
-                <span class="info-value"><?php echo html_escape($loan->reference_mobile_1 ?: 'Not provided'); ?></span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Reference 2 Name</span>
-                <span class="info-value"><?php echo html_escape($loan->reference_name_2 ?: 'Not provided'); ?></span>
-            </div>
-            <div class="info-row">
-                <span class="info-label">Reference 2 Contact</span>
-                <span class="info-value"><?php echo html_escape($loan->reference_mobile_2 ?: 'Not provided'); ?></span>
-            </div>
-        </div>
-    </div>
-
     <!-- Repayment Submission -->
     <?php if (!empty($loan->repayment_submitted_at)): ?>
-        <div class="detail-card">
+        <div class="detail-card" <?php echo $is_repayment_submitted ? 'style="background-color: #fefdf0; border: 2px solid #fde047; box-shadow: 0 20px 50px rgba(234, 179, 8, 0.12);"' : ''; ?>>
             <div class="card-head">
                 <h3>Repayment Submission Details</h3>
+                <?php if ($is_repayment_submitted): ?>
+                    <span class="status-pill" style="background: #fef08a; color: #854d0e; font-size: 11px; padding: 4px 8px; font-weight: 700;">Pending Verification</span>
+                <?php endif; ?>
             </div>
+            <?php if ($is_repayment_submitted): ?>
+                <div style="background-color: #fef08a; color: #854d0e; padding: 12px 16px; border-radius: 12px; font-weight: 600; font-size: 13.5px; margin: 0 24px 20px 24px; display: flex; align-items: center; gap: 8px;">
+                    <span>⚠️</span>
+                    <span>This user has submitted repayment details. Please verify the receipt below and mark the loan as paid.</span>
+                </div>
+            <?php endif; ?>
             <div class="info-list">
                 <div class="info-row">
                     <span class="info-label">Payment Method</span>
@@ -750,6 +807,31 @@ $total_payout = $total_invested + $total_profit;
             </div>
         </div>
     <?php endif; ?>
+
+    <!-- Borrower References -->
+    <div class="detail-card">
+        <div class="card-head">
+            <h3>References</h3>
+        </div>
+        <div class="info-list">
+            <div class="info-row">
+                <span class="info-label">Reference 1 Name</span>
+                <span class="info-value"><?php echo html_escape($loan->reference_name_1 ?: 'Not provided'); ?></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Reference 1 Contact</span>
+                <span class="info-value"><?php echo html_escape($loan->reference_mobile_1 ?: 'Not provided'); ?></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Reference 2 Name</span>
+                <span class="info-value"><?php echo html_escape($loan->reference_name_2 ?: 'Not provided'); ?></span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Reference 2 Contact</span>
+                <span class="info-value"><?php echo html_escape($loan->reference_mobile_2 ?: 'Not provided'); ?></span>
+            </div>
+        </div>
+    </div>
 
     <!-- Funding Investors -->
     <div class="detail-card">
@@ -820,19 +902,29 @@ $total_payout = $total_invested + $total_profit;
     function viewRepaymentReceipt(url, isPdf) {
         if (isPdf) {
             Swal.fire({
-                title: 'Repayment Receipt PDF',
-                html: `<iframe src="${url}" style="width:100%; height:500px;" frameborder="0"></iframe>`,
-                width: '80%',
+                html: `
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 10px 0; font-family: 'Poppins', sans-serif;">
+                        <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #1e293b; text-align: center;">Repayment Receipt PDF</h3>
+                        <div style="width: 100%; height: 500px; max-height: 60vh; border-radius: 12px; overflow: hidden; border: 1px solid #cbd5e1;">
+                            <iframe src="${url}" style="width: 100%; height: 100%;" frameborder="0"></iframe>
+                        </div>
+                    </div>
+                `,
+                width: '800px',
                 showCloseButton: true,
                 showConfirmButton: false
             });
         } else {
             Swal.fire({
-                title: 'Repayment Receipt Image',
-                imageUrl: url,
-                imageAlt: 'Repayment Receipt Image',
-                width: 'auto',
-                imageHeight: 500,
+                html: `
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 10px 0; font-family: 'Poppins', sans-serif;">
+                        <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #1e293b; text-align: center;">Repayment Receipt Image</h3>
+                        <div style="width: 100%; max-width: 100%; display: flex; justify-content: center; align-items: center; background-color: #f8fafc; border-radius: 12px; padding: 8px; border: 1px dashed #cbd5e1; box-sizing: border-box;">
+                            <img src="${url}" alt="Repayment Receipt Image" style="max-width: 100%; max-height: 70vh; height: auto; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" />
+                        </div>
+                    </div>
+                `,
+                width: '550px',
                 showCloseButton: true,
                 showConfirmButton: false
             });
@@ -881,9 +973,21 @@ $total_payout = $total_invested + $total_profit;
         var processing = parseFloat(document.getElementById('offer_processing').value) || 0;
         var platform = parseFloat(document.getElementById('offer_platform').value) || 0;
         var gst = parseFloat(document.getElementById('offer_gst').value) || 0;
+        var dueCharges = parseFloat(document.getElementById('offer_due_charges').value) || 0;
         
-        var total = amount + (amount * interestRate / 100.0) + processing + platform + gst;
+        var total = amount + (amount * interestRate / 100.0) + processing + platform + gst + dueCharges;
         document.getElementById('offer_total_payable').textContent = 'INR ' + total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        
+        // Auto-calculate EMI Amount if EMI Plan is enabled and count is greater than 0
+        var isEmi = document.getElementById('offer_is_emi').checked;
+        if (isEmi) {
+            var emiCount = parseInt(document.getElementById('offer_emi_count').value) || 0;
+            if (emiCount > 0) {
+                var emiAmountField = document.getElementById('offer_emi_amount');
+                var calculatedEmi = Math.round(total / emiCount);
+                emiAmountField.value = calculatedEmi;
+            }
+        }
     }
 
     // Attach live listeners for calculator
@@ -892,9 +996,13 @@ $total_payout = $total_invested + $total_profit;
     document.getElementById('offer_processing').addEventListener('input', calculateTotalPayable);
     document.getElementById('offer_platform').addEventListener('input', calculateTotalPayable);
     document.getElementById('offer_gst').addEventListener('input', calculateTotalPayable);
+    document.getElementById('offer_due_charges').addEventListener('input', calculateTotalPayable);
+    document.getElementById('offer_emi_count').addEventListener('input', calculateTotalPayable);
+    document.getElementById('offer_is_emi').addEventListener('change', calculateTotalPayable);
     
-    // Call initial toggle
+    // Call initial toggle and calculate
     toggleEmiFields();
+    calculateTotalPayable();
 </script>
 
 <?php if ($this->session->flashdata('error')): ?>

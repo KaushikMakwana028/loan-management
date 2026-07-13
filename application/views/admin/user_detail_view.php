@@ -401,11 +401,15 @@
 <script>
     function previewImage(url, title) {
         Swal.fire({
-            title: title,
-            imageUrl: url,
-            imageAlt: title,
-            width: 'auto',
-            imageHeight: 500,
+            html: `
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 10px 0; font-family: 'Poppins', sans-serif;">
+                    <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #1e293b; text-align: center;">${title}</h3>
+                    <div style="width: 100%; max-width: 100%; display: flex; justify-content: center; align-items: center; background-color: #f8fafc; border-radius: 12px; padding: 8px; border: 1px dashed #cbd5e1; box-sizing: border-box;">
+                        <img src="${url}" alt="${title}" style="max-width: 100%; max-height: 70vh; height: auto; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.05);" />
+                    </div>
+                </div>
+            `,
+            width: '550px',
             showCloseButton: true,
             showConfirmButton: false
         });

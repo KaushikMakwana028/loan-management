@@ -315,7 +315,7 @@
                         <div class="fin-icon fin-icon-tenure">⏳</div>
                         <div class="fin-info">
                             <span class="fin-label">Tenure</span>
-                            <span class="fin-value"><?php echo $loan->tenure_days; ?> Days</span>
+                            <span class="fin-value"><?php echo ((int)$loan->is_emi === 1) ? html_escape($loan->emi_count) . ' Months' : html_escape($loan->tenure_days) . ' Days'; ?></span>
                         </div>
                     </div>
                     <div class="fin-block">

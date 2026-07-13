@@ -241,7 +241,7 @@
                 <?php if (!empty($loans)): ?>
                     <?php $sno = 1; ?>
                     <?php foreach ($loans as $loan): ?>
-                        <tr>
+                        <tr <?php echo (!empty($loan['repayment_submitted_at']) && $loan['status'] !== 'paid') ? 'style="background-color: #fefce8;"' : ''; ?>>
                             <td><?php echo $sno++; ?></td>
                             <td>
                                 <strong><?php echo html_escape($loan['user_name']); ?></strong>
@@ -249,17 +249,32 @@
                                 <span style="font-size: 12px; color: #65758b;"><?php echo html_escape($loan['user_mobile']); ?></span>
                             </td>
                             <td>
-                                <strong>INR <?php echo number_format($loan['amount'], 2); ?></strong>
+                                <div style="display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                    <strong>INR <?php echo number_format($loan['amount'], 2); ?></strong>
+                                    <?php if ((int)$loan['is_emi'] === 1): ?>
+                                        <span class="badge" style="background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700; text-transform: uppercase;">EMI</span>
+                                    <?php endif; ?>
+                                </div>
                                 <?php if (!empty($loan['interest_rate'])): ?>
                                     <br>
                                     <span style="color: #65758b; font-size: 12px; font-weight: normal;"><?php echo (float)$loan['interest_rate']; ?>% interest</span>
                                 <?php endif; ?>
                             </td>
-                            <td><?php echo $loan['tenure_days']; ?> Days</td>
                             <td>
-                                <span class="badge badge-<?php echo strtolower($loan['status']); ?>">
-                                    <?php echo html_escape($loan['status']); ?>
-                                </span>
+                                <?php if ((int)$loan['is_emi'] === 1): ?>
+                                    <?php echo html_escape($loan['emi_count']); ?> Months
+                                <?php else: ?>
+                                    <?php echo html_escape($loan['tenure_days']); ?> Days
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php if (!empty($loan['repayment_submitted_at']) && $loan['status'] !== 'paid'): ?>
+                                    <span class="badge" style="background: #fef08a; color: #854d0e; border: 1px solid #fde047; font-weight: 700; text-transform: uppercase;">Repayment Submitted</span>
+                                <?php else: ?>
+                                    <span class="badge badge-<?php echo strtolower($loan['status']); ?>">
+                                        <?php echo html_escape($loan['status']); ?>
+                                    </span>
+                                <?php endif; ?>
                             </td>
                             <td><?php echo date('d M Y, h:i A', strtotime($loan['created_at'])); ?></td>
                             <td>
@@ -267,7 +282,7 @@
                                     <a href="<?php echo base_url('admin/loans/view/' . $loan['id']); ?>" class="btn-action btn-view">View</a>
                                     
                                     <?php if ($loan['status'] === 'pending'): ?>
-                                        <button class="btn-action btn-assign" onclick="openAssignModal(<?php echo $loan['id']; ?>, <?php echo $loan['amount']; ?>)">Assign</button>
+                                        <button class="btn-action btn-assign" onclick="openAssignModal(<?php echo $loan['id']; ?>, <?php echo $loan['amount']; ?>, <?php echo (float)$loan['interest_rate']; ?>)">Assign</button>
                                         <button class="btn-action btn-reject" onclick="confirmReject(<?php echo $loan['id']; ?>)">Reject</button>
                                     <?php elseif ($loan['status'] === 'assigned'): ?>
                                         <a href="<?php echo base_url('admin/loans/responses/' . $loan['id']); ?>" class="btn-action btn-responses">Responses</a>
@@ -348,13 +363,18 @@
         const body = document.getElementById('viewModalBody');
         const formattedAmount = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(loan.amount);
         const dateFormatted = new Date(loan.created_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+        const isEmi = parseInt(loan.is_emi) === 1;
+        const tenureText = isEmi ? `${loan.emi_count} Months` : `${loan.tenure_days} Days`;
+        const amountHtml = isEmi 
+            ? `<strong>${formattedAmount}</strong> <span class="badge" style="background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700; text-transform: uppercase; margin-left: 6px;">EMI</span>`
+            : `<strong>${formattedAmount}</strong>`;
         
         body.innerHTML = `
             <div style="display: grid; gap: 12px; font-size: 14px;">
                 <div><span style="font-weight:600;color:#65758b;">Loan ID:</span> #${loan.id}</div>
                 <div><span style="font-weight:600;color:#65758b;">Borrower:</span> ${loan.user_name} (${loan.user_mobile})</div>
-                <div><span style="font-weight:600;color:#65758b;">Amount:</span> <strong>${formattedAmount}</strong></div>
-                <div><span style="font-weight:600;color:#65758b;">Tenure:</span> ${loan.tenure_days} Days</div>
+                <div><span style="font-weight:600;color:#65758b;">Amount:</span> ${amountHtml}</div>
+                <div><span style="font-weight:600;color:#65758b;">Tenure:</span> ${tenureText}</div>
                 <div><span style="font-weight:600;color:#65758b;">Status:</span> <span class="badge badge-${loan.status.toLowerCase()}">${loan.status}</span></div>
                 <div><span style="font-weight:600;color:#65758b;">Purpose:</span> ${loan.purpose || 'Not specified'}</div>
                 ${loan.interest_rate ? `<div><span style="font-weight:600;color:#65758b;">Interest Rate:</span> ${parseFloat(loan.interest_rate)}%</div>` : ''}
@@ -364,9 +384,17 @@
         openModal('viewModal');
     }
 
-    function openAssignModal(loanId, amount) {
+    function openAssignModal(loanId, amount, interestRate) {
         const form = document.getElementById('assignForm');
         form.action = `<?php echo base_url('admin/loans/assign/'); ?>${loanId}`;
+        
+        // Pre-fill the interest rate if it is set
+        const interestInput = document.getElementById('interest_rate');
+        if (interestRate > 0) {
+            interestInput.value = interestRate;
+        } else {
+            interestInput.value = '';
+        }
         
         const listDiv = document.getElementById('eligibleInvestorsList');
         listDiv.innerHTML = '<div style="text-align: center; color: #65758b; padding: 12px 0;">Loading eligible investors...</div>';

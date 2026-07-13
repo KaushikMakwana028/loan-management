@@ -602,7 +602,7 @@ $recent_opportunities = array_slice($recent_opportunities ?? [], 0, 3);
                     <div class="opp-item">
                         <div class="opp-details">
                             <span class="opp-title">Borrower: <?php echo html_escape($opp['borrower_name']); ?></span>
-                            <span class="opp-subtitle">Amount: INR <?php echo number_format($opp['loan_amount'], 2); ?> | Interest: <?php echo $opp['interest_rate']; ?>% | Tenure: <?php echo $opp['tenure_days']; ?> days</span>
+                            <span class="opp-subtitle">Amount: INR <?php echo number_format($opp['loan_amount'], 2); ?> | Interest: <?php echo $opp['interest_rate']; ?>% | Tenure: <?php echo ((int)$opp['is_emi'] === 1) ? html_escape($opp['emi_count']) . ' Months' : html_escape($opp['tenure_days']) . ' Days'; ?></span>
                         </div>
                         <a href="<?php echo base_url('investor/notifications/view/' . $opp['id']); ?>" class="opp-btn">View Details</a>
                     </div>

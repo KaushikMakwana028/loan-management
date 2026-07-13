@@ -30,6 +30,27 @@ class Profile extends CI_Controller
         }
 
         $user = $this->general->getById('users', $this->session->userdata('user_id'));
+
+        $mobile = trim($this->input->post('mobile', TRUE));
+        if (!empty($mobile)) {
+            $existing_mobile = $this->general->getOne('users', ['mobile' => $mobile, 'id !=' => $user->id]);
+            if ($existing_mobile) {
+                $this->session->set_flashdata('error', 'This mobile number is already registered.');
+                redirect('profile');
+                return;
+            }
+        }
+
+        $email = trim($this->input->post('email', TRUE));
+        if (!empty($email)) {
+            $existing_email = $this->general->getOne('users', ['email' => $email, 'id !=' => $user->id]);
+            if ($existing_email) {
+                $this->session->set_flashdata('error', 'This email address is already registered.');
+                redirect('profile');
+                return;
+            }
+        }
+
         $data = $this->profile_data($user);
 
         $this->general->update('users', ['id' => $user->id], $data);

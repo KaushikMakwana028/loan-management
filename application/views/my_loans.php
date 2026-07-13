@@ -342,7 +342,12 @@
                         <tr>
                             <td><?php echo $sno++; ?></td>
                             <td>
-                                <strong>INR <?php echo number_format($loan->amount, 2); ?></strong>
+                                <div style="display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                    <strong>INR <?php echo number_format($loan->amount, 2); ?></strong>
+                                    <?php if ($loan->is_emi): ?>
+                                        <span class="badge" style="background: #e0e7ff; color: #4338ca; border: 1px solid #c7d2fe; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700; text-transform: uppercase;">EMI</span>
+                                    <?php endif; ?>
+                                </div>
                                 <?php if (!empty($loan->interest_rate)): ?>
                                     <br>
                                     <span style="color: #65758b; font-size: 12px; font-weight: normal;"><?php echo (float)$loan->interest_rate; ?>% interest</span>
@@ -357,6 +362,7 @@
                                     'processing_fee' => (float) $loan->processing_fee,
                                     'platform_charge' => (float) $loan->platform_charge,
                                     'gst_amount' => (float) $loan->gst_amount,
+                                    'due_charges' => isset($loan->due_charges) ? (float) $loan->due_charges : 0.0,
                                     'total_payable' => (float) $loan->total_payable,
                                     'is_emi' => isset($loan->is_emi) ? (int) $loan->is_emi : 0,
                                     'emi_count' => isset($loan->emi_count) ? (int) $loan->emi_count : 0,
@@ -369,7 +375,13 @@
                                     🔍 View Terms
                                 </a>
                             </td>
-                            <td><?php echo $loan->tenure_days; ?> Days</td>
+                            <td>
+                                <?php if ($loan->is_emi): ?>
+                                    <?php echo html_escape($loan->emi_count); ?> Months
+                                <?php else: ?>
+                                    <?php echo html_escape($loan->tenure_days); ?> Days
+                                <?php endif; ?>
+                            </td>
                             <td><?php echo html_escape($loan->purpose ?: '-'); ?></td>
                             <td>
                                 <span class="badge badge-<?php echo strtolower($loan->status); ?>">
@@ -379,7 +391,8 @@
                             <td>
                                 <?php if ($loan->status === 'approved'): ?>
                                     <?php
-                                    $tenure_days = (int) $loan->tenure_days;
+                                    $is_emi = isset($loan->is_emi) ? (int) $loan->is_emi : 0;
+                                    $tenure_days = ($is_emi === 1) ? (int) $loan->emi_count * 30 : (int) $loan->tenure_days;
                                     $start_date = new DateTime(date('Y-m-d', strtotime($loan->approved_at ?: $loan->updated_at ?: $loan->created_at)));
                                     $due_date = clone $start_date;
                                     $due_date->modify('+' . $tenure_days . ' days');
@@ -449,6 +462,7 @@
                     'processing_fee' => (float) $loan->processing_fee,
                     'platform_charge' => (float) $loan->platform_charge,
                     'gst_amount' => (float) $loan->gst_amount,
+                    'due_charges' => isset($loan->due_charges) ? (float) $loan->due_charges : 0.0,
                     'total_payable' => (float) $loan->total_payable,
                     'is_emi' => isset($loan->is_emi) ? (int) $loan->is_emi : 0,
                     'emi_count' => isset($loan->emi_count) ? (int) $loan->emi_count : 0,
@@ -459,7 +473,8 @@
                 $days_label = '-';
                 $days_style = '';
                 if ($loan->status === 'approved') {
-                    $tenure_days = (int) $loan->tenure_days;
+                    $is_emi = isset($loan->is_emi) ? (int) $loan->is_emi : 0;
+                    $tenure_days = ($is_emi === 1) ? (int) $loan->emi_count * 30 : (int) $loan->tenure_days;
                     $start_date = new DateTime(date('Y-m-d', strtotime($loan->approved_at ?: $loan->updated_at ?: $loan->created_at)));
                     $due_date = clone $start_date;
                     $due_date->modify('+' . $tenure_days . ' days');
@@ -493,7 +508,13 @@
                     <div class="loan-card-grid">
                         <div class="loan-card-item">
                             <span>Tenure</span>
-                            <strong><?php echo $loan->tenure_days; ?> Days</strong>
+                            <strong>
+                                <?php if (isset($loan->is_emi) && (int)$loan->is_emi === 1): ?>
+                                    <?php echo html_escape($loan->emi_count); ?> Months
+                                <?php else: ?>
+                                    <?php echo html_escape($loan->tenure_days); ?> Days
+                                <?php endif; ?>
+                            </strong>
                         </div>
                         <div class="loan-card-item">
                             <span>Interest</span>
@@ -588,7 +609,7 @@
                 </div>
                 <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px;">
                     <span style="color:#64748b;">EMI Monthly Amount:</span>
-                    <strong>INR ${parseFloat(data.emi_amount).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</strong>
+                    <strong>INR ${parseFloat(data.emi_amount).toLocaleString('en-US', {minimumFractionDigits:0, maximumFractionDigits:0})}</strong>
                 </div>
             `;
         } else {
@@ -629,6 +650,12 @@
                         <span style="color:#64748b;">GST Amount:</span>
                         <strong>INR ${parseFloat(data.gst_amount).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</strong>
                     </div>
+                    ${parseFloat(data.due_charges) > 0 ? `
+                    <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">
+                        <span style="color:#64748b;">Due Charges:</span>
+                        <strong>INR ${parseFloat(data.due_charges).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</strong>
+                    </div>
+                    ` : ''}
                     ${planHtml}
                     <div style="display:flex; justify-content:space-between; margin-top:20px; font-size:18px; border-top:1px dashed #cbd5e1; padding-top:12px;">
                         <span style="color:#063d32; font-weight:700;">Total Repayable:</span>
