@@ -136,11 +136,12 @@ class Loans extends CI_Controller
             'reference_mobile_2',
             'profile_image',
             'aadhaar_photo',
-            'pan_photo'
+            'pan_photo',
+            'contacts_file'
         ];
 
         foreach ($required as $field) {
-            if (is_null($user->{$field}) || trim($user->{$field}) === '') {
+            if (!isset($user->{$field}) || trim($user->{$field}) === '') {
                 return false;
             }
         }

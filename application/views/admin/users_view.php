@@ -66,6 +66,14 @@
         background: #fff8ee;
         border-color: #fadfb5;
         color: #b45309;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .kyc-pending:hover {
+        background: #fdf2e2;
+        border-color: #f7c079;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(180, 83, 9, 0.08);
     }
     .status-badge {
         display: inline-block;
@@ -165,7 +173,99 @@
                 <?php if (!empty($users)): ?>
                     <?php $sno = 1; ?>
                     <?php foreach ($users as $usr): ?>
-                        <?php $kyc_completed = !empty($usr['aadhaar_number']) && !empty($usr['pan_number']); ?>
+                        <?php
+                        $req_fields = ['name', 'mobile', 'email', 'marriage_status', 'dob', 'education', 'employment', 'address', 'aadhaar_number', 'pan_number', 'account_holder_name', 'bank_name', 'account_number', 'ifsc_code', 'account_type', 'branch_name', 'reference_name_1', 'reference_mobile_1', 'reference_name_2', 'reference_mobile_2'];
+                        $filled = 0;
+                        foreach ($req_fields as $f) {
+                            if (!empty($usr[$f] ?? '')) $filled++;
+                        }
+                        $img_fields_filled = (!empty($usr['profile_image']) ? 1 : 0) + (!empty($usr['aadhaar_photo']) ? 1 : 0) + (!empty($usr['pan_photo']) ? 1 : 0);
+                        $total_fields = count($req_fields) + 3;
+                        $profile_completion = round((($filled + $img_fields_filled) / $total_fields) * 100);
+
+                        $is_profile_100 = ($profile_completion >= 100);
+                        $is_contacts_uploaded = !empty($usr['contacts_file']);
+
+                        $kyc_completed = $is_profile_100 && $is_contacts_uploaded;
+
+                        // Collect what is missing for this user
+                        $missing_by_category = [];
+
+                        // 1. Personal Details
+                        $personal_missing = [];
+                        $personal_fields = [
+                            'name' => 'Name',
+                            'mobile' => 'Mobile Number',
+                            'email' => 'Email Address',
+                            'marriage_status' => 'Marriage Status',
+                            'dob' => 'Date of Birth',
+                            'education' => 'Education',
+                            'employment' => 'Employment Status',
+                            'address' => 'Address'
+                        ];
+                        foreach ($personal_fields as $k => $label) {
+                            if (empty($usr[$k] ?? '')) {
+                                $personal_missing[] = $label;
+                            }
+                        }
+                        if (empty($usr['profile_image'])) {
+                            $personal_missing[] = 'Profile Image';
+                        }
+                        if (!empty($personal_missing)) {
+                            $missing_by_category['Personal Details'] = $personal_missing;
+                        }
+
+                        // 2. KYC Documents
+                        $kyc_missing = [];
+                        if (empty($usr['aadhaar_number'])) $kyc_missing[] = 'Aadhaar Number';
+                        if (empty($usr['pan_number'])) $kyc_missing[] = 'PAN Number';
+                        if (empty($usr['aadhaar_photo'])) $kyc_missing[] = 'Aadhaar Photo';
+                        if (empty($usr['pan_photo'])) $kyc_missing[] = 'PAN Photo';
+                        if (!empty($kyc_missing)) {
+                            $missing_by_category['KYC Documents'] = $kyc_missing;
+                        }
+
+                        // 3. Bank Details
+                        $bank_missing = [];
+                        $bank_fields = [
+                            'account_holder_name' => 'Account Holder Name',
+                            'bank_name' => 'Bank Name',
+                            'account_number' => 'Account Number',
+                            'ifsc_code' => 'IFSC Code',
+                            'account_type' => 'Account Type',
+                            'branch_name' => 'Branch Name'
+                        ];
+                        foreach ($bank_fields as $k => $label) {
+                            if (empty($usr[$k] ?? '')) {
+                                $bank_missing[] = $label;
+                            }
+                        }
+                        if (!empty($bank_missing)) {
+                            $missing_by_category['Bank Details'] = $bank_missing;
+                        }
+
+                        // 4. References
+                        $ref_missing = [];
+                        $ref_fields = [
+                            'reference_name_1' => 'Reference 1 Name',
+                            'reference_mobile_1' => 'Reference 1 Mobile',
+                            'reference_name_2' => 'Reference 2 Name',
+                            'reference_mobile_2' => 'Reference 2 Mobile'
+                        ];
+                        foreach ($ref_fields as $k => $label) {
+                            if (empty($usr[$k] ?? '')) {
+                                $ref_missing[] = $label;
+                            }
+                        }
+                        if (!empty($ref_missing)) {
+                            $missing_by_category['References'] = $ref_missing;
+                        }
+
+                        // 5. User Contacts File
+                        if (!$is_contacts_uploaded) {
+                            $missing_by_category['Contacts File'] = ['User Contacts File'];
+                        }
+                        ?>
                         <tr>
                             <td><?php echo $sno++; ?></td>
                             <td><strong><?php echo html_escape($usr['name']); ?></strong></td>
@@ -176,9 +276,18 @@
                             </td>
                             <td><?php echo html_escape($usr['address'] ?: '-'); ?></td>
                             <td>
-                                <span class="kyc-badge <?php echo $kyc_completed ? 'kyc-done' : 'kyc-pending'; ?>">
-                                    <?php echo $kyc_completed ? '✓ Completed' : '⚠ Pending'; ?>
-                                </span>
+                                <?php if ($kyc_completed): ?>
+                                    <span class="kyc-badge kyc-done">
+                                        ✓ Completed
+                                    </span>
+                                <?php else: ?>
+                                    <span class="kyc-badge kyc-pending"
+                                          data-name="<?php echo html_escape($usr['name']); ?>"
+                                          data-missing="<?php echo html_escape(json_encode($missing_by_category)); ?>"
+                                          onclick="openMissingModal(this)">
+                                        ⚠ Pending
+                                    </span>
+                                <?php endif; ?>
                             </td>
                             <td>
                                 <span class="status-badge <?php echo $usr['is_active'] ? 'status-active' : 'status-inactive'; ?>">
@@ -244,6 +353,76 @@
             if (result.isConfirmed) {
                 window.location.href = `<?php echo base_url('admin/users/status/'); ?>${id}/${status}`;
             }
+        });
+    }
+
+    function openMissingModal(el) {
+        const name = el.getAttribute('data-name');
+        const missingData = JSON.parse(el.getAttribute('data-missing'));
+
+        let htmlContent = `
+            <div style="text-align: left; font-family: 'Plus Jakarta Sans', -apple-system, sans-serif; color: #1e293b; padding: 10px 5px;">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 20px; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px;">
+                    <div style="background: #fff3e0; color: #e65100; width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 20px;">
+                        ⚠️
+                    </div>
+                    <div>
+                        <h3 style="margin: 0; font-size: 18px; font-weight: 700; color: #0f172a;">Incomplete Requirements</h3>
+                        <p style="margin: 2px 0 0; font-size: 13px; color: #64748b;">Here is what <strong>${name}</strong> needs to complete:</p>
+                    </div>
+                </div>
+                
+                <div style="max-height: 350px; overflow-y: auto; padding-right: 5px;">
+        `;
+        
+        let sectionCount = 0;
+        for (const [section, fields] of Object.entries(missingData)) {
+            if (fields.length > 0) {
+                sectionCount++;
+                htmlContent += `
+                    <div style="margin-bottom: 18px;">
+                        <h4 style="margin: 0 0 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #2563eb; letter-spacing: 0.5px;">${section}</h4>
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                `;
+                
+                fields.forEach(field => {
+                    htmlContent += `
+                        <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; background: #f8fafc; padding: 8px 12px; border-radius: 8px; border: 1px solid #f1f5f9;">
+                            <span style="color: #ef4444; font-size: 12px; display: flex; align-items: center;">❌</span>
+                            <span style="font-weight: 500; color: #334155;">${field}</span>
+                        </div>
+                    `;
+                });
+                
+                htmlContent += `
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        if (sectionCount === 0) {
+            htmlContent += `
+                <div style="text-align: center; padding: 20px 0; color: #15803d; font-weight: 600;">
+                    ✓ All requirements completed!
+                </div>
+            `;
+        }
+        
+        htmlContent += `
+                </div>
+            </div>
+        `;
+        
+        Swal.fire({
+            html: htmlContent,
+            showConfirmButton: true,
+            confirmButtonText: 'Got it',
+            confirmButtonColor: '#2563eb',
+            customClass: {
+                popup: 'rounded-xl shadow-2xl'
+            },
+            width: '450px'
         });
     }
 </script>

@@ -62,7 +62,7 @@ class Profile extends CI_Controller
             'name', 'mobile', 'email', 'marriage_status', 'dob', 'education', 'employment', 'address',
             'aadhaar_number', 'pan_number', 'account_holder_name', 'bank_name', 'account_number', 'ifsc_code',
             'account_type', 'branch_name', 'reference_name_1', 'reference_mobile_1', 'reference_name_2', 'reference_mobile_2',
-            'profile_image', 'aadhaar_photo', 'pan_photo'
+            'profile_image', 'aadhaar_photo', 'pan_photo', 'contacts_file'
         ];
         
         $is_complete = true;
@@ -128,6 +128,11 @@ class Profile extends CI_Controller
             }
         }
 
+        $contacts_file = $this->upload_contacts_file('contacts_file');
+        if ($contacts_file) {
+            $data['contacts_file'] = $contacts_file;
+        }
+
         return $data;
     }
 
@@ -152,5 +157,32 @@ class Profile extends CI_Controller
         }
 
         return 'uploads/users/' . $this->upload->data('file_name');
+    }
+
+    private function upload_contacts_file($field)
+    {
+        if (empty($_FILES[$field]['name'])) {
+            return NULL;
+        }
+
+        if (!is_dir('./uploads/contact/')) {
+            @mkdir('./uploads/contact/', 0777, TRUE);
+        }
+
+        $config = [
+            'upload_path' => './uploads/contact/',
+            'allowed_types' => 'csv|xls|xlsx',
+            'max_size' => 5120, // 5MB
+            'encrypt_name' => TRUE
+        ];
+
+        $this->upload->initialize($config);
+
+        if (!$this->upload->do_upload($field)) {
+            $this->session->set_flashdata('error', strip_tags($this->upload->display_errors()));
+            return NULL;
+        }
+
+        return 'uploads/contact/' . $this->upload->data('file_name');
     }
 }

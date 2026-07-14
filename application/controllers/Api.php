@@ -406,14 +406,21 @@ class Api extends CI_Controller
         ];
 
         $url = 'http://mobicomm.dove-sms.com/submitsms.jsp?' . http_build_query($params);
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        $response = curl_exec($ch);
-        curl_close($ch);
-        return $response;
-    }
 
+        // ⚠️ SMS SENDING DISABLED FOR LOCAL/TESTING - uncomment the block below to enable real SMS delivery
+        /*
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, $url);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $response = curl_exec($ch);
+    curl_close($ch);
+    return $response;
+    */
+
+        // Testing mode: log instead of sending
+        log_message('info', "OTP SMS (not sent) to $mobileNo: $otp");
+        return true;
+    }
     /* =========================================================================
        Dashboard Data (Authenticated)
        ========================================================================= */
@@ -488,11 +495,12 @@ class Api extends CI_Controller
             'reference_mobile_2',
             'profile_image',
             'aadhaar_photo',
-            'pan_photo'
+            'pan_photo',
+            'contacts_file'
         ];
 
         foreach ($required as $field) {
-            if (is_null($user->{$field}) || trim($user->{$field}) === '') {
+            if (!isset($user->{$field}) || trim($user->{$field}) === '') {
                 return false;
             }
         }
@@ -531,6 +539,24 @@ class Api extends CI_Controller
         $this->response($user, 'Profile fetched successfully.', 200);
     }
 
+    public function contacts_preview()
+    {
+        $user = $this->authenticate();
+
+        if (empty($user->contacts_file) || !file_exists(FCPATH . $user->contacts_file)) {
+            $this->response(null, 'No contacts file found.', 404);
+            return;
+        }
+
+        $absolute_path = FCPATH . $user->contacts_file;
+        $ext = strtolower(pathinfo($absolute_path, PATHINFO_EXTENSION));
+        $preview = $this->parse_contacts_preview($absolute_path, $ext);
+
+        $this->response([
+            'contacts_preview' => $preview
+        ], 'Contacts preview fetched successfully.', 200);
+    }
+
     public function profile_update()
     {
         $user = $this->authenticate();
@@ -545,6 +571,7 @@ class Api extends CI_Controller
         };
 
         // Simple text fields - only touched if present in the POST payload
+        // NOTE: 'account_type' is intentionally excluded here - handled separately below
         $fields = [
             'name',
             'email',
@@ -558,7 +585,6 @@ class Api extends CI_Controller
             'bank_name',
             'account_number',
             'ifsc_code',
-            'account_type',
             'branch_name',
             'reference_name_1',
             'reference_mobile_1',
@@ -602,6 +628,32 @@ class Api extends CI_Controller
             $update_data['employment'] = $employment ?: NULL;
         }
 
+        // Account Type - case-insensitive match against allowed list, auto-corrected to canonical casing
+        $account_type_raw = $this->input->post('account_type', TRUE);
+        if ($account_type_raw !== null) {
+            $account_type_input = trim($account_type_raw);
+            $allowed_account_types = ['Savings', 'Current', 'Salary', 'Other'];
+
+            if ($account_type_input === '') {
+                $update_data['account_type'] = NULL;
+            } else {
+                $matched_type = null;
+                foreach ($allowed_account_types as $valid_type) {
+                    if (strcasecmp($account_type_input, $valid_type) === 0) {
+                        $matched_type = $valid_type;
+                        break;
+                    }
+                }
+
+                if ($matched_type === null) {
+                    $this->response(null, 'Invalid account type. Allowed values: Savings, Current, Salary, Other.', 400);
+                    return;
+                }
+
+                $update_data['account_type'] = $matched_type;
+            }
+        }
+
         // Process File Uploads (profile photo / documents) - only if a new file was sent
         foreach (['profile_image', 'aadhaar_photo', 'pan_photo'] as $field) {
             $file = $this->upload_file($field);
@@ -610,8 +662,9 @@ class Api extends CI_Controller
             }
         }
 
-        // Optional: Add Contact file (CSV / XLS / XLSX) - stored as-is, not parsed, not touching DB
-        $contacts_file_path = $this->upload_contacts_file('contacts_file', $user->id);
+        // Optional: Add Contact file (CSV / XLS / XLSX) - stored as-is
+        $contacts_upload = $this->upload_contacts_file('contacts_file', $user->id);
+        $contacts_file_path = $contacts_upload['path'] ?? null;
         if ($contacts_file_path) {
             $update_data['contacts_file'] = $contacts_file_path;
         }
@@ -661,12 +714,6 @@ class Api extends CI_Controller
         ], $profile_details_completed ? 'Your profile has been submitted for review. We will verify it within 24 hours.' : 'Profile updated successfully.', 200);
     }
 
-    /**
-     * Saves an uploaded CSV/XLS/XLSX file to ./uploads/contact/ without touching the database
-     * or parsing its contents. Returns the relative file path on success, or NULL if:
-     *  - no file was sent (field optional), or
-     *  - the file failed validation/upload (silently skipped so profile_update still succeeds).
-     */
     private function upload_contacts_file($field, $user_id)
     {
         if (empty($_FILES[$field]['name'])) {
@@ -678,7 +725,7 @@ class Api extends CI_Controller
         }
 
         $config = [
-            'upload_path' => './uploads/contact/',
+            'upload_path' => './Contact File/',
             'allowed_types' => 'csv|xls|xlsx',
             'max_size' => 5120, // 5MB
             'encrypt_name' => TRUE
@@ -691,16 +738,27 @@ class Api extends CI_Controller
         $this->upload->initialize($config);
 
         if (!$this->upload->do_upload($field)) {
+            $err = $this->upload->display_errors('', '');
+            file_put_contents(FCPATH . 'upload_debug.txt', "Upload failed for field $field: " . $err . "\nFILES:\n" . print_r($_FILES, true) . "\nCONFIG:\n" . print_r($config, true) . "\n");
             return NULL;
         }
 
         $file_name = $this->upload->data('file_name');
+        $ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
 
         // Optional: prefix with user id for easy identification on disk
         $final_name = 'user_' . $user_id . '_' . $file_name;
-        rename($config['upload_path'] . $file_name, $config['upload_path'] . $final_name);
+        $final_path = $config['upload_path'] . $final_name;
+        rename($config['upload_path'] . $file_name, $final_path);
 
-        return 'uploads/contact/' . $final_name;
+        // Relative path stored in DB - includes extension (.csv/.xls/.xlsx) so it's directly usable
+        $relative_path = 'Contact File/' . $final_name;
+        $preview = $this->parse_contacts_preview($final_path, $ext);
+
+        return [
+            'path' => $relative_path,
+            'preview' => $preview
+        ];
     }
 
     private function upload_file($field)
@@ -727,6 +785,66 @@ class Api extends CI_Controller
         }
 
         return 'uploads/users/' . $this->upload->data('file_name');
+    }
+
+    private function parse_contacts_preview($absolute_path, $ext)
+    {
+        $rows = [];
+
+        try {
+            if ($ext === 'csv') {
+                $handle = @fopen($absolute_path, 'r');
+                if ($handle === false) {
+                    return [];
+                }
+
+                $first_row = true;
+                while (($data = fgetcsv($handle)) !== false) {
+                    if ($first_row) {
+                        $first_row = false;
+                        if (isset($data[0]) && strtolower(trim((string) $data[0])) === 'name') {
+                            continue; // skip header row
+                        }
+                    }
+
+                    $rows[] = [
+                        'name' => (isset($data[0]) && trim((string) $data[0]) !== '') ? trim((string) $data[0]) : '-',
+                        'mobile' => (isset($data[1]) && trim((string) $data[1]) !== '') ? trim((string) $data[1]) : '-',
+                        'email' => (isset($data[2]) && trim((string) $data[2]) !== '') ? trim((string) $data[2]) : '-'
+                    ];
+                }
+                fclose($handle);
+            } elseif (in_array($ext, ['xls', 'xlsx'], true)) {
+                if (!file_exists(APPPATH . '../vendor/autoload.php')) {
+                    return []; // PhpSpreadsheet not installed - skip preview silently
+                }
+                require_once APPPATH . '../vendor/autoload.php';
+
+                $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($absolute_path);
+                $sheet_data = $spreadsheet->getActiveSheet()->toArray(null, true, true, false);
+
+                $first_row = true;
+                foreach ($sheet_data as $data) {
+                    if ($first_row) {
+                        $first_row = false;
+                        if (isset($data[0]) && strtolower(trim((string) $data[0])) === 'name') {
+                            continue;
+                        }
+                    }
+
+                    $rows[] = [
+                        'name' => (isset($data[0]) && trim((string) $data[0]) !== '') ? trim((string) $data[0]) : '-',
+                        'mobile' => (isset($data[1]) && trim((string) $data[1]) !== '') ? trim((string) $data[1]) : '-',
+                        'email' => (isset($data[2]) && trim((string) $data[2]) !== '') ? trim((string) $data[2]) : '-'
+                    ];
+                }
+            }
+        } catch (Exception $e) {
+            // Never break profile_update because of a bad contacts file - just return empty preview
+            return [];
+        }
+
+        return $rows;
     }
 
     /* =========================================================================
@@ -799,6 +917,7 @@ class Api extends CI_Controller
                     'processing_fee' => (float) $loan->processing_fee,
                     'platform_charge' => (float) $loan->platform_charge,
                     'gst_amount' => (float) $loan->gst_amount,
+                    'due_charges' => (float) ($loan->due_charges ?? 0.0),
                     'total_payable' => (float) $loan->total_payable,
                     'is_emi' => (int) $loan->is_emi,
                     'emi_count' => (int) $loan->emi_count,
@@ -818,7 +937,7 @@ class Api extends CI_Controller
         ], 'Loans fetched successfully.', 200);
     }
 
-    public function loans_terms($id)
+    public function loan_details($id)
     {
         $user = $this->authenticate();
         $loan = $this->general->getOne('loans', ['id' => $id, 'user_id' => $user->id]);
@@ -826,7 +945,44 @@ class Api extends CI_Controller
             $this->response(null, 'Loan record not found.', 404);
         }
 
-        $this->response([
+        // Days Left calculation
+        $days_left = '-';
+        if ($loan->status === 'approved') {
+            $is_emi = isset($loan->is_emi) ? (int) $loan->is_emi : 0;
+            $tenure_days = ($is_emi === 1) ? (int) $loan->emi_count * 30 : (int) $loan->tenure_days;
+            $start_date = new DateTime(date('Y-m-d', strtotime($loan->approved_at ?: $loan->updated_at ?: $loan->created_at)));
+            $due_date = clone $start_date;
+            $due_date->modify('+' . $tenure_days . ' days');
+            $today = new DateTime(date('Y-m-d'));
+            $remaining_days = (int) $today->diff($due_date)->format('%r%a');
+            $remaining_days = min($remaining_days, $tenure_days);
+
+            if ($remaining_days > 0) {
+                $days_left = ($remaining_days === 1) ? '1 Day Remaining' : $remaining_days . ' Days Remaining';
+            } elseif ($remaining_days === 0) {
+                $days_left = 'Due Today';
+            } else {
+                $days_left = 'Overdue by ' . abs($remaining_days) . ' Days';
+            }
+        } elseif ($loan->status === 'paid') {
+            $days_left = 'Paid';
+        }
+
+        // Action status
+        $action_status = 'none';
+        if ($loan->status === 'approved') {
+            if (!empty($loan->repayment_submitted_at)) {
+                $action_status = 'verification_pending';
+            } else {
+                $action_status = 'pay_now';
+            }
+        } elseif ($loan->status === 'completed' || $loan->status === 'paid') {
+            $action_status = 'completed';
+        }
+
+        $show_pay_now_button = ($action_status === 'pay_now');
+
+        $terms = [
             'id' => (int) $loan->id,
             'status' => $loan->status,
             'amount' => (float) $loan->amount,
@@ -834,12 +990,28 @@ class Api extends CI_Controller
             'processing_fee' => (float) $loan->processing_fee,
             'platform_charge' => (float) $loan->platform_charge,
             'gst_amount' => (float) $loan->gst_amount,
+            'due_charges' => (float) ($loan->due_charges ?? 0.0),
             'total_payable' => (float) $loan->total_payable,
             'is_emi' => (int) $loan->is_emi,
             'emi_count' => (int) $loan->emi_count,
             'emi_amount' => (float) $loan->emi_amount,
             'due_date' => $loan->due_date ? date('d M Y', strtotime($loan->due_date)) : 'N/A'
-        ], 'Loan terms fetched successfully.', 200);
+        ];
+
+        $this->response([
+            'id' => (int) $loan->id,
+            'amount' => (float) $loan->amount,
+            'interest_rate' => (float) $loan->interest_rate,
+            'tenure_days' => (int) $loan->tenure_days,
+            'purpose' => $loan->purpose ?: '-',
+            'status' => $loan->status,
+            'days_left' => $days_left,
+            'formatted_applied_date' => date('d M Y, h:i A', strtotime($loan->created_at)),
+            'action_status' => $action_status,
+            'show_pay_now_button' => $show_pay_now_button,
+            'pay_now_button' => $show_pay_now_button,
+            'terms' => $terms
+        ], 'Loan details fetched successfully.', 200);
     }
 
     public function loans_apply()
@@ -1053,6 +1225,43 @@ class Api extends CI_Controller
     {
         $user = $this->authenticate();
 
+        // If "amount" was sent, treat this call as a withdrawal request submission
+        $amount_raw = $this->input->post('amount');
+        $is_withdrawal_request = ($amount_raw !== null && trim((string) $amount_raw) !== '');
+
+        if ($is_withdrawal_request) {
+            $this->form_validation->set_rules('amount', 'Withdrawal Amount', 'required|numeric|greater_than[0]');
+
+            if ($this->form_validation->run() === FALSE) {
+                $this->response(null, strip_tags(validation_errors()), 400);
+            }
+
+            $amount = (float) $amount_raw;
+
+            $wallet = $this->general->getOne('wallets', ['investor_id' => $user->id]);
+            $wallet_balance = $wallet ? (float) $wallet->balance : 0.00;
+
+            $settings = $this->general->getById('referral_settings', 1);
+            $min_withdrawal = $settings ? (float) $settings->min_withdrawal_amount : 500.00;
+
+            if ($amount < $min_withdrawal) {
+                $this->response(null, 'Minimum withdrawal amount is INR ' . number_format($min_withdrawal, 2), 400);
+            }
+
+            if ($amount > $wallet_balance) {
+                $this->response(null, 'Insufficient wallet balance. You only have INR ' . number_format($wallet_balance, 2), 400);
+            }
+
+            $this->general->insert('withdrawal_requests', [
+                'investor_id' => $user->id,
+                'amount' => $amount,
+                'status' => 'pending',
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+        }
+
+        // ---- Always return fresh wallet + history data below ----
+
         // Calculate total earnings
         $sum_sql = "SELECT SUM(reward_amount) as total_earned FROM referrals WHERE referrer_id = ? AND status = 'reward_credited'";
         $sum_row = $this->db->query($sum_sql, [$user->id])->row();
@@ -1066,7 +1275,7 @@ class Api extends CI_Controller
         $settings = $this->general->getById('referral_settings', 1);
         $min_withdrawal = $settings ? (float) $settings->min_withdrawal_amount : 500.00;
 
-        // Fetch withdrawal requests
+        // Fetch withdrawal history
         $withdrawal_requests = $this->general->getAll('withdrawal_requests', ['investor_id' => $user->id], 'id DESC');
 
         $formatted_withdrawals = [];
@@ -1080,49 +1289,16 @@ class Api extends CI_Controller
             ];
         }
 
+        $message = $is_withdrawal_request
+            ? 'Withdrawal request of INR ' . number_format((float) $amount_raw, 2) . ' submitted successfully.'
+            : 'Wallet transaction data fetched successfully.';
+
         $this->response([
             'total_earned' => $total_earned,
             'wallet_balance' => $wallet_balance,
             'min_withdrawal' => $min_withdrawal,
             'withdrawal_requests' => $formatted_withdrawals
-        ], 'Wallet transaction data fetched successfully.', 200);
-    }
-
-    public function referrals_withdraw()
-    {
-        $user = $this->authenticate();
-
-        $this->form_validation->set_rules('amount', 'Withdrawal Amount', 'required|numeric|greater_than[0]');
-
-        if ($this->form_validation->run() === FALSE) {
-            $this->response(null, strip_tags(validation_errors()), 400);
-        }
-
-        $amount = (float) $this->input->post('amount');
-
-        $wallet = $this->general->getOne('wallets', ['investor_id' => $user->id]);
-        $wallet_balance = $wallet ? (float) $wallet->balance : 0.00;
-
-        $settings = $this->general->getById('referral_settings', 1);
-        $min_withdrawal = $settings ? (float) $settings->min_withdrawal_amount : 500.00;
-
-        if ($amount < $min_withdrawal) {
-            $this->response(null, 'Minimum withdrawal amount is INR ' . number_format($min_withdrawal, 2), 400);
-        }
-
-        if ($amount > $wallet_balance) {
-            $this->response(null, 'Insufficient wallet balance. You only have INR ' . number_format($wallet_balance, 2), 400);
-        }
-
-        // Insert request
-        $this->general->insert('withdrawal_requests', [
-            'investor_id' => $user->id,
-            'amount' => $amount,
-            'status' => 'pending',
-            'created_at' => date('Y-m-d H:i:s')
-        ]);
-
-        $this->response(null, 'Withdrawal request of INR ' . number_format($amount, 2) . ' submitted successfully.', 200);
+        ], $message, 200);
     }
 
     /* =========================================================================

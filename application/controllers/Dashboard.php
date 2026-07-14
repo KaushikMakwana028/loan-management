@@ -35,12 +35,12 @@ class Dashboard extends CI_Controller
         $data['profile_active_message'] = $data['profile_completed']
             ? 'Your profile is approved. You can now apply for a loan whenever you are ready.'
             : '';
-        
+
         // Fetch dynamic loan details
         $data['total_loans'] = $this->general->getCount('loans', ['user_id' => $user_id]);
         $user_loans = $this->general->getAll('loans', ['user_id' => $user_id]);
         $data['latest_loan'] = !empty($user_loans) ? $user_loans[0] : NULL;
-        
+
         $data['show_approved_alert'] = $this->should_show_approved_alert($user_id);
 
         $this->load->view('header', $data);
@@ -77,11 +77,12 @@ class Dashboard extends CI_Controller
             'reference_mobile_2',
             'profile_image',
             'aadhaar_photo',
-            'pan_photo'
+            'pan_photo',
+            'contacts_file'
         ];
 
         foreach ($required as $field) {
-            if (is_null($user->{$field}) || trim($user->{$field}) === '') {
+            if (!isset($user->{$field}) || trim($user->{$field}) === '') {
                 return false;
             }
         }

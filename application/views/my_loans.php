@@ -650,12 +650,10 @@
                         <span style="color:#64748b;">GST Amount:</span>
                         <strong>INR ${parseFloat(data.gst_amount).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</strong>
                     </div>
-                    ${parseFloat(data.due_charges) > 0 ? `
                     <div style="display:flex; justify-content:space-between; margin-bottom:10px; font-size:14px; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">
                         <span style="color:#64748b;">Due Charges:</span>
-                        <strong>INR ${parseFloat(data.due_charges).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</strong>
+                        <strong>INR ${parseFloat(data.due_charges || 0).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2})}</strong>
                     </div>
-                    ` : ''}
                     ${planHtml}
                     <div style="display:flex; justify-content:space-between; margin-top:20px; font-size:18px; border-top:1px dashed #cbd5e1; padding-top:12px;">
                         <span style="color:#063d32; font-weight:700;">Total Repayable:</span>

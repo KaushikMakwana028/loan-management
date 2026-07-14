@@ -120,6 +120,36 @@
     table.contacts-table tbody tr:hover {
         background: #fafbfe;
     }
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        transition: all 0.15s ease;
+        text-decoration: none;
+    }
+    .mobile-btn {
+        background: #eff6ff;
+        color: #2563eb;
+        border: 1px solid #bfdbfe;
+    }
+    .mobile-btn:hover {
+        background: #2563eb;
+        color: #fff;
+        border-color: #2563eb;
+    }
+    .whatsapp-btn {
+        background: #f0fdf4;
+        color: #16a34a;
+        border: 1px solid #bbf7d0;
+    }
+    .whatsapp-btn:hover {
+        background: #16a34a;
+        color: #fff;
+        border-color: #16a34a;
+    }
 </style>
 
 <div class="container-fluid" style="margin-top: 10px;">
@@ -167,6 +197,23 @@
             $headers = $contacts[0];
             $rows = array_slice($contacts, 1);
             $total_records = count($rows);
+
+            // Find index of 'Relationship' (case-insensitive)
+            $relationshipIndex = -1;
+            $mobileIndex = -1;
+            foreach ($headers as $index => $header) {
+                $trimmedHeader = strtolower(trim((string)$header));
+                if ($trimmedHeader === 'relationship') {
+                    $relationshipIndex = $index;
+                } elseif ($trimmedHeader === 'mobile' || $trimmedHeader === 'phone' || $trimmedHeader === 'contact') {
+                    $mobileIndex = $index;
+                }
+            }
+
+            // Filter out 'Relationship' from headers
+            if ($relationshipIndex !== -1) {
+                unset($headers[$relationshipIndex]);
+            }
         ?>
         <div class="table-container-card">
             <div class="controls-row">
@@ -191,6 +238,7 @@
                             <?php foreach ($headers as $header): ?>
                                 <th><?php echo html_escape(!empty($header) ? $header : 'Column'); ?></th>
                             <?php endforeach; ?>
+                            <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -201,6 +249,28 @@
                                 <?php foreach ($headers as $colIndex => $header): ?>
                                     <td><?php echo html_escape(isset($row[$colIndex]) ? $row[$colIndex] : ''); ?></td>
                                 <?php endforeach; ?>
+                                <td>
+                                    <?php 
+                                        $mobileNum = '';
+                                        if ($mobileIndex !== -1 && isset($row[$mobileIndex])) {
+                                            $mobileNum = preg_replace('/[^\d+]/', '', $row[$mobileIndex]);
+                                        }
+                                    ?>
+                                    <div style="display: flex; gap: 8px; justify-content: flex-start; align-items: center;">
+                                        <?php if (!empty($mobileNum)): ?>
+                                            <a href="tel:<?php echo html_escape($mobileNum); ?>" class="action-btn mobile-btn" title="Call Mobile">
+                                                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.302a12.017 12.017 0 01-5.322-5.322c-.24-.44-.074-.927.302-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+                                                </svg>
+                                            </a>
+                                            <a href="https://wa.me/<?php echo html_escape(ltrim($mobileNum, '+')); ?>" target="_blank" class="action-btn whatsapp-btn" title="WhatsApp">
+                                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.458 5.704 1.459h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                                                </svg>
+                                            </a>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -225,8 +295,8 @@
             let match = false;
             const tds = tr[i].getElementsByTagName('td');
             
-            // Skip the first cell (Sr. No.)
-            for (let j = 1; j < tds.length; j++) {
+            // Skip the first cell (Sr. No.) and the last cell (Actions)
+            for (let j = 1; j < tds.length - 1; j++) {
                 if (tds[j]) {
                     const txtValue = tds[j].textContent || tds[j].innerText;
                     if (txtValue.toLowerCase().indexOf(filter) > -1) {
