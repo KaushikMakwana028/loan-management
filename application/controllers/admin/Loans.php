@@ -283,11 +283,12 @@ class Loans extends CI_Controller
             return;
         }
 
-        // Fetch selected investors who funded this loan
+        // Fetch selected or pending investors for this loan
         $sql_investors = "SELECT li.*, u.name as investor_name, u.email as investor_email, u.mobile as investor_mobile
                           FROM loan_investors li
                           JOIN users u ON li.investor_id = u.id
-                          WHERE li.loan_id = ? AND li.status = 'selected'";
+                          WHERE li.loan_id = ? AND li.status IN ('selected', 'invited', 'interested')
+                          ORDER BY FIELD(li.status, 'selected', 'interested', 'invited'), li.id ASC";
         $data['investors'] = $this->db->query($sql_investors, [$id])->result_array();
 
         $this->load->view('admin/header', $data);

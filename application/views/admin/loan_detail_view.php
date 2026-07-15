@@ -694,6 +694,7 @@ $total_payout = $total_invested + $total_profit;
                 </div>
             </div>
 
+            <!-- Commented out EMI options as requested
             <div style="margin-bottom: 20px;">
                 <label style="display:inline-flex; align-items:center; gap:8px; font-size:14px; font-weight:600; color:#344054; cursor:pointer;">
                     <input type="checkbox" name="is_emi" id="offer_is_emi" value="1" <?php echo $loan->is_emi ? 'checked' : ''; ?> onchange="toggleEmiFields()" style="width:16px; height:16px;">
@@ -711,6 +712,7 @@ $total_payout = $total_invested + $total_profit;
                     <input type="number" step="1" name="emi_amount" id="offer_emi_amount" value="<?php echo (int) $loan->emi_amount; ?>" style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
                 </div>
             </div>
+            -->
 
             <?php
             $calculated_due_date = $loan->due_date;
@@ -837,7 +839,12 @@ $total_payout = $total_invested + $total_profit;
     <div class="detail-card">
         <div class="card-head">
             <h3>Funding Investors</h3>
-            <span class="muted-small"><?php echo count($investors); ?> selected</span>
+            <span class="muted-small">
+                <?php 
+                $selected_count = count(array_filter($investors, function($inv) { return $inv['status'] === 'selected'; }));
+                echo $selected_count; 
+                ?> selected
+            </span>
         </div>
         <div class="table-wrapper">
             <table class="funding-table">
@@ -857,20 +864,47 @@ $total_payout = $total_invested + $total_profit;
                             <tr>
                                 <td><?php echo $sno++; ?></td>
                                 <td>
-                                    <div class="investor-name"><?php echo html_escape($inv['investor_name']); ?></div>
+                                    <div class="investor-name" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                        <span><?php echo html_escape($inv['investor_name']); ?></span>
+                                        <?php if ($inv['status'] === 'invited'): ?>
+                                            <span style="background: #fef3c7; color: #d97706; border: 1px solid #fde68a; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700; text-transform: uppercase; line-height: 1;">Invited</span>
+                                        <?php elseif ($inv['status'] === 'interested'): ?>
+                                            <span style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700; text-transform: uppercase; line-height: 1;">Interested</span>
+                                        <?php elseif ($inv['status'] === 'selected'): ?>
+                                            <span style="background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 700; text-transform: uppercase; line-height: 1;">Selected</span>
+                                        <?php endif; ?>
+                                    </div>
                                     <div class="investor-mobile"><?php echo html_escape($inv['investor_mobile']); ?></div>
                                 </td>
-                                <td><strong>INR <?php echo number_format($inv['invested_amount'], 2); ?></strong></td>
-                                <td class="profit-text">+INR <?php echo number_format($inv['profit_amount'], 2); ?></td>
-                                <td><strong>INR <?php echo number_format($inv['invested_amount'] + $inv['profit_amount'], 2); ?></strong></td>
+                                <td>
+                                    <?php if ($inv['status'] === 'selected'): ?>
+                                        <strong>INR <?php echo number_format($inv['invested_amount'], 2); ?></strong>
+                                    <?php else: ?>
+                                        <span class="muted-small" style="color: #94a3b8;">-</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if ($inv['status'] === 'selected'): ?>
+                                        <span class="profit-text">+INR <?php echo number_format($inv['profit_amount'], 2); ?></span>
+                                    <?php else: ?>
+                                        <span class="muted-small" style="color: #94a3b8;">-</span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <?php if ($inv['status'] === 'selected'): ?>
+                                        <strong>INR <?php echo number_format($inv['invested_amount'] + $inv['profit_amount'], 2); ?></strong>
+                                    <?php else: ?>
+                                        <span class="muted-small" style="color: #94a3b8;">-</span>
+                                    <?php endif; ?>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
                             <td colspan="5">
                                 <div class="no-records">
-                                    <strong>No selected funding investors found.</strong>
-                                    <div class="muted-small">Selected investors will appear here after funding approval.</div>
+                                    <strong>No funding investors assigned.</strong>
+                                    <div class="muted-small">Assigned or selected investors will appear here.</div>
                                 </div>
                             </td>
                         </tr>
@@ -948,22 +982,27 @@ $total_payout = $total_invested + $total_profit;
     }
 
     function toggleEmiFields() {
-        var isEmi = document.getElementById('offer_is_emi').checked;
-        document.getElementById('emi_fields').style.display = isEmi ? 'grid' : 'none';
-        document.getElementById('due_date_field').style.display = isEmi ? 'none' : 'block';
+        var offerIsEmi = document.getElementById('offer_is_emi');
+        var isEmi = offerIsEmi ? offerIsEmi.checked : false;
+        
+        var emiFields = document.getElementById('emi_fields');
+        if (emiFields) emiFields.style.display = isEmi ? 'grid' : 'none';
+        
+        var dueDateField = document.getElementById('due_date_field');
+        if (dueDateField) dueDateField.style.display = isEmi ? 'none' : 'block';
         
         var emiCount = document.getElementById('offer_emi_count');
         var emiAmount = document.getElementById('offer_emi_amount');
         var dueDate = document.getElementById('offer_due_date');
         
         if (isEmi) {
-            emiCount.required = true;
-            emiAmount.required = true;
-            dueDate.required = false;
+            if (emiCount) emiCount.required = true;
+            if (emiAmount) emiAmount.required = true;
+            if (dueDate) dueDate.required = false;
         } else {
-            emiCount.required = false;
-            emiAmount.required = false;
-            dueDate.required = true;
+            if (emiCount) emiCount.required = false;
+            if (emiAmount) emiAmount.required = false;
+            if (dueDate) dueDate.required = true;
         }
     }
 
@@ -979,13 +1018,15 @@ $total_payout = $total_invested + $total_profit;
         document.getElementById('offer_total_payable').textContent = 'INR ' + total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         
         // Auto-calculate EMI Amount if EMI Plan is enabled and count is greater than 0
-        var isEmi = document.getElementById('offer_is_emi').checked;
+        var offerIsEmi = document.getElementById('offer_is_emi');
+        var isEmi = offerIsEmi ? offerIsEmi.checked : false;
         if (isEmi) {
-            var emiCount = parseInt(document.getElementById('offer_emi_count').value) || 0;
+            var emiCountField = document.getElementById('offer_emi_count');
+            var emiCount = emiCountField ? parseInt(emiCountField.value) : 0;
             if (emiCount > 0) {
                 var emiAmountField = document.getElementById('offer_emi_amount');
                 var calculatedEmi = Math.round(total / emiCount);
-                emiAmountField.value = calculatedEmi;
+                if (emiAmountField) emiAmountField.value = calculatedEmi;
             }
         }
     }
@@ -997,8 +1038,12 @@ $total_payout = $total_invested + $total_profit;
     document.getElementById('offer_platform').addEventListener('input', calculateTotalPayable);
     document.getElementById('offer_gst').addEventListener('input', calculateTotalPayable);
     document.getElementById('offer_due_charges').addEventListener('input', calculateTotalPayable);
-    document.getElementById('offer_emi_count').addEventListener('input', calculateTotalPayable);
-    document.getElementById('offer_is_emi').addEventListener('change', calculateTotalPayable);
+    
+    var offerEmiCount = document.getElementById('offer_emi_count');
+    if (offerEmiCount) offerEmiCount.addEventListener('input', calculateTotalPayable);
+    
+    var offerIsEmi = document.getElementById('offer_is_emi');
+    if (offerIsEmi) offerIsEmi.addEventListener('change', calculateTotalPayable);
     
     // Call initial toggle and calculate
     toggleEmiFields();

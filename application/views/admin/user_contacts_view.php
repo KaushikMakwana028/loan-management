@@ -150,6 +150,69 @@
         color: #fff;
         border-color: #16a34a;
     }
+    .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+    .pagination-info {
+        font-size: 14px;
+        color: #65758b;
+    }
+    .pagination-buttons {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+    }
+    .pagination-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 12px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        background: #fff;
+        color: #475569;
+        border: 1px solid #cbd5e1;
+        text-decoration: none;
+        user-select: none;
+        outline: none;
+    }
+    .pagination-btn:hover:not(.disabled):not(.active) {
+        background: #f1f5f9;
+        border-color: #94a3b8;
+        color: #1e293b;
+    }
+    .pagination-btn.active {
+        background: #1e293b;
+        color: #fff;
+        border-color: #1e293b;
+        font-weight: 600;
+    }
+    .pagination-btn.disabled {
+        background: #f8fafc;
+        color: #cbd5e1;
+        border-color: #e2e8f0;
+        cursor: not-allowed;
+    }
+    .pagination-ellipsis {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        color: #65758b;
+        font-size: 14px;
+        user-select: none;
+    }
 </style>
 
 <div class="container-fluid" style="margin-top: 10px;">
@@ -276,42 +339,184 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Pagination Controls -->
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    Showing <span id="pageStart">1</span> to <span id="pageEnd">20</span> of <span id="totalItems"><?php echo $total_records; ?></span> items
+                </div>
+                <div class="pagination-buttons" id="paginationButtons">
+                    <!-- Dynamic buttons -->
+                </div>
+            </div>
         </div>
     <?php endif; ?>
 </div>
 
 <script>
-    function filterContacts() {
-        const input = document.getElementById('contactSearch');
-        const filter = input.value.toLowerCase();
+    let allRows = [];
+    let filteredRows = [];
+    const rowsPerPage = 20;
+    let currentPage = 1;
+
+    document.addEventListener("DOMContentLoaded", function() {
         const table = document.getElementById('contactsTable');
         if (!table) return;
         
-        const tr = table.getElementsByTagName('tr');
-        let visibleCount = 0;
+        const tbody = table.getElementsByTagName('tbody')[0];
+        if (!tbody) return;
         
-        // Start loop from index 1 to skip header row
-        for (let i = 1; i < tr.length; i++) {
-            let match = false;
-            const tds = tr[i].getElementsByTagName('td');
-            
+        const trs = Array.from(tbody.getElementsByTagName('tr'));
+        
+        // Store all rows
+        allRows = trs;
+        filteredRows = [...allRows];
+        
+        // Initialize pagination
+        initPagination();
+    });
+
+    function initPagination() {
+        currentPage = 1;
+        updatePagination();
+    }
+
+    function updatePagination() {
+        const totalItems = filteredRows.length;
+        const totalPages = Math.ceil(totalItems / rowsPerPage) || 1;
+        
+        if (currentPage > totalPages) {
+            currentPage = totalPages;
+        }
+        if (currentPage < 1) {
+            currentPage = 1;
+        }
+
+        const startIndex = (currentPage - 1) * rowsPerPage;
+        const endIndex = Math.min(startIndex + rowsPerPage, totalItems);
+
+        // Hide all rows first
+        allRows.forEach(row => {
+            row.style.display = "none";
+        });
+
+        // Show only the rows for the current page
+        for (let i = startIndex; i < endIndex; i++) {
+            if (filteredRows[i]) {
+                filteredRows[i].style.display = "";
+            }
+        }
+
+        // Update the info texts
+        const pageStartEl = document.getElementById('pageStart');
+        const pageEndEl = document.getElementById('pageEnd');
+        const totalItemsEl = document.getElementById('totalItems');
+        const visibleCountEl = document.getElementById('visibleCount');
+
+        if (pageStartEl) pageStartEl.innerText = totalItems === 0 ? 0 : startIndex + 1;
+        if (pageEndEl) pageEndEl.innerText = endIndex;
+        if (totalItemsEl) totalItemsEl.innerText = totalItems;
+        if (visibleCountEl) visibleCountEl.innerText = totalItems;
+
+        // Generate pagination buttons
+        renderPaginationButtons(totalPages);
+    }
+
+    function renderPaginationButtons(totalPages) {
+        const container = document.getElementById('paginationButtons');
+        if (!container) return;
+        container.innerHTML = '';
+
+        // Helper to add button
+        function addButton(page, label, isActive = false, isDisabled = false) {
+            const btn = document.createElement('button');
+            btn.className = 'pagination-btn' + (isActive ? ' active' : '') + (isDisabled ? ' disabled' : '');
+            btn.innerText = label;
+            btn.type = 'button';
+            if (!isDisabled) {
+                btn.onclick = function() {
+                    currentPage = page;
+                    updatePagination();
+                    
+                    // Scroll to top of table card smoothly
+                    const card = document.querySelector('.table-container-card');
+                    if (card) {
+                        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                };
+            }
+            container.appendChild(btn);
+        }
+
+        // Helper to add ellipsis
+        function addEllipsis() {
+            const span = document.createElement('span');
+            span.className = 'pagination-ellipsis';
+            span.innerText = '...';
+            container.appendChild(span);
+        }
+
+        // Prev button
+        addButton(currentPage - 1, 'Prev', false, currentPage === 1);
+
+        // Logic for page numbers to match standard sliding window
+        const maxVisible = 5; 
+        if (totalPages <= maxVisible) {
+            for (let i = 1; i <= totalPages; i++) {
+                addButton(i, i, i === currentPage);
+            }
+        } else {
+            // Always show page 1
+            addButton(1, '1', currentPage === 1);
+
+            let startRange = Math.max(2, currentPage - 1);
+            let endRange = Math.min(totalPages - 1, currentPage + 1);
+
+            if (currentPage <= 3) {
+                endRange = 4;
+            }
+            if (currentPage >= totalPages - 2) {
+                startRange = totalPages - 3;
+            }
+
+            if (startRange > 2) {
+                addEllipsis();
+            }
+
+            for (let i = startRange; i <= endRange; i++) {
+                addButton(i, i, i === currentPage);
+            }
+
+            if (endRange < totalPages - 1) {
+                addEllipsis();
+            }
+
+            // Always show last page
+            addButton(totalPages, totalPages, currentPage === totalPages);
+        }
+
+        // Next button
+        addButton(currentPage + 1, 'Next', false, currentPage === totalPages);
+    }
+
+    function filterContacts() {
+        const input = document.getElementById('contactSearch');
+        const filter = input.value.toLowerCase();
+        
+        filteredRows = allRows.filter(row => {
+            const tds = row.getElementsByTagName('td');
             // Skip the first cell (Sr. No.) and the last cell (Actions)
             for (let j = 1; j < tds.length - 1; j++) {
                 if (tds[j]) {
                     const txtValue = tds[j].textContent || tds[j].innerText;
                     if (txtValue.toLowerCase().indexOf(filter) > -1) {
-                        match = true;
-                        break;
+                        return true;
                     }
                 }
             }
-            if (match) {
-                tr[i].style.display = "";
-                visibleCount++;
-            } else {
-                tr[i].style.display = "none";
-            }
-        }
-        document.getElementById('visibleCount').innerText = visibleCount;
+            return false;
+        });
+        
+        initPagination();
     }
 </script>

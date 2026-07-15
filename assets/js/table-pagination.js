@@ -5,6 +5,8 @@
 		// 1. Process standard tables
 		var tables = document.querySelectorAll("table");
 		tables.forEach(function (table) {
+			if (table.id === "contactsTable" || table.hasAttribute("data-no-pagination")) return;
+
 			var tbody = table.querySelector("tbody");
 			if (!tbody) return;
 			var rows = Array.from(tbody.querySelectorAll("tr")).filter(
