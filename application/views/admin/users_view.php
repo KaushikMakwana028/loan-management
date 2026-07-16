@@ -2,18 +2,21 @@
     .admin-container {
         margin-top: 10px;
     }
+
     .page-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 24px;
     }
+
     .page-header h1 {
         margin: 0;
         font-size: 26px;
         color: #172033;
         font-weight: 700;
     }
+
     .table-card {
         background: #fff;
         border: 1px solid #e8eef6;
@@ -21,17 +24,21 @@
         box-shadow: 0 14px 40px rgba(22, 34, 51, 0.07);
         overflow-x: auto;
     }
+
     table {
         width: 100%;
         border-collapse: collapse;
         text-align: left;
         min-width: 1100px;
     }
-    th, td {
+
+    th,
+    td {
         padding: 16px 24px;
         border-bottom: 1px solid #eef3f8;
         vertical-align: middle;
     }
+
     th {
         background: #f8fafc;
         font-weight: 600;
@@ -40,13 +47,16 @@
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
+
     td {
         font-size: 14px;
         color: #172033;
     }
+
     tr:last-child td {
         border-bottom: 0;
     }
+
     .kyc-badge {
         display: inline-flex;
         align-items: center;
@@ -57,11 +67,13 @@
         border-radius: 8px;
         border: 1px solid #dbe3ef;
     }
+
     .kyc-done {
         background: #e6f6ec;
         border-color: #bbf7d0;
         color: #15803d;
     }
+
     .kyc-pending {
         background: #fff8ee;
         border-color: #fadfb5;
@@ -69,12 +81,14 @@
         cursor: pointer;
         transition: all 0.2s ease;
     }
+
     .kyc-pending:hover {
         background: #fdf2e2;
         border-color: #f7c079;
         transform: translateY(-1px);
         box-shadow: 0 4px 8px rgba(180, 83, 9, 0.08);
     }
+
     .status-badge {
         display: inline-block;
         padding: 4px 10px;
@@ -82,24 +96,29 @@
         font-size: 12px;
         font-weight: 600;
     }
+
     .status-active {
         background: #dcf5e4;
         color: #15803d;
     }
+
     .status-inactive {
         background: #fee2e2;
         color: #b91c1c;
     }
+
     .no-records {
         padding: 48px;
         text-align: center;
         color: #65758b;
         font-size: 15px;
     }
+
     .actions-cell {
         display: flex;
         gap: 8px;
     }
+
     .btn-action {
         border: 0;
         border-radius: 8px;
@@ -113,38 +132,46 @@
         transition: all 0.15s ease;
         text-decoration: none;
     }
+
     .btn-view {
         background: #eaf1ff;
         color: #2563eb;
         border: 1px solid #dce5f0;
     }
+
     .btn-view:hover {
         background: #2563eb;
         color: #fff;
     }
+
     .btn-delete {
         background: #fee2e2;
         color: #ef4444;
         border: 1px solid #fecaca;
     }
+
     .btn-delete:hover {
         background: #ef4444;
         color: #fff;
     }
+
     .btn-activate {
         background: #dcf5e4;
         color: #15803d;
         border: 1px solid #bbf7d0;
     }
+
     .btn-activate:hover {
         background: #15803d;
         color: #fff;
     }
+
     .btn-inactivate {
         background: #fff8ee;
         color: #b45309;
         border: 1px solid #fadfb5;
     }
+
     .btn-inactivate:hover {
         background: #b45309;
         color: #fff;
@@ -282,9 +309,9 @@
                                     </span>
                                 <?php else: ?>
                                     <span class="kyc-badge kyc-pending"
-                                          data-name="<?php echo html_escape($usr['name']); ?>"
-                                          data-missing="<?php echo html_escape(json_encode($missing_by_category)); ?>"
-                                          onclick="openMissingModal(this)">
+                                        data-name="<?php echo html_escape($usr['name']); ?>"
+                                        data-missing="<?php echo html_escape(json_encode($missing_by_category)); ?>"
+                                        onclick="openMissingModal(this)">
                                         ⚠ Pending
                                     </span>
                                 <?php endif; ?>
@@ -341,9 +368,9 @@
         const activate = status === 1;
         Swal.fire({
             title: activate ? 'Activate User Profile?' : 'Mark User Inactive?',
-            text: activate
-                ? `Approve "${name}" and allow this user to apply for loans?`
-                : `Block "${name}" from applying for loans until reactivated?`,
+            text: activate ?
+                `Approve "${name}" and allow this user to apply for loans?` :
+                `Block "${name}" from applying for loans until reactivated?`,
             icon: activate ? 'question' : 'warning',
             showCancelButton: true,
             confirmButtonColor: activate ? '#15803d' : '#b45309',
@@ -374,7 +401,7 @@
                 
                 <div style="max-height: 350px; overflow-y: auto; padding-right: 5px;">
         `;
-        
+
         let sectionCount = 0;
         for (const [section, fields] of Object.entries(missingData)) {
             if (fields.length > 0) {
@@ -384,7 +411,7 @@
                         <h4 style="margin: 0 0 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; color: #2563eb; letter-spacing: 0.5px;">${section}</h4>
                         <div style="display: flex; flex-direction: column; gap: 6px;">
                 `;
-                
+
                 fields.forEach(field => {
                     htmlContent += `
                         <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; background: #f8fafc; padding: 8px 12px; border-radius: 8px; border: 1px solid #f1f5f9;">
@@ -393,7 +420,7 @@
                         </div>
                     `;
                 });
-                
+
                 htmlContent += `
                         </div>
                     </div>
@@ -408,12 +435,12 @@
                 </div>
             `;
         }
-        
+
         htmlContent += `
                 </div>
             </div>
         `;
-        
+
         Swal.fire({
             html: htmlContent,
             showConfirmButton: true,
@@ -428,8 +455,20 @@
 </script>
 
 <?php if ($this->session->flashdata('success')): ?>
-    <script>Swal.fire({icon:'success',title:'Success',text:<?php echo json_encode($this->session->flashdata('success')); ?>});</script>
+    <script>
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: <?php echo json_encode($this->session->flashdata('success')); ?>
+        });
+    </script>
 <?php endif; ?>
 <?php if ($this->session->flashdata('error')): ?>
-    <script>Swal.fire({icon:'error',title:'Error',text:<?php echo json_encode($this->session->flashdata('error')); ?>});</script>
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: <?php echo json_encode($this->session->flashdata('error')); ?>
+        });
+    </script>
 <?php endif; ?>

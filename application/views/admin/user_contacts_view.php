@@ -15,10 +15,12 @@
         margin-bottom: 20px;
         transition: all 0.15s ease;
     }
+
     .back-btn:hover {
         background: #e2e8f0;
         color: #1e293b;
     }
+
     .page-header-section {
         display: flex;
         justify-content: space-between;
@@ -27,17 +29,20 @@
         gap: 16px;
         margin-bottom: 20px;
     }
+
     .page-title {
         margin: 0;
         font-size: 24px;
         font-weight: 700;
         color: #172033;
     }
+
     .sub-title {
         font-size: 14px;
         color: #65758b;
         margin-top: 4px;
     }
+
     .table-container-card {
         background: #fff;
         border: 1px solid #e8eef6;
@@ -46,6 +51,7 @@
         padding: 24px;
         margin-bottom: 24px;
     }
+
     .controls-row {
         display: flex;
         justify-content: space-between;
@@ -54,12 +60,14 @@
         flex-wrap: wrap;
         gap: 16px;
     }
+
     .search-input-wrapper {
         position: relative;
         display: inline-block;
         width: 320px;
         max-width: 100%;
     }
+
     .search-input-wrapper svg {
         position: absolute;
         left: 14px;
@@ -68,6 +76,7 @@
         color: #94a3b8;
         pointer-events: none;
     }
+
     .search-input {
         width: 100%;
         padding: 10px 16px 10px 42px;
@@ -78,10 +87,12 @@
         outline: none;
         transition: border-color 0.15s ease;
     }
+
     .search-input:focus {
         border-color: #2563eb;
         box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
     }
+
     .contacts-badge {
         background: #eaf1ff;
         color: #2563eb;
@@ -90,21 +101,26 @@
         padding: 6px 12px;
         border-radius: 8px;
     }
+
     .table-responsive-wrapper {
         overflow-x: auto;
         border-radius: 12px;
         border: 1px solid #e2e8f0;
     }
+
     table.contacts-table {
         width: 100%;
         border-collapse: collapse;
         text-align: left;
     }
-    table.contacts-table th, table.contacts-table td {
+
+    table.contacts-table th,
+    table.contacts-table td {
         padding: 12px 18px;
         border-bottom: 1px solid #eef3f8;
         font-size: 14px;
     }
+
     table.contacts-table th {
         background: #f8fafc;
         font-weight: 600;
@@ -114,12 +130,15 @@
         letter-spacing: 0.5px;
         white-space: nowrap;
     }
+
     table.contacts-table tr:last-child td {
         border-bottom: 0;
     }
+
     table.contacts-table tbody tr:hover {
         background: #fafbfe;
     }
+
     .action-btn {
         display: inline-flex;
         align-items: center;
@@ -130,26 +149,31 @@
         transition: all 0.15s ease;
         text-decoration: none;
     }
+
     .mobile-btn {
         background: #eff6ff;
         color: #2563eb;
         border: 1px solid #bfdbfe;
     }
+
     .mobile-btn:hover {
         background: #2563eb;
         color: #fff;
         border-color: #2563eb;
     }
+
     .whatsapp-btn {
         background: #f0fdf4;
         color: #16a34a;
         border: 1px solid #bbf7d0;
     }
+
     .whatsapp-btn:hover {
         background: #16a34a;
         color: #fff;
         border-color: #16a34a;
     }
+
     .pagination-container {
         display: flex;
         justify-content: space-between;
@@ -158,15 +182,18 @@
         flex-wrap: wrap;
         gap: 16px;
     }
+
     .pagination-info {
         font-size: 14px;
         color: #65758b;
     }
+
     .pagination-buttons {
         display: flex;
         gap: 6px;
         align-items: center;
     }
+
     .pagination-btn {
         display: inline-flex;
         align-items: center;
@@ -186,23 +213,27 @@
         user-select: none;
         outline: none;
     }
+
     .pagination-btn:hover:not(.disabled):not(.active) {
         background: #f1f5f9;
         border-color: #94a3b8;
         color: #1e293b;
     }
+
     .pagination-btn.active {
         background: #1e293b;
         color: #fff;
         border-color: #1e293b;
         font-weight: 600;
     }
+
     .pagination-btn.disabled {
         background: #f8fafc;
         color: #cbd5e1;
         border-color: #e2e8f0;
         cursor: not-allowed;
     }
+
     .pagination-ellipsis {
         display: inline-flex;
         align-items: center;
@@ -256,27 +287,27 @@
             <p style="margin: 0; font-size: 15px; font-weight: 500;">No contact records found in this file (only headers or empty file).</p>
         </div>
     <?php else: ?>
-        <?php 
-            $headers = $contacts[0];
-            $rows = array_slice($contacts, 1);
-            $total_records = count($rows);
+        <?php
+        $headers = $contacts[0];
+        $rows = array_slice($contacts, 1);
+        $total_records = count($rows);
 
-            // Find index of 'Relationship' (case-insensitive)
-            $relationshipIndex = -1;
-            $mobileIndex = -1;
-            foreach ($headers as $index => $header) {
-                $trimmedHeader = strtolower(trim((string)$header));
-                if ($trimmedHeader === 'relationship') {
-                    $relationshipIndex = $index;
-                } elseif ($trimmedHeader === 'mobile' || $trimmedHeader === 'phone' || $trimmedHeader === 'contact') {
-                    $mobileIndex = $index;
-                }
+        // Find index of 'Relationship' (case-insensitive)
+        $relationshipIndex = -1;
+        $mobileIndex = -1;
+        foreach ($headers as $index => $header) {
+            $trimmedHeader = strtolower(trim((string)$header));
+            if ($trimmedHeader === 'relationship') {
+                $relationshipIndex = $index;
+            } elseif ($trimmedHeader === 'mobile' || $trimmedHeader === 'phone' || $trimmedHeader === 'contact') {
+                $mobileIndex = $index;
             }
+        }
 
-            // Filter out 'Relationship' from headers
-            if ($relationshipIndex !== -1) {
-                unset($headers[$relationshipIndex]);
-            }
+        // Filter out 'Relationship' from headers
+        if ($relationshipIndex !== -1) {
+            unset($headers[$relationshipIndex]);
+        }
         ?>
         <div class="table-container-card">
             <div class="controls-row">
@@ -313,11 +344,11 @@
                                     <td><?php echo html_escape(isset($row[$colIndex]) ? $row[$colIndex] : ''); ?></td>
                                 <?php endforeach; ?>
                                 <td>
-                                    <?php 
-                                        $mobileNum = '';
-                                        if ($mobileIndex !== -1 && isset($row[$mobileIndex])) {
-                                            $mobileNum = preg_replace('/[^\d+]/', '', $row[$mobileIndex]);
-                                        }
+                                    <?php
+                                    $mobileNum = '';
+                                    if ($mobileIndex !== -1 && isset($row[$mobileIndex])) {
+                                        $mobileNum = preg_replace('/[^\d+]/', '', $row[$mobileIndex]);
+                                    }
                                     ?>
                                     <div style="display: flex; gap: 8px; justify-content: flex-start; align-items: center;">
                                         <?php if (!empty($mobileNum)): ?>
@@ -362,16 +393,16 @@
     document.addEventListener("DOMContentLoaded", function() {
         const table = document.getElementById('contactsTable');
         if (!table) return;
-        
+
         const tbody = table.getElementsByTagName('tbody')[0];
         if (!tbody) return;
-        
+
         const trs = Array.from(tbody.getElementsByTagName('tr'));
-        
+
         // Store all rows
         allRows = trs;
         filteredRows = [...allRows];
-        
+
         // Initialize pagination
         initPagination();
     });
@@ -384,7 +415,7 @@
     function updatePagination() {
         const totalItems = filteredRows.length;
         const totalPages = Math.ceil(totalItems / rowsPerPage) || 1;
-        
+
         if (currentPage > totalPages) {
             currentPage = totalPages;
         }
@@ -437,11 +468,14 @@
                 btn.onclick = function() {
                     currentPage = page;
                     updatePagination();
-                    
+
                     // Scroll to top of table card smoothly
                     const card = document.querySelector('.table-container-card');
                     if (card) {
-                        card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        card.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
                     }
                 };
             }
@@ -460,7 +494,7 @@
         addButton(currentPage - 1, 'Prev', false, currentPage === 1);
 
         // Logic for page numbers to match standard sliding window
-        const maxVisible = 5; 
+        const maxVisible = 5;
         if (totalPages <= maxVisible) {
             for (let i = 1; i <= totalPages; i++) {
                 addButton(i, i, i === currentPage);
@@ -502,7 +536,7 @@
     function filterContacts() {
         const input = document.getElementById('contactSearch');
         const filter = input.value.toLowerCase();
-        
+
         filteredRows = allRows.filter(row => {
             const tds = row.getElementsByTagName('td');
             // Skip the first cell (Sr. No.) and the last cell (Actions)
@@ -516,7 +550,7 @@
             }
             return false;
         });
-        
+
         initPagination();
     }
 </script>

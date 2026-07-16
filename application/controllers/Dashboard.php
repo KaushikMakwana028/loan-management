@@ -82,7 +82,7 @@ class Dashboard extends CI_Controller
         ];
 
         foreach ($required as $field) {
-            if (!isset($user->{$field}) || trim($user->{$field}) === '') {
+            if (is_null($user->{$field}) || trim($user->{$field}) === '') {
                 return false;
             }
         }

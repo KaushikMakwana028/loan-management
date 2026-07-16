@@ -597,10 +597,10 @@ $total_payout = $total_invested + $total_profit;
                 <span class="info-value"><?php echo $interest_rate ? $interest_rate . '%' : 'N/A'; ?></span>
             </div>
             <?php if (isset($loan->due_charges) && (float)$loan->due_charges > 0): ?>
-            <div class="info-row">
-                <span class="info-label">Due Charges</span>
-                <span class="info-value">INR <?php echo number_format($loan->due_charges, 2); ?></span>
-            </div>
+                <div class="info-row">
+                    <span class="info-label">Due Charges</span>
+                    <span class="info-value">INR <?php echo number_format($loan->due_charges, 2); ?></span>
+                </div>
             <?php endif; ?>
             <div class="info-row">
                 <span class="info-label">Tenure</span>
@@ -613,20 +613,20 @@ $total_payout = $total_invested + $total_profit;
                 </span>
             </div>
             <?php if (!$loan->is_emi): ?>
-            <div class="info-row">
-                <span class="info-label">Due Date</span>
-                <span class="info-value">
-                    <?php 
-                    if (!empty($loan->due_date)) {
-                        echo date('d M Y', strtotime($loan->due_date));
-                    } elseif (!empty($loan->approved_at)) {
-                        echo date('d M Y', strtotime($loan->approved_at . ' + ' . (int)$loan->tenure_days . ' days'));
-                    } else {
-                        echo '<span style="color:#64748b; font-style:italic;">TBD (calculated on approval)</span>';
-                    }
-                    ?>
-                </span>
-            </div>
+                <div class="info-row">
+                    <span class="info-label">Due Date</span>
+                    <span class="info-value">
+                        <?php
+                        if (!empty($loan->due_date)) {
+                            echo date('d M Y', strtotime($loan->due_date));
+                        } elseif (!empty($loan->approved_at)) {
+                            echo date('d M Y', strtotime($loan->approved_at . ' + ' . (int)$loan->tenure_days . ' days'));
+                        } else {
+                            echo '<span style="color:#64748b; font-style:italic;">TBD (calculated on approval)</span>';
+                        }
+                        ?>
+                    </span>
+                </div>
             <?php endif; ?>
             <div class="info-row">
                 <span class="info-label">Applied Date</span>
@@ -667,34 +667,34 @@ $total_payout = $total_invested + $total_profit;
             <h3>Edit Offer Terms</h3>
         </div>
         <?php echo form_open('admin/loans/update_offer/' . $loan->id, ['id' => 'editOfferForm']); ?>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
-                <div>
-                    <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">Loan Amount (INR)</label>
-                    <input type="number" step="0.01" name="amount" id="offer_amount" value="<?php echo (float) $loan->amount; ?>" required style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
-                </div>
-                <div>
-                    <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">Interest Rate (%)</label>
-                    <input type="number" step="0.01" name="interest_rate" id="offer_interest" value="<?php echo (float) $loan->interest_rate; ?>" required style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
-                </div>
-                <div>
-                    <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">Processing Fee (INR)</label>
-                    <input type="number" step="0.01" name="processing_fee" id="offer_processing" value="<?php echo (float) $loan->processing_fee; ?>" required style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
-                </div>
-                <div>
-                    <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">Platform Charges (INR)</label>
-                    <input type="number" step="0.01" name="platform_charge" id="offer_platform" value="<?php echo (float) $loan->platform_charge; ?>" required style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
-                </div>
-                <div>
-                    <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">GST Amount (INR)</label>
-                    <input type="number" step="0.01" name="gst_amount" id="offer_gst" value="<?php echo (float) $loan->gst_amount; ?>" required style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
-                </div>
-                <div>
-                    <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">Due Charges (INR)</label>
-                    <input type="number" step="0.01" name="due_charges" id="offer_due_charges" value="<?php echo (float) ($loan->due_charges ?? 0.00); ?>" required style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
-                </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
+            <div>
+                <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">Loan Amount (INR)</label>
+                <input type="number" step="0.01" name="amount" id="offer_amount" value="<?php echo (float) $loan->amount; ?>" required style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
             </div>
+            <div>
+                <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">Interest Rate (%)</label>
+                <input type="number" step="0.01" name="interest_rate" id="offer_interest" value="<?php echo (float) $loan->interest_rate; ?>" required style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
+            </div>
+            <div>
+                <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">Processing Fee (INR)</label>
+                <input type="number" step="0.01" name="processing_fee" id="offer_processing" value="<?php echo (float) $loan->processing_fee; ?>" required style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
+            </div>
+            <div>
+                <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">Platform Charges (INR)</label>
+                <input type="number" step="0.01" name="platform_charge" id="offer_platform" value="<?php echo (float) $loan->platform_charge; ?>" required style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
+            </div>
+            <div>
+                <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">GST Amount (INR)</label>
+                <input type="number" step="0.01" name="gst_amount" id="offer_gst" value="<?php echo (float) $loan->gst_amount; ?>" required style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
+            </div>
+            <div>
+                <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">Due Charges (INR)</label>
+                <input type="number" step="0.01" name="due_charges" id="offer_due_charges" value="<?php echo (float) ($loan->due_charges ?? 0.00); ?>" required style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
+            </div>
+        </div>
 
-            <!-- Commented out EMI options as requested
+        <!-- Commented out EMI options as requested
             <div style="margin-bottom: 20px;">
                 <label style="display:inline-flex; align-items:center; gap:8px; font-size:14px; font-weight:600; color:#344054; cursor:pointer;">
                     <input type="checkbox" name="is_emi" id="offer_is_emi" value="1" <?php echo $loan->is_emi ? 'checked' : ''; ?> onchange="toggleEmiFields()" style="width:16px; height:16px;">
@@ -714,30 +714,30 @@ $total_payout = $total_invested + $total_profit;
             </div>
             -->
 
-            <?php
-            $calculated_due_date = $loan->due_date;
-            if (empty($calculated_due_date)) {
-                $start_date_temp = !empty($loan->approved_at) ? $loan->approved_at : (!empty($loan->created_at) ? $loan->created_at : date('Y-m-d H:i:s'));
-                $calculated_due_date = date('Y-m-d', strtotime($start_date_temp . ' + ' . (int)$loan->tenure_days . ' days'));
-            }
-            ?>
-            <div id="due_date_field" style="display: <?php echo $loan->is_emi ? 'none' : 'block'; ?>; margin-bottom: 20px; max-width: 280px;">
-                <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">Due Date</label>
-                <input type="date" name="due_date" id="offer_due_date" value="<?php echo $calculated_due_date; ?>" style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
-                <span style="font-size:12px; color:#64748b; margin-top:4px; display:block; line-height: 1.4;">Calculated automatically based on approval date and tenure (<?php echo (int) $loan->tenure_days; ?> Days), but can be changed manually.</span>
-            </div>
+        <?php
+        $calculated_due_date = $loan->due_date;
+        if (empty($calculated_due_date)) {
+            $start_date_temp = !empty($loan->approved_at) ? $loan->approved_at : (!empty($loan->created_at) ? $loan->created_at : date('Y-m-d H:i:s'));
+            $calculated_due_date = date('Y-m-d', strtotime($start_date_temp . ' + ' . (int)$loan->tenure_days . ' days'));
+        }
+        ?>
+        <div id="due_date_field" style="display: <?php echo $loan->is_emi ? 'none' : 'block'; ?>; margin-bottom: 20px; max-width: 280px;">
+            <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">Due Date</label>
+            <input type="date" name="due_date" id="offer_due_date" value="<?php echo $calculated_due_date; ?>" style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
+            <span style="font-size:12px; color:#64748b; margin-top:4px; display:block; line-height: 1.4;">Calculated automatically based on approval date and tenure (<?php echo (int) $loan->tenure_days; ?> Days), but can be changed manually.</span>
+        </div>
 
-            <hr style="border:0; border-top:1px solid #e2e8f0; margin:20px 0;">
+        <hr style="border:0; border-top:1px solid #e2e8f0; margin:20px 0;">
 
-            <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
-                <div>
-                    <span style="font-size: 14px; font-weight: 600; color: #64748b;">Estimated Total Repayable</span>
-                    <div style="font-size: 24px; font-weight: 800; color: #0f766e;" id="offer_total_payable">INR <?php echo number_format((float) ($loan->total_payable ?? 0.0), 2); ?></div>
-                </div>
-                <button type="submit" class="btn-save" style="background: linear-gradient(135deg, #2563eb, #4f46e5); color: #fff; border: 0; border-radius: 12px; padding: 12px 28px; font-weight: 600; font-size: 15px; cursor: pointer; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2); transition: opacity 0.15s ease;">
-                    Update Offer Terms
-                </button>
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
+            <div>
+                <span style="font-size: 14px; font-weight: 600; color: #64748b;">Estimated Total Repayable</span>
+                <div style="font-size: 24px; font-weight: 800; color: #0f766e;" id="offer_total_payable">INR <?php echo number_format((float) ($loan->total_payable ?? 0.0), 2); ?></div>
             </div>
+            <button type="submit" class="btn-save" style="background: linear-gradient(135deg, #2563eb, #4f46e5); color: #fff; border: 0; border-radius: 12px; padding: 12px 28px; font-weight: 600; font-size: 15px; cursor: pointer; box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2); transition: opacity 0.15s ease;">
+                Update Offer Terms
+            </button>
+        </div>
         <?php echo form_close(); ?>
     </div>
 
@@ -840,9 +840,11 @@ $total_payout = $total_invested + $total_profit;
         <div class="card-head">
             <h3>Funding Investors</h3>
             <span class="muted-small">
-                <?php 
-                $selected_count = count(array_filter($investors, function($inv) { return $inv['status'] === 'selected'; }));
-                echo $selected_count; 
+                <?php
+                $selected_count = count(array_filter($investors, function ($inv) {
+                    return $inv['status'] === 'selected';
+                }));
+                echo $selected_count;
                 ?> selected
             </span>
         </div>
@@ -984,17 +986,17 @@ $total_payout = $total_invested + $total_profit;
     function toggleEmiFields() {
         var offerIsEmi = document.getElementById('offer_is_emi');
         var isEmi = offerIsEmi ? offerIsEmi.checked : false;
-        
+
         var emiFields = document.getElementById('emi_fields');
         if (emiFields) emiFields.style.display = isEmi ? 'grid' : 'none';
-        
+
         var dueDateField = document.getElementById('due_date_field');
         if (dueDateField) dueDateField.style.display = isEmi ? 'none' : 'block';
-        
+
         var emiCount = document.getElementById('offer_emi_count');
         var emiAmount = document.getElementById('offer_emi_amount');
         var dueDate = document.getElementById('offer_due_date');
-        
+
         if (isEmi) {
             if (emiCount) emiCount.required = true;
             if (emiAmount) emiAmount.required = true;
@@ -1013,10 +1015,13 @@ $total_payout = $total_invested + $total_profit;
         var platform = parseFloat(document.getElementById('offer_platform').value) || 0;
         var gst = parseFloat(document.getElementById('offer_gst').value) || 0;
         var dueCharges = parseFloat(document.getElementById('offer_due_charges').value) || 0;
-        
+
         var total = amount + (amount * interestRate / 100.0) + processing + platform + gst + dueCharges;
-        document.getElementById('offer_total_payable').textContent = 'INR ' + total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        
+        document.getElementById('offer_total_payable').textContent = 'INR ' + total.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
         // Auto-calculate EMI Amount if EMI Plan is enabled and count is greater than 0
         var offerIsEmi = document.getElementById('offer_is_emi');
         var isEmi = offerIsEmi ? offerIsEmi.checked : false;
@@ -1038,13 +1043,13 @@ $total_payout = $total_invested + $total_profit;
     document.getElementById('offer_platform').addEventListener('input', calculateTotalPayable);
     document.getElementById('offer_gst').addEventListener('input', calculateTotalPayable);
     document.getElementById('offer_due_charges').addEventListener('input', calculateTotalPayable);
-    
+
     var offerEmiCount = document.getElementById('offer_emi_count');
     if (offerEmiCount) offerEmiCount.addEventListener('input', calculateTotalPayable);
-    
+
     var offerIsEmi = document.getElementById('offer_is_emi');
     if (offerIsEmi) offerIsEmi.addEventListener('change', calculateTotalPayable);
-    
+
     // Call initial toggle and calculate
     toggleEmiFields();
     calculateTotalPayable();

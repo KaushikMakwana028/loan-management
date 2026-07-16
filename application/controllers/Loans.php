@@ -7,7 +7,7 @@ class Loans extends CI_Controller
         parent::__construct();
         $this->load->model('General_model', 'general');
         $this->load->library('form_validation');
-        
+
         if (!$this->session->userdata('user_id') || (int) $this->session->userdata('role') !== 0) {
             redirect('');
         }
@@ -21,17 +21,17 @@ class Loans extends CI_Controller
         $data['profile_details_completed'] = $this->profile_details_completed($data['user']);
         $data['profile_completed'] = $data['profile_details_completed'] && (int) $data['user']->is_active === 1;
         $data['profile_review_pending'] = $data['profile_details_completed'] && (int) $data['user']->is_active !== 1;
-        
+
         // Fetch user's loans
         $data['loans'] = $this->general->getAll('loans', ['user_id' => $user_id]);
-        
+
         $data['show_approved_alert'] = $this->should_show_approved_alert($user_id);
 
         // Check if user has active/pending loan
         $active_loan = $this->db->where('user_id', $user_id)
-                                ->where_in('status', ['pending', 'assigned', 'funded', 'approved'])
-                                ->get('loans')
-                                ->row();
+            ->where_in('status', ['pending', 'assigned', 'funded', 'approved'])
+            ->get('loans')
+            ->row();
         $data['has_active_loan'] = !empty($active_loan);
 
         $this->load->view('header', $data);
@@ -43,7 +43,7 @@ class Loans extends CI_Controller
     {
         $user_id = $this->session->userdata('user_id');
         $data['user'] = $this->general->getById('users', $user_id);
-        
+
         $profile_completed = $this->profile_completed($data['user']);
         if (!$profile_completed) {
             if ($this->profile_details_completed($data['user']) && (int) $data['user']->is_active !== 1) {
@@ -57,9 +57,9 @@ class Loans extends CI_Controller
 
         // Check if user has active/pending loan to prevent concurrent loans
         $active_loan = $this->db->where('user_id', $user_id)
-                                ->where_in('status', ['pending', 'assigned', 'funded', 'approved'])
-                                ->get('loans')
-                                ->row();
+            ->where_in('status', ['pending', 'assigned', 'funded', 'approved'])
+            ->get('loans')
+            ->row();
         if (!empty($active_loan)) {
             $this->session->set_flashdata('error', 'You already have an active or pending loan application. You must pay off your existing loan before applying.');
             redirect('loans');
@@ -141,7 +141,7 @@ class Loans extends CI_Controller
         ];
 
         foreach ($required as $field) {
-            if (!isset($user->{$field}) || trim($user->{$field}) === '') {
+            if (is_null($user->{$field}) || trim($user->{$field}) === '') {
                 return false;
             }
         }
@@ -173,7 +173,7 @@ class Loans extends CI_Controller
     {
         $user_id = $this->session->userdata('user_id');
         $data['user'] = $this->general->getById('users', $user_id);
-        
+
         // Fetch loan details and verify it belongs to user
         $data['loan'] = $this->general->getOne('loans', ['id' => $id, 'user_id' => $user_id]);
         if (!$data['loan']) {
@@ -190,7 +190,7 @@ class Loans extends CI_Controller
 
         $data['page_title'] = 'Pay Loan';
         $data['profile_completed'] = $this->profile_completed($data['user']);
-        
+
         // Fetch platform payment settings (UPI & QR)
         $data['settings'] = $this->db->get('payment_settings')->row();
 

@@ -57,14 +57,34 @@ class Profile extends CI_Controller
 
         // Fetch updated user to check completion
         $updated_user = $this->general->getById('users', $user->id);
-        
+
         $fields_to_check = [
-            'name', 'mobile', 'email', 'marriage_status', 'dob', 'education', 'employment', 'address',
-            'aadhaar_number', 'pan_number', 'account_holder_name', 'bank_name', 'account_number', 'ifsc_code',
-            'account_type', 'branch_name', 'reference_name_1', 'reference_mobile_1', 'reference_name_2', 'reference_mobile_2',
-            'profile_image', 'aadhaar_photo', 'pan_photo', 'contacts_file'
+            'name',
+            'mobile',
+            'email',
+            'marriage_status',
+            'dob',
+            'education',
+            'employment',
+            'address',
+            'aadhaar_number',
+            'pan_number',
+            'account_holder_name',
+            'bank_name',
+            'account_number',
+            'ifsc_code',
+            'account_type',
+            'branch_name',
+            'reference_name_1',
+            'reference_mobile_1',
+            'reference_name_2',
+            'reference_mobile_2',
+            'profile_image',
+            'aadhaar_photo',
+            'pan_photo',
+            'contacts_file'
         ];
-        
+
         $is_complete = true;
         foreach ($fields_to_check as $field) {
             if (is_null($updated_user->$field) || trim($updated_user->$field) === '') {

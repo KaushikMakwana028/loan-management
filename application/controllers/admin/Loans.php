@@ -207,8 +207,8 @@ class Loans extends CI_Controller
 
         // 4. Update non-selected interested/invited investors to declined
         $this->db->where('loan_id', $id)
-                 ->where_not_in('investor_id', $investor_ids)
-                 ->update('loan_investors', ['status' => 'declined']);
+            ->where_not_in('investor_id', $investor_ids)
+            ->update('loan_investors', ['status' => 'declined']);
 
         // 5. Update loan status
         $approved_at = date('Y-m-d H:i:s');
@@ -393,7 +393,7 @@ class Loans extends CI_Controller
             }
 
             $referrer_id = $referral->referrer_id;
-            
+
             // Get or create referrer wallet
             $wallet = $this->general->getOne('wallets', ['investor_id' => $referrer_id]);
             if (!$wallet) {
@@ -406,7 +406,7 @@ class Loans extends CI_Controller
             }
 
             $new_balance = $wallet->balance + $reward_amount;
-            
+
             // Update wallet balance
             $this->general->update('wallets', ['id' => $wallet->id], [
                 'balance' => $new_balance,
@@ -507,7 +507,7 @@ class Loans extends CI_Controller
             }
 
             $referrer_id = $referral->referrer_id;
-            
+
             // Get or create referrer wallet
             $wallet = $this->general->getOne('wallets', ['investor_id' => $referrer_id]);
             if (!$wallet) {
@@ -520,7 +520,7 @@ class Loans extends CI_Controller
             }
 
             $new_balance = $wallet->balance + $reward_amount;
-            
+
             // Update wallet balance
             $this->general->update('wallets', ['id' => $wallet->id], [
                 'balance' => $new_balance,
@@ -581,7 +581,7 @@ class Loans extends CI_Controller
         $this->form_validation->set_rules('platform_charge', 'Platform Charge', 'required|numeric|greater_than_equal_to[0]');
         $this->form_validation->set_rules('gst_amount', 'GST Amount', 'required|numeric|greater_than_equal_to[0]');
         $this->form_validation->set_rules('due_charges', 'Due Charges', 'required|numeric|greater_than_equal_to[0]');
-        
+
         $is_emi = (int) $this->input->post('is_emi');
         if ($is_emi === 1) {
             $this->form_validation->set_rules('emi_count', 'EMI Count', 'required|integer|greater_than[0]');
@@ -600,12 +600,12 @@ class Loans extends CI_Controller
         $platform_charge = (float) $this->input->post('platform_charge');
         $gst_amount = (float) $this->input->post('gst_amount');
         $due_charges = (float) $this->input->post('due_charges');
-        
+
         $total_payable = $amount + ($amount * $interest_rate / 100.0) + $processing_fee + $platform_charge + $gst_amount + $due_charges;
 
         $emi_count = $is_emi ? (int) $this->input->post('emi_count') : NULL;
         $emi_amount = $is_emi ? (float) $this->input->post('emi_amount') : NULL;
-        
+
         $due_date = NULL;
         if (!$is_emi) {
             $due_date = $this->input->post('due_date');
@@ -636,8 +636,8 @@ class Loans extends CI_Controller
         // Update any existing investor invitation notifications for this loan to reflect the new terms
         $new_notif_message = 'You are invited to invest in Loan #' . $id . ' of INR ' . number_format($amount, 2) . ' at ' . $interest_rate . '% interest.';
         $this->db->where('loan_id', $id)
-                 ->where('title', 'New Investment Opportunity')
-                 ->update('notifications', ['message' => $new_notif_message]);
+            ->where('title', 'New Investment Opportunity')
+            ->update('notifications', ['message' => $new_notif_message]);
 
         // 2. Insert into loan_offer_history
         $this->general->insert('loan_offer_history', [
