@@ -141,7 +141,7 @@
 
         <div class="form-group">
             <label>Tenure</label>
-            <div class="radio-grid">
+            <div class="radio-grid" style="grid-template-columns: 1fr 1fr;">
                 <label class="radio-card <?php echo (set_value('tenure_days') === '15') ? 'active' : ''; ?>">
                     <input type="radio" name="tenure_days" id="tenure_15" value="15" <?php echo (set_value('tenure_days') === '15') ? 'checked' : ''; ?> required>
                     15 Days
@@ -150,21 +150,8 @@
                     <input type="radio" name="tenure_days" id="tenure_30" value="30" <?php echo (set_value('tenure_days', '30') === '30') ? 'checked' : ''; ?> required>
                     30 Days
                 </label>
-                <label class="radio-card <?php echo (set_value('tenure_days') === '45') ? 'active' : ''; ?>">
-                    <input type="radio" name="tenure_days" id="tenure_45" value="45" <?php echo (set_value('tenure_days') === '45') ? 'checked' : ''; ?> required>
-                    45 Days
-                </label>
-                <label class="radio-card <?php echo (!empty(set_value('tenure_days')) && !in_array(set_value('tenure_days'), ['15', '30', '45'])) ? 'active' : ''; ?>" id="custom-tenure-card">
-                    <input type="radio" name="tenure_days" id="tenure_custom" value="<?php echo (!in_array(set_value('tenure_days'), ['', '15', '30', '45'])) ? set_value('tenure_days') : ''; ?>" <?php echo (!in_array(set_value('tenure_days'), ['', '15', '30', '45'])) ? 'checked' : ''; ?> required>
-                    Custom
-                </label>
             </div>
             <?php echo form_error('tenure_days', '<div style="color: #b91c1c; font-size: 12px; margin-top: 4px;">', '</div>'); ?>
-        </div>
-
-        <div class="form-group" id="custom-days-group" style="display: <?php echo (!empty(set_value('tenure_days')) && !in_array(set_value('tenure_days'), ['15', '30', '45'])) ? 'block' : 'none'; ?>; margin-top: 15px;">
-            <label for="custom_tenure_input">Custom Tenure (Days)</label>
-            <input type="number" id="custom_tenure_input" placeholder="Enter custom days (e.g. 60)" min="1" step="1" value="<?php echo (!in_array(set_value('tenure_days'), ['', '15', '30', '45'])) ? set_value('tenure_days') : ''; ?>">
         </div>
 
         <div class="form-group">
@@ -203,38 +190,122 @@
             <input type="text" id="other_purpose" placeholder="Please specify your loan purpose" value="<?php echo ($is_other) ? html_escape($current_purpose) : ''; ?>" oninput="updateHiddenPurpose();">
         </div>
 
-        <button type="submit" class="btn">Submit Application</button>
+        <!-- Calculation Summary Breakdown -->
+        <div id="calc-summary" style="display: none; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px; margin-bottom: 20px;">
+            <h4 style="margin: 0 0 12px; font-size: 14px; font-weight: 700; color: #172033; text-transform: uppercase; letter-spacing: 0.5px;">Repayment Summary</h4>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13.5px; color:#65758b;">
+                <span>Principal Amount:</span>
+                <span style="font-weight:600; color:#172033;" id="calc-principal">INR 0.00</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13.5px; color:#65758b;">
+                <span>Interest Rate:</span>
+                <span style="font-weight:600; color:#172033;" id="calc-interest-rate">0%</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13.5px; color:#65758b;">
+                <span>Interest Amount:</span>
+                <span style="font-weight:600; color:#059669;" id="calc-interest-amount">+ INR 0.00</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13.5px; color:#65758b;">
+                <span>Processing Fee:</span>
+                <span style="font-weight:600; color:#172033;" id="calc-processing-fee">+ INR 0.00</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13.5px; color:#65758b;">
+                <span>Platform Charges:</span>
+                <span style="font-weight:600; color:#172033;" id="calc-platform-charge">+ INR 0.00</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13.5px; color:#65758b;">
+                <span>GST Amount:</span>
+                <span style="font-weight:600; color:#172033;" id="calc-gst">+ INR 0.00</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13.5px; color:#65758b;">
+                <span>Due Charges (if delayed):</span>
+                <span style="font-weight:600; color:#e11d48;" id="calc-due-charges">INR 0.00</span>
+            </div>
+            <div style="border-top:1px dashed #cbd5e1; margin-top:12px; padding-top:12px; display:flex; justify-content:space-between; font-size:15px; color:#172033; font-weight:700;">
+                <span>Total Amount Payable:</span>
+                <span style="color:#063d32;" id="calc-total-payable">INR 0.00</span>
+            </div>
+        </div>
+
+        <div id="calc-warning" style="display: none; background: #fff5f5; border: 1px solid #fecdd3; border-radius: 14px; padding: 14px; margin-bottom: 20px; color: #be123c; font-size: 13.5px; font-weight: 500; text-align: center;">
+            <!-- Overlap / range warning message -->
+        </div>
+
+        <button type="submit" class="btn" id="submitBtn">Submit Application</button>
     <?php echo form_close(); ?>
 </div>
 
 <script>
+    function performCalculation() {
+        const amount = parseFloat(document.getElementById('amount').value);
+        const tenureRadio = document.querySelector('input[name="tenure_days"]:checked');
+        const submitBtn = document.getElementById('submitBtn');
+        const summaryCard = document.getElementById('calc-summary');
+        const warningCard = document.getElementById('calc-warning');
+
+        if (isNaN(amount) || amount <= 0 || !tenureRadio) {
+            summaryCard.style.display = 'none';
+            warningCard.style.display = 'none';
+            return;
+        }
+
+        const tenure = parseInt(tenureRadio.value);
+
+        fetch('<?php echo base_url("loans/calculate"); ?>', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ amount: amount, tenure_days: tenure })
+        })
+        .then(res => res.json())
+        .then(res => {
+            if (res.status) {
+                const data = res.data;
+                document.getElementById('calc-principal').innerText = 'INR ' + parseFloat(data.amount).toLocaleString('en-IN', {minimumFractionDigits: 2});
+                document.getElementById('calc-interest-rate').innerText = parseFloat(data.interest_rate) + '%';
+                document.getElementById('calc-interest-amount').innerText = '+ INR ' + parseFloat(data.interest_amount).toLocaleString('en-IN', {minimumFractionDigits: 2});
+                document.getElementById('calc-processing-fee').innerText = '+ INR ' + parseFloat(data.processing_fee).toLocaleString('en-IN', {minimumFractionDigits: 2});
+                document.getElementById('calc-platform-charge').innerText = '+ INR ' + parseFloat(data.platform_charge).toLocaleString('en-IN', {minimumFractionDigits: 2});
+                document.getElementById('calc-gst').innerText = '+ INR ' + parseFloat(data.gst_amount).toLocaleString('en-IN', {minimumFractionDigits: 2});
+                document.getElementById('calc-due-charges').innerText = 'INR ' + parseFloat(data.due_charges).toLocaleString('en-IN', {minimumFractionDigits: 2});
+                document.getElementById('calc-total-payable').innerText = 'INR ' + parseFloat(data.total_payable).toLocaleString('en-IN', {minimumFractionDigits: 2});
+
+                summaryCard.style.display = 'block';
+                warningCard.style.display = 'none';
+                submitBtn.removeAttribute('disabled');
+                submitBtn.style.opacity = '1';
+                submitBtn.style.cursor = 'pointer';
+            } else {
+                summaryCard.style.display = 'none';
+                warningCard.innerText = res.message || 'No matching loan scheme found for this amount and tenure. Please try another range.';
+                warningCard.style.display = 'block';
+                submitBtn.setAttribute('disabled', 'disabled');
+                submitBtn.style.opacity = '0.5';
+                submitBtn.style.cursor = 'not-allowed';
+            }
+        })
+        .catch(err => {
+            console.error('Calculation error:', err);
+        });
+    }
+
+    document.getElementById('amount').addEventListener('input', performCalculation);
+    document.querySelectorAll('input[name="tenure_days"]').forEach(radio => {
+        radio.addEventListener('change', performCalculation);
+    });
+
     document.querySelectorAll('.radio-card').forEach(card => {
         card.addEventListener('click', function() {
             document.querySelectorAll('.radio-card').forEach(c => c.classList.remove('active'));
             this.classList.add('active');
             
-            const customGroup = document.getElementById('custom-days-group');
-            const customInput = document.getElementById('custom_tenure_input');
-            const customRadio = document.getElementById('tenure_custom');
             const clickedRadio = this.querySelector('input[type="radio"]');
-            
-            if (this.id === 'custom-tenure-card') {
-                customGroup.style.display = 'block';
-                customInput.setAttribute('required', 'required');
-                customRadio.checked = true;
-                customRadio.value = customInput.value;
-            } else {
-                customGroup.style.display = 'none';
-                customInput.removeAttribute('required');
-                if (clickedRadio) {
-                    clickedRadio.checked = true;
-                }
+            if (clickedRadio) {
+                clickedRadio.checked = true;
+                performCalculation();
             }
         });
-    });
-
-    document.getElementById('custom_tenure_input').addEventListener('input', function() {
-        document.getElementById('tenure_custom').value = this.value;
     });
 
     function togglePurposeOther() {
@@ -267,13 +338,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         togglePurposeOther();
         updateHiddenPurpose();
-        
-        const customCard = document.getElementById('custom-tenure-card');
-        const customInput = document.getElementById('custom_tenure_input');
-        if (customCard && customCard.classList.contains('active')) {
-            customInput.setAttribute('required', 'required');
-            document.getElementById('tenure_custom').value = customInput.value;
-        }
+        performCalculation();
     });
 </script>
 

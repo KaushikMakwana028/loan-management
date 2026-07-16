@@ -814,8 +814,7 @@ $ring_offset = round($ring_circ * (1 - ($completion / 100)), 2);
                 </div>
                 <div class="pf-field">
                     <label for="pf_mobile">Mobile Number</label>
-                    <input type="text" id="pf_mobile" name="mobile" class="pf-req pf-req-personal" value="<?php echo html_escape($profile->mobile ?? ''); ?>" required readonly>
-                    <span class="pf-hint">Registered mobile number can't be changed</span>
+                    <input type="text" id="pf_mobile" name="mobile" class="pf-req pf-req-personal" value="<?php echo html_escape($profile->mobile ?? ''); ?>" required>
                 </div>
                 <div class="pf-field">
                     <label for="pf_email">Email Address</label>

@@ -221,18 +221,41 @@ class Users extends CI_Controller
             return;
         }
 
+        $db_debug = $this->db->db_debug;
+        $this->db->db_debug = FALSE;
+
         $this->db->trans_start();
-        $this->db->delete('wallet_transactions', ['investor_id' => $id]);
-        $this->db->delete('wallets', ['investor_id' => $id]);
-        $this->db->delete('deposit_requests', ['investor_id' => $id]);
-        $this->db->delete('withdrawal_requests', ['investor_id' => $id]);
-        $this->db->delete('notifications', ['user_id' => $id]);
-        $this->db->delete('loans', ['user_id' => $id]);
-        $this->db->delete('users', ['id' => $id]);
+
+        $error_message = '';
+
+        $queries = [
+            ["DELETE FROM referrals WHERE referrer_id = ? OR referred_user_id = ?", [$id, $id]],
+            ["DELETE FROM referral_withdrawals WHERE user_id = ?", [$id]],
+            ["DELETE FROM wallet_transactions WHERE investor_id = ? OR loan_id IN (SELECT id FROM loans WHERE user_id = ?)", [$id, $id]],
+            ["DELETE FROM wallets WHERE investor_id = ?", [$id]],
+            ["DELETE FROM deposit_requests WHERE investor_id = ?", [$id]],
+            ["DELETE FROM withdrawal_requests WHERE investor_id = ?", [$id]],
+            ["DELETE FROM notifications WHERE user_id = ? OR loan_id IN (SELECT id FROM loans WHERE user_id = ?)", [$id, $id]],
+            ["DELETE FROM loan_offer_history WHERE loan_id IN (SELECT id FROM loans WHERE user_id = ?)", [$id]],
+            ["DELETE FROM loan_investors WHERE investor_id = ? OR loan_id IN (SELECT id FROM loans WHERE user_id = ?)", [$id, $id]],
+            ["DELETE FROM loans WHERE user_id = ?", [$id]],
+            ["DELETE FROM users WHERE id = ?", [$id]]
+        ];
+
+        foreach ($queries as $q) {
+            $this->db->query($q[0], $q[1]);
+            $db_error = $this->db->error();
+            if ($db_error && $db_error['code'] !== 0 && empty($error_message)) {
+                $error_message = $db_error['message'];
+            }
+        }
+
         $this->db->trans_complete();
+        $this->db->db_debug = $db_debug;
 
         if ($this->db->trans_status() === FALSE) {
-            $this->session->set_flashdata('error', 'Failed to delete user.');
+            $err_msg = !empty($error_message) ? $error_message : 'Failed to delete user.';
+            $this->session->set_flashdata('error', $err_msg);
         } else {
             $this->session->set_flashdata('success', 'User deleted successfully.');
         }

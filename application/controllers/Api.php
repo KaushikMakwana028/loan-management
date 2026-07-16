@@ -3,13 +3,25 @@
 class Api extends CI_Controller
 {
     private $role = 0; // 0 = User
-    private $otp = '000000';
+    // private $otp = '000000';
     private $jwt_secret = 'KreditmitraaKey2026!@#$';
     private $current_token = null;
     private $current_token_payload = null;
 
     public function __construct()
     {
+        // Decode JSON input first so it is available in $_POST before CodeIgniter library instantiation
+        $json_input = json_decode(file_get_contents('php://input'), true);
+        if (is_array($json_input)) {
+            // Convert scalar values to strings to prevent CodeIgniter 3 in_list strict type mismatch
+            foreach ($json_input as $key => $val) {
+                if (is_scalar($val)) {
+                    $json_input[$key] = (string)$val;
+                }
+            }
+            $_POST = array_merge($_POST, $json_input);
+        }
+
         parent::__construct();
 
         // Suppress PHP 8.1+ deprecation notices from leaking into API responses
@@ -18,9 +30,9 @@ class Api extends CI_Controller
         $this->load->model('General_model', 'general');
         $this->load->library(['upload', 'form_validation', 'session']);
 
-        $json_input = json_decode(file_get_contents('php://input'), true);
-        if (is_array($json_input)) {
-            $_POST = array_merge($_POST, $json_input);
+        // Explicitly bind $_POST to Form Validation to ensure it validates merged JSON inputs
+        if (!empty($_POST)) {
+            $this->form_validation->set_data($_POST);
         }
     }
     /* =========================================================================
@@ -102,6 +114,23 @@ class Api extends CI_Controller
     private function authenticate()
     {
         $headers = $this->input->get_request_header('Authorization', TRUE);
+        
+        // Fallback for Apache/FPM which sometimes strip the Authorization header
+        if (!$headers) {
+            if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
+                $headers = $_SERVER['HTTP_AUTHORIZATION'];
+            } elseif (isset($_SERVER['REDIRECT_HTTP_AUTHORIZATION'])) {
+                $headers = $_SERVER['REDIRECT_HTTP_AUTHORIZATION'];
+            } else {
+                $all_headers = function_exists('apache_request_headers') ? apache_request_headers() : [];
+                if (isset($all_headers['Authorization'])) {
+                    $headers = $all_headers['Authorization'];
+                } elseif (isset($all_headers['authorization'])) {
+                    $headers = $all_headers['authorization'];
+                }
+            }
+        }
+
         if (!$headers) {
             $this->response(null, 'Authorization header missing', 401);
         }
@@ -160,12 +189,22 @@ class Api extends CI_Controller
             $this->response(null, 'User not found. Please register.', 404);
         }
 
-        // Trigger SMS OTP
-        $this->send_otp_via_sms($mobile, $this->otp);
+        // Generate real random 6 digit OTP
+        $otp = (string) rand(100000, 999999);
+
+        // Trigger SMS OTP via SMS Gateway
+        $this->send_otp_via_sms($mobile, $otp);
+
+        // Store OTP in session
+        $login_otps = $this->session->userdata('login_otps') ?? [];
+        $login_otps[$mobile] = [
+            'otp' => $otp,
+            'expires_at' => time() + 600 // 10 minutes
+        ];
+        $this->session->set_userdata('login_otps', $login_otps);
 
         $this->response([
-            'mobile' => $mobile,
-            'otp_hint' => 'For testing, you can use ' . $this->otp
+            'mobile' => $mobile
         ], 'OTP sent successfully.', 200);
     }
 
@@ -181,9 +220,25 @@ class Api extends CI_Controller
         $mobile = $this->input->post('mobile');
         $otp = $this->input->post('otp');
 
-        if ($otp != $this->otp) {
+        $login_otps = $this->session->userdata('login_otps') ?: [];
+        if (!isset($login_otps[$mobile])) {
+            $this->response(null, 'No active OTP request found for this mobile number. Please request a new OTP.', 400);
+        }
+
+        $record = $login_otps[$mobile];
+        if ($record['expires_at'] < time()) {
+            unset($login_otps[$mobile]);
+            $this->session->set_userdata('login_otps', $login_otps);
+            $this->response(null, 'OTP has expired. Please request a new OTP.', 400);
+        }
+
+        if ($otp != $record['otp']) {
             $this->response(null, 'Invalid OTP', 401);
         }
+
+        // Clean up OTP session data
+        unset($login_otps[$mobile]);
+        $this->session->set_userdata('login_otps', $login_otps);
 
         $user = $this->general->getRowArray('users', [
             'mobile' => $mobile,
@@ -261,15 +316,18 @@ class Api extends CI_Controller
             'referred_by_code' => $manual_ref !== '' ? $manual_ref : NULL
         ];
 
+        // Generate real random 6 digit OTP
+        $otp = (string) rand(100000, 999999);
+
         // Send OTP
-        $this->send_otp_via_sms($mobile, $this->otp);
+        $this->send_otp_via_sms($mobile, $otp);
 
         // Store pending registration in session
         $pending = $this->session->userdata('pending_registrations') ?? [];
 
         $pending[$mobile] = [
             'form_data'  => $form_data,
-            'otp'        => $this->otp,
+            'otp'        => $otp,
             'expires_at' => time() + 600 // 10 minutes
         ];
 
@@ -277,8 +335,7 @@ class Api extends CI_Controller
 
         // Response
         $this->response([
-            'mobile'   => $mobile,
-            'otp_hint' => 'For testing, you can use ' . $this->otp
+            'mobile'   => $mobile
         ], 'Registration OTP sent successfully.', 200);
     }
 
@@ -407,19 +464,20 @@ class Api extends CI_Controller
 
         $url = 'http://mobicomm.dove-sms.com/submitsms.jsp?' . http_build_query($params);
 
-        // ⚠️ SMS SENDING DISABLED FOR LOCAL/TESTING - uncomment the block below to enable real SMS delivery
-        /*
-    $ch = curl_init();
-    curl_setopt($ch, CURLOPT_URL, $url);
-    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-    $response = curl_exec($ch);
-    curl_close($ch);
-    return $response;
-    */
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        $response = curl_exec($ch);
 
-        // Testing mode: log instead of sending
-        log_message('info', "OTP SMS (not sent) to $mobileNo: $otp");
-        return true;
+        if (curl_errno($ch)) {
+            log_message('error', 'OTP SMS cURL Error: ' . curl_error($ch));
+            curl_close($ch);
+            return false;
+        }
+
+        curl_close($ch);
+        log_message('info', "OTP sent to $mobileNo. Response: $response");
+        return $response;
     }
     /* =========================================================================
        Dashboard Data (Authenticated)
@@ -1014,6 +1072,47 @@ class Api extends CI_Controller
         ], 'Loan details fetched successfully.', 200);
     }
 
+    public function loans_calculate()
+    {
+        $user = $this->authenticate();
+
+        $this->form_validation->set_rules('amount', 'Loan Amount', 'required|numeric|greater_than[0]');
+        $this->form_validation->set_rules('tenure_days', 'Tenure', 'required|in_list[15,30]');
+
+        if ($this->form_validation->run() === FALSE) {
+            $this->response(null, strip_tags(validation_errors()), 400);
+        }
+
+        $amount = (float) $this->input->post('amount');
+        $tenure_days = (int) $this->input->post('tenure_days');
+
+        $scheme = $this->db->where('from_amount <=', $amount)
+                           ->where('to_amount >=', $amount)
+                           ->where('tenure_days', $tenure_days)
+                           ->get('loan_schemes')
+                           ->row();
+
+        if (!$scheme) {
+            $this->response(null, 'No matching loan scheme found for this amount and tenure. Please try another range.', 404);
+        }
+
+        $interest_rate = (float)$scheme->admin_interest_rate + (float)$scheme->investor_interest_rate;
+        $interest_amount = ($amount * $interest_rate) / 100.0;
+        $total_payable = $amount + $interest_amount + (float)$scheme->processing_fee + (float)$scheme->platform_charge + (float)$scheme->gst_amount + (float)$scheme->due_charges;
+
+        $this->response([
+            'amount' => $amount,
+            'tenure_days' => $tenure_days,
+            'interest_rate' => $interest_rate,
+            'interest_amount' => $interest_amount,
+            'processing_fee' => (float)$scheme->processing_fee,
+            'platform_charge' => (float)$scheme->platform_charge,
+            'gst_amount' => (float)$scheme->gst_amount,
+            'due_charges' => (float)$scheme->due_charges,
+            'total_payable' => $total_payable
+        ], 'Calculation details fetched successfully.', 200);
+    }
+
     public function loans_apply()
     {
         $user = $this->authenticate();
@@ -1032,17 +1131,42 @@ class Api extends CI_Controller
         }
 
         $this->form_validation->set_rules('amount', 'Loan Amount', 'required|numeric|greater_than[0]');
-        $this->form_validation->set_rules('tenure_days', 'Tenure', 'required|integer|greater_than[0]');
+        $this->form_validation->set_rules('tenure_days', 'Tenure', 'required|in_list[15,30]');
         $this->form_validation->set_rules('purpose', 'Purpose of Loan', 'required|trim|max_length[255]');
 
         if ($this->form_validation->run() === FALSE) {
             $this->response(null, strip_tags(validation_errors()), 400);
         }
 
+        $amount = (float) $this->input->post('amount');
+        $tenure_days = (int) $this->input->post('tenure_days');
+
+        $scheme = $this->db->where('from_amount <=', $amount)
+                           ->where('to_amount >=', $amount)
+                           ->where('tenure_days', $tenure_days)
+                           ->get('loan_schemes')
+                           ->row();
+
+        if (!$scheme) {
+            $this->response(null, 'No matching loan scheme found for this amount and tenure.', 400);
+        }
+
+        $interest_rate = (float)$scheme->admin_interest_rate + (float)$scheme->investor_interest_rate;
+        $interest_amount = ($amount * $interest_rate) / 100.0;
+        $total_payable = $amount + $interest_amount + (float)$scheme->processing_fee + (float)$scheme->platform_charge + (float)$scheme->gst_amount + (float)$scheme->due_charges;
+
         $loan_data = [
             'user_id' => $user->id,
-            'amount' => $this->input->post('amount'),
-            'tenure_days' => $this->input->post('tenure_days'),
+            'amount' => $amount,
+            'tenure_days' => $tenure_days,
+            'interest_rate' => $interest_rate,
+            'admin_interest_rate' => $scheme->admin_interest_rate,
+            'investor_interest_rate' => $scheme->investor_interest_rate,
+            'processing_fee' => $scheme->processing_fee,
+            'platform_charge' => $scheme->platform_charge,
+            'gst_amount' => $scheme->gst_amount,
+            'due_charges' => $scheme->due_charges,
+            'total_payable' => $total_payable,
             'purpose' => $this->input->post('purpose') ?: NULL,
             'status' => 'pending',
             'created_at' => date('Y-m-d H:i:s'),
@@ -1061,6 +1185,29 @@ class Api extends CI_Controller
         }
 
         $this->response(['loan_id' => $loan_id], 'Your loan application has been submitted successfully.', 200);
+    }
+
+    public function admin_payment_detail()
+    {
+        $user = $this->authenticate();
+
+        $settings = $this->db->get('payment_settings')->row();
+        $admin = $this->db->where('role', 1)->limit(1)->get('users')->row();
+
+        $this->response([
+            'payment_settings' => $settings ? [
+                'upi_id' => $settings->upi_id,
+                'qr_image' => $settings->qr_image ? base_url($settings->qr_image) : NULL
+            ] : NULL,
+            'admin_bank' => $admin ? [
+                'account_holder_name' => $admin->account_holder_name,
+                'bank_name' => $admin->bank_name,
+                'account_number' => $admin->account_number,
+                'ifsc_code' => $admin->ifsc_code,
+                'account_type' => $admin->account_type,
+                'branch_name' => $admin->branch_name
+            ] : NULL
+        ], 'Admin payment details fetched successfully.', 200);
     }
 
     public function loans_pay($id)
@@ -1084,7 +1231,7 @@ class Api extends CI_Controller
             'loan' => $loan,
             'payment_settings' => [
                 'upi_id' => $settings ? $settings->upi_id : NULL,
-                'qr_image' => $settings && $settings->qr_image ? base_url('uploads/payments/' . $settings->qr_image) : NULL
+                'qr_image' => $settings && $settings->qr_image ? base_url($settings->qr_image) : NULL
             ],
             'admin_bank' => $admin_bank ? [
                 'account_holder_name' => $admin_bank->account_holder_name,
@@ -1095,7 +1242,6 @@ class Api extends CI_Controller
             ] : NULL
         ], 'Payment details fetched successfully.', 200);
     }
-
     public function loans_submit_pay($id)
     {
         $user = $this->authenticate();
@@ -1105,19 +1251,11 @@ class Api extends CI_Controller
             $this->response(null, 'Invalid loan or loan status.', 400);
         }
 
-        $this->form_validation->set_rules('payment_method', 'Payment Method', 'required|in_list[online]');
-
-        if ($this->form_validation->run() === FALSE) {
-            $this->response(null, strip_tags(validation_errors()), 400);
-        }
-
-        $payment_method = $this->input->post('payment_method');
+        $payment_method = 'online';
         $receipt_file = NULL;
 
-        if ($payment_method === 'online') {
-            if (empty($_FILES['receipt_image']['name'])) {
-                $this->response(null, 'Payment receipt image/PDF is required for online payments.', 400);
-            }
+        if (empty($_FILES['receipt_image']['name'])) {
+            $this->response(null, 'Payment receipt image/PDF is required.', 400);
         }
 
         if (!empty($_FILES['receipt_image']['name'])) {

@@ -1036,7 +1036,7 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
                     if ($investor_id) {
                         $unread_count = $CI->gen->getCount('notifications', ['user_id' => $investor_id, 'is_read' => 0]);
 
-                        $sql = "SELECT n.*, l.amount as loan_amount, l.tenure_days, l.interest_rate, u.name as borrower_name 
+                        $sql = "SELECT n.*, l.amount as loan_amount, l.tenure_days, IF(l.investor_interest_rate > 0, l.investor_interest_rate, l.interest_rate) as interest_rate, u.name as borrower_name 
                             FROM notifications n 
                             LEFT JOIN loans l ON n.loan_id = l.id 
                             LEFT JOIN users u ON l.user_id = u.id 

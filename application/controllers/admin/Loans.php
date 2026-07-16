@@ -252,6 +252,171 @@ class Loans extends CI_Controller
         }
     }
 
+    public function direct_approve($id)
+    {
+        $loan = $this->general->getById('loans', $id);
+        if (!$loan) {
+            $this->session->set_flashdata('error', 'Loan record not found.');
+            redirect('admin/loans');
+        }
+
+        if ($loan->status !== 'pending' && $loan->status !== 'assigned') {
+            $this->session->set_flashdata('error', 'Only pending or assigned loans can be directly approved.');
+            redirect('admin/loans');
+        }
+
+        $this->form_validation->set_rules('interest_rate', 'Interest Rate', 'required|numeric|greater_than_equal_to[0]');
+        $this->form_validation->set_rules('investor_interest_rate', 'Investor Interest Rate', 'required|numeric|greater_than_equal_to[0]');
+        $this->form_validation->set_rules('investor_id', 'Investor', 'required|integer');
+
+        if ($this->form_validation->run() === FALSE) {
+            $this->session->set_flashdata('error', validation_errors());
+            redirect('admin/loans');
+        } else {
+            $interest_rate = (float) $this->input->post('interest_rate');
+            $investor_interest_rate = (float) $this->input->post('investor_interest_rate');
+            $admin_interest_rate = $interest_rate - $investor_interest_rate;
+            if ($admin_interest_rate < 0) {
+                $admin_interest_rate = 0.00;
+            }
+            $investor_id = $this->input->post('investor_id');
+
+            // Fetch investor details
+            $investor = $this->general->getById('users', $investor_id);
+            if (!$investor || (int)$investor->role !== 2 || (int)$investor->is_active !== 1) {
+                $this->session->set_flashdata('error', 'Selected investor is invalid or inactive.');
+                redirect('admin/loans');
+            }
+
+            // Fetch investor wallet
+            $wallet = $this->general->getOne('wallets', ['investor_id' => $investor_id]);
+            if (!$wallet || $wallet->balance < $loan->amount) {
+                $this->session->set_flashdata('error', 'Investor ' . ($investor->name ?? '') . ' has insufficient wallet balance.');
+                redirect('admin/loans');
+            }
+
+            $this->db->trans_start();
+
+            // 1. Calculate totals and profit
+            $invested_amount = $loan->amount;
+            $profit_amount = $invested_amount * $investor_interest_rate / 100;
+            $total_payable = $loan->amount + ($loan->amount * $interest_rate / 100.0) + (float)$loan->processing_fee + (float)$loan->platform_charge + (float)$loan->gst_amount + (float)$loan->due_charges;
+
+            // 2. Update loan record
+            $approved_at = date('Y-m-d H:i:s');
+            $update_data = [
+                'interest_rate' => $interest_rate,
+                'admin_interest_rate' => $admin_interest_rate,
+                'investor_interest_rate' => $investor_interest_rate,
+                'status' => 'approved',
+                'approved_at' => $approved_at,
+                'total_payable' => $total_payable,
+                'updated_at' => date('Y-m-d H:i:s')
+            ];
+            if (!(int)$loan->is_emi) {
+                $update_data['due_date'] = date('Y-m-d', strtotime($approved_at . ' + ' . (int)$loan->tenure_days . ' days'));
+            }
+            $this->general->update('loans', ['id' => $id], $update_data);
+
+            // 3. Update non-selected interested/invited investors to declined
+            $this->db->where('loan_id', $id)
+                ->where('investor_id !=', $investor_id)
+                ->update('loan_investors', ['status' => 'declined']);
+
+            // 4. Update or Insert selected investor record
+            $exists = $this->general->getOne('loan_investors', [
+                'loan_id' => $id,
+                'investor_id' => $investor_id
+            ]);
+
+            if ($exists) {
+                $this->general->update('loan_investors', ['id' => $exists->id], [
+                    'status' => 'selected',
+                    'invested_amount' => $invested_amount,
+                    'profit_amount' => $profit_amount,
+                    'responded_at' => date('Y-m-d H:i:s')
+                ]);
+            } else {
+                $this->general->insert('loan_investors', [
+                    'loan_id' => $id,
+                    'investor_id' => $investor_id,
+                    'invited_amount' => $loan->amount,
+                    'invested_amount' => $invested_amount,
+                    'profit_amount' => $profit_amount,
+                    'status' => 'selected',
+                    'invited_at' => date('Y-m-d H:i:s'),
+                    'responded_at' => date('Y-m-d H:i:s')
+                ]);
+            }
+
+            // 5. Deduct wallet balance
+            $new_balance = $wallet->balance - $invested_amount;
+            $this->general->update('wallets', ['id' => $wallet->id], [
+                'balance' => $new_balance,
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+
+            // 6. Insert wallet transaction
+            $this->general->insert('wallet_transactions', [
+                'investor_id' => $investor_id,
+                'type' => 'loan_invest',
+                'amount' => $invested_amount,
+                'loan_id' => $id,
+                'balance_after' => $new_balance,
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+
+            // 7. Update referral status to approved
+            $referral = $this->general->getOne('referrals', ['referred_user_id' => $loan->user_id, 'status' => 'applied']);
+            if ($referral) {
+                $this->general->update('referrals', ['id' => $referral->id], [
+                    'status' => 'approved',
+                    'updated_at' => date('Y-m-d H:i:s')
+                ]);
+            }
+
+            // 8. Insert notification for borrower
+            $this->general->insert('notifications', [
+                'user_id' => $loan->user_id,
+                'loan_id' => $id,
+                'title' => 'Loan Approved',
+                'message' => 'Your loan has been approved.',
+                'is_read' => 0,
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+
+            // 9. Insert detailed notification for investor
+            $borrower = $this->general->getById('users', $loan->user_id);
+            $borrower_name = $borrower ? $borrower->name : 'Borrower';
+            $tenure_text = (int)$loan->is_emi === 1 ? $loan->emi_count . ' Months' : $loan->tenure_days . ' Days';
+            $investor_message = 'Your investment in Loan #' . $id . ' has been approved and funded. ' . 
+                               'Amount: INR ' . number_format($loan->amount, 2) . ', ' . 
+                               'Interest Rate: ' . $investor_interest_rate . '%, ' . 
+                               'Expected Profit: INR ' . number_format($profit_amount, 2) . ', ' . 
+                               'Tenure: ' . $tenure_text . ', ' . 
+                               'Borrower: ' . $borrower_name . '. ' . 
+                               'The amount has been deducted from your wallet.';
+            
+            $this->general->insert('notifications', [
+                'user_id' => $investor_id,
+                'loan_id' => $id,
+                'title' => 'Investment Approved & Funded',
+                'message' => $investor_message,
+                'is_read' => 0,
+                'created_at' => date('Y-m-d H:i:s')
+            ]);
+
+            $this->db->trans_complete();
+
+            if ($this->db->trans_status() === FALSE) {
+                $this->session->set_flashdata('error', 'Direct approval transaction failed. Please try again.');
+            } else {
+                $this->session->set_flashdata('success', 'Loan approved and funded successfully by ' . ($investor->name ?? '') . '.');
+            }
+            redirect('admin/loans');
+        }
+    }
+
     // Helper method to fetch eligible investors for AJAX modals
     public function get_eligible_investors($loan_amount)
     {
@@ -573,10 +738,9 @@ class Loans extends CI_Controller
             $this->session->set_flashdata('error', 'Loan record not found.');
             redirect('admin/loans');
             return;
-        }
-
-        $this->form_validation->set_rules('amount', 'Amount', 'required|numeric|greater_than[0]');
+        }        $this->form_validation->set_rules('amount', 'Amount', 'required|numeric|greater_than[0]');
         $this->form_validation->set_rules('interest_rate', 'Interest Rate', 'required|numeric|greater_than_equal_to[0]');
+        $this->form_validation->set_rules('investor_interest_rate', 'Investor Interest Rate', 'required|numeric|greater_than_equal_to[0]');
         $this->form_validation->set_rules('processing_fee', 'Processing Fee', 'required|numeric|greater_than_equal_to[0]');
         $this->form_validation->set_rules('platform_charge', 'Platform Charge', 'required|numeric|greater_than_equal_to[0]');
         $this->form_validation->set_rules('gst_amount', 'GST Amount', 'required|numeric|greater_than_equal_to[0]');
@@ -596,6 +760,11 @@ class Loans extends CI_Controller
 
         $amount = (float) $this->input->post('amount');
         $interest_rate = (float) $this->input->post('interest_rate');
+        $investor_interest_rate = (float) $this->input->post('investor_interest_rate');
+        $admin_interest_rate = $interest_rate - $investor_interest_rate;
+        if ($admin_interest_rate < 0) {
+            $admin_interest_rate = 0.00;
+        }
         $processing_fee = (float) $this->input->post('processing_fee');
         $platform_charge = (float) $this->input->post('platform_charge');
         $gst_amount = (float) $this->input->post('gst_amount');
@@ -621,6 +790,8 @@ class Loans extends CI_Controller
         $this->general->update('loans', ['id' => $id], [
             'amount' => $amount,
             'interest_rate' => $interest_rate,
+            'admin_interest_rate' => $admin_interest_rate,
+            'investor_interest_rate' => $investor_interest_rate,
             'processing_fee' => $processing_fee,
             'platform_charge' => $platform_charge,
             'gst_amount' => $gst_amount,
@@ -632,7 +803,6 @@ class Loans extends CI_Controller
             'total_payable' => $total_payable,
             'updated_at' => date('Y-m-d H:i:s')
         ]);
-
         // Update any existing investor invitation notifications for this loan to reflect the new terms
         $new_notif_message = 'You are invited to invest in Loan #' . $id . ' of INR ' . number_format($amount, 2) . ' at ' . $interest_rate . '% interest.';
         $this->db->where('loan_id', $id)

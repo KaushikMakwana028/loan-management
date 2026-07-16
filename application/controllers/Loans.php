@@ -65,9 +65,8 @@ class Loans extends CI_Controller
             redirect('loans');
             return;
         }
-
         $this->form_validation->set_rules('amount', 'Loan Amount', 'required|numeric|greater_than[0]');
-        $this->form_validation->set_rules('tenure_days', 'Tenure', 'required|integer|greater_than[0]');
+        $this->form_validation->set_rules('tenure_days', 'Tenure', 'required|in_list[15,30]');
         $this->form_validation->set_rules('purpose', 'Purpose of Loan', 'required|trim|max_length[255]');
 
         if ($this->form_validation->run() === FALSE) {
@@ -77,10 +76,37 @@ class Loans extends CI_Controller
             $this->load->view('apply_loan', $data);
             $this->load->view('footer', $data);
         } else {
+            $amount = (float) $this->input->post('amount');
+            $tenure_days = (int) $this->input->post('tenure_days');
+
+            $scheme = $this->db->where('from_amount <=', $amount)
+                               ->where('to_amount >=', $amount)
+                               ->where('tenure_days', $tenure_days)
+                               ->get('loan_schemes')
+                               ->row();
+
+            if (!$scheme) {
+                $this->session->set_flashdata('error', 'No matching loan scheme found for this amount and tenure.');
+                redirect('loans/apply');
+                return;
+            }
+
+            $interest_rate = (float)$scheme->admin_interest_rate + (float)$scheme->investor_interest_rate;
+            $interest_amount = ($amount * $interest_rate) / 100.0;
+            $total_payable = $amount + $interest_amount + (float)$scheme->processing_fee + (float)$scheme->platform_charge + (float)$scheme->gst_amount + (float)$scheme->due_charges;
+
             $loan_data = [
                 'user_id' => $user_id,
-                'amount' => $this->input->post('amount'),
-                'tenure_days' => $this->input->post('tenure_days'),
+                'amount' => $amount,
+                'tenure_days' => $tenure_days,
+                'interest_rate' => $interest_rate,
+                'admin_interest_rate' => $scheme->admin_interest_rate,
+                'investor_interest_rate' => $scheme->investor_interest_rate,
+                'processing_fee' => $scheme->processing_fee,
+                'platform_charge' => $scheme->platform_charge,
+                'gst_amount' => $scheme->gst_amount,
+                'due_charges' => $scheme->due_charges,
+                'total_payable' => $total_payable,
                 'purpose' => $this->input->post('purpose') ?: NULL,
                 'status' => 'pending',
                 'created_at' => date('Y-m-d H:i:s'),
@@ -100,8 +126,7 @@ class Loans extends CI_Controller
 
             $this->session->set_flashdata('success', 'Your loan application has been submitted successfully.');
             redirect('loans');
-        }
-    }
+        }    }
 
     private function profile_completed($user)
     {
@@ -211,26 +236,14 @@ class Loans extends CI_Controller
             redirect('loans');
             return;
         }
+        $payment_method = 'online';
+        $receipt_file = NULL;
 
-        $this->form_validation->set_rules('payment_method', 'Payment Method', 'required|in_list[online]');
-
-        if ($this->form_validation->run() === FALSE) {
-            $this->session->set_flashdata('error', validation_errors());
+        if (empty($_FILES['receipt_image']['name'])) {
+            $this->session->set_flashdata('error', 'Payment receipt image/PDF is required.');
             redirect('loans/pay/' . $id);
             return;
         }
-
-        $payment_method = $this->input->post('payment_method');
-        $receipt_file = NULL;
-
-        if ($payment_method === 'online') {
-            if (empty($_FILES['receipt_image']['name'])) {
-                $this->session->set_flashdata('error', 'Payment receipt image/PDF is required for online payments.');
-                redirect('loans/pay/' . $id);
-                return;
-            }
-        }
-
         if (!empty($_FILES['receipt_image']['name'])) {
             $config = [
                 'upload_path' => './uploads/receipts/',
@@ -278,5 +291,49 @@ class Loans extends CI_Controller
 
         $this->session->set_flashdata('success', 'Your loan repayment details have been submitted successfully. The administrator will review and verify it shortly.');
         redirect('loans');
+    }
+
+    public function calculate()
+    {
+        // Must be logged in
+        if (!$this->session->userdata('user_id')) {
+            echo json_encode(['status' => false, 'message' => 'Unauthorized']);
+            return;
+        }
+
+        // Handle JSON or standard POST inputs
+        $json_input = json_decode(file_get_contents('php://input'), true);
+        $amount = (float) ($this->input->post('amount') ?: ($json_input['amount'] ?? 0));
+        $tenure_days = (int) ($this->input->post('tenure_days') ?: ($json_input['tenure_days'] ?? 0));
+
+        $scheme = $this->db->where('from_amount <=', $amount)
+                           ->where('to_amount >=', $amount)
+                           ->where('tenure_days', $tenure_days)
+                           ->get('loan_schemes')
+                           ->row();
+
+        if (!$scheme) {
+            echo json_encode(['status' => false, 'message' => 'No matching loan scheme found for this amount and tenure. Please try another range.']);
+            return;
+        }
+
+        $interest_rate = (float)$scheme->admin_interest_rate + (float)$scheme->investor_interest_rate;
+        $interest_amount = ($amount * $interest_rate) / 100.0;
+        $total_payable = $amount + $interest_amount + (float)$scheme->processing_fee + (float)$scheme->platform_charge + (float)$scheme->gst_amount + (float)$scheme->due_charges;
+
+        echo json_encode([
+            'status' => true,
+            'data' => [
+                'amount' => $amount,
+                'tenure_days' => $tenure_days,
+                'interest_rate' => $interest_rate,
+                'interest_amount' => $interest_amount,
+                'processing_fee' => (float)$scheme->processing_fee,
+                'platform_charge' => (float)$scheme->platform_charge,
+                'gst_amount' => (float)$scheme->gst_amount,
+                'due_charges' => (float)$scheme->due_charges,
+                'total_payable' => $total_payable
+            ]
+        ]);
     }
 }

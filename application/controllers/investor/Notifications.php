@@ -19,7 +19,7 @@ class Notifications extends CI_Controller
         $data['page_title'] = 'Notifications';
 
         // Query all notifications for this investor
-        $sql = "SELECT n.*, l.amount as loan_amount, l.tenure_days, l.interest_rate, l.is_emi, l.emi_count, u.name as borrower_name 
+        $sql = "SELECT n.*, l.amount as loan_amount, l.tenure_days, IF(l.investor_interest_rate > 0, l.investor_interest_rate, l.interest_rate) as interest_rate, l.is_emi, l.emi_count, u.name as borrower_name 
                 FROM notifications n 
                 LEFT JOIN loans l ON n.loan_id = l.id 
                 LEFT JOIN users u ON l.user_id = u.id 
@@ -39,7 +39,7 @@ class Notifications extends CI_Controller
         $data['page_title'] = 'Loan Requests';
 
         // Query only notifications for this investor that are loan requests (title = 'New Investment Opportunity')
-        $sql = "SELECT n.*, l.amount as loan_amount, l.tenure_days, l.interest_rate, l.is_emi, l.emi_count, u.name as borrower_name 
+        $sql = "SELECT n.*, l.amount as loan_amount, l.tenure_days, IF(l.investor_interest_rate > 0, l.investor_interest_rate, l.interest_rate) as interest_rate, l.is_emi, l.emi_count, u.name as borrower_name 
                 FROM notifications n 
                 LEFT JOIN loans l ON n.loan_id = l.id 
                 LEFT JOIN users u ON l.user_id = u.id 

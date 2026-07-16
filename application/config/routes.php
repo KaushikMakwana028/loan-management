@@ -133,9 +133,18 @@ $route['referrals'] = 'referrals';
 $route['admin/referral_settings'] = 'admin/ReferralSettings';
 $route['admin/referral_settings/save'] = 'admin/ReferralSettings/save';
 
+// Admin Loan Schemes Routes
+$route['admin/loan_schemes'] = 'admin/LoanSchemes';
+$route['admin/loan_schemes/save'] = 'admin/LoanSchemes/save';
+$route['admin/loan_schemes/delete/(:num)'] = 'admin/LoanSchemes/delete/$1';
+
 // Admin Loan Actions
 $route['admin/loans/disburse/(:num)'] = 'admin/loans/disburse/$1';
 $route['admin/loans/update_offer/(:num)'] = 'admin/loans/update_offer/$1';
+
+// User API calculation route
+$route['api/loans/calculate'] = 'api/loans_calculate';
+$route['api/admin-payment-detail'] = 'api/admin_payment_detail';
 
 // User API Routes
 $route['api/auth/login-send-otp'] = 'api/login_send_otp';

@@ -68,29 +68,63 @@
     .action-group {
         display: flex;
         gap: 8px;
-        flex-wrap: wrap;
+        flex-wrap: nowrap;
+        align-items: center;
     }
     .btn-action {
-        border: 0;
-        padding: 6px 12px;
+        border: 1px solid transparent;
+        padding: 5px 10px;
         border-radius: 8px;
-        font-size: 13px;
+        font-size: 12px;
         font-weight: 600;
         cursor: pointer;
-        transition: background 0.15s ease;
+        transition: all 0.15s ease;
         display: inline-flex;
         align-items: center;
-        gap: 4px;
+        gap: 5px;
         text-decoration: none;
+        line-height: 1.2;
     }
-    .btn-view { background: #f1f5f9; color: #475569; }
-    .btn-view:hover { background: #e2e8f0; }
-    .btn-assign { background: #2563eb; color: #fff; }
-    .btn-assign:hover { background: #1d4ed8; }
-    .btn-responses { background: #0f766e; color: #fff; }
-    .btn-responses:hover { background: #0d5f58; }
-    .btn-reject { background: #fee2e2; color: #b91c1c; }
-    .btn-reject:hover { background: #fca5a5; }
+    .btn-view { 
+        background: #f8fafc; 
+        color: #475569; 
+        border-color: #e2e8f0; 
+    }
+    .btn-view:hover { 
+        background: #f1f5f9; 
+        border-color: #cbd5e1; 
+        color: #1e293b; 
+    }
+    .btn-direct-approve { 
+        background: #ecfdf5; 
+        color: #059669; 
+        border-color: #a7f3d0; 
+    }
+    .btn-direct-approve:hover { 
+        background: #d1fae5; 
+        border-color: #34d399; 
+        color: #047857; 
+    }
+    .btn-responses { 
+        background: #f0fdfa; 
+        color: #0d9488; 
+        border-color: #99f6e4; 
+    }
+    .btn-responses:hover { 
+        background: #ccfbf1; 
+        border-color: #5eead4; 
+        color: #0f766e; 
+    }
+    .btn-reject { 
+        background: #fff5f5; 
+        color: #e11d48; 
+        border-color: #fecdd3; 
+    }
+    .btn-reject:hover { 
+        background: #ffe4e6; 
+        border-color: #fb7185; 
+        color: #be123c; 
+    }
 
     /* Modal Styles */
     .modal-overlay {
@@ -277,16 +311,48 @@
                                 <?php endif; ?>
                             </td>
                             <td><?php echo date('d M Y, h:i A', strtotime($loan['created_at'])); ?></td>
-                            <td>
+                            <td style="white-space: nowrap;">
                                 <div class="action-group">
-                                    <a href="<?php echo base_url('admin/loans/view/' . $loan['id']); ?>" class="btn-action btn-view">View</a>
+                                    <a href="<?php echo base_url('admin/loans/view/' . $loan['id']); ?>" class="btn-action btn-view">
+                                        <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        </svg>
+                                        View
+                                    </a>
                                     
                                     <?php if ($loan['status'] === 'pending'): ?>
-                                        <button class="btn-action btn-assign" onclick="openAssignModal(<?php echo $loan['id']; ?>, <?php echo $loan['amount']; ?>, <?php echo (float)$loan['interest_rate']; ?>)">Assign</button>
-                                        <button class="btn-action btn-reject" onclick="confirmReject(<?php echo $loan['id']; ?>)">Reject</button>
+                                        <button class="btn-action btn-direct-approve" onclick="openDirectApproveModal(<?php echo $loan['id']; ?>, <?php echo $loan['amount']; ?>, <?php echo (float)$loan['interest_rate']; ?>, <?php echo (float)($loan['investor_interest_rate'] ?? 0.00); ?>)">
+                                            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            Approve
+                                        </button>
+                                        <button class="btn-action btn-reject" onclick="confirmReject(<?php echo $loan['id']; ?>)">
+                                            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            Reject
+                                        </button>
                                     <?php elseif ($loan['status'] === 'assigned'): ?>
-                                        <a href="<?php echo base_url('admin/loans/responses/' . $loan['id']); ?>" class="btn-action btn-responses">Responses</a>
-                                        <button class="btn-action btn-reject" onclick="confirmReject(<?php echo $loan['id']; ?>)">Reject</button>
+                                        <button class="btn-action btn-direct-approve" onclick="openDirectApproveModal(<?php echo $loan['id']; ?>, <?php echo $loan['amount']; ?>, <?php echo (float)$loan['interest_rate']; ?>, <?php echo (float)($loan['investor_interest_rate'] ?? 0.00); ?>)">
+                                            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            Approve
+                                        </button>
+                                        <a href="<?php echo base_url('admin/loans/responses/' . $loan['id']); ?>" class="btn-action btn-responses">
+                                            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z" />
+                                            </svg>
+                                            Responses
+                                        </a>
+                                        <button class="btn-action btn-reject" onclick="confirmReject(<?php echo $loan['id']; ?>)">
+                                            <svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                            Reject
+                                        </button>
                                     <?php endif; ?>
                                 </div>
                             </td>
@@ -306,29 +372,37 @@
     </div>
 </div>
 
-<!-- Assign Modal -->
-<div class="modal-overlay" id="assignModal">
+
+
+<!-- Direct Approve Modal -->
+<div class="modal-overlay" id="directApproveModal">
     <div class="modal-card">
         <div class="modal-header">
-            <h3>Assign Loan to Investors</h3>
-            <button class="modal-close" onclick="closeModal('assignModal')">&times;</button>
+            <h3>Direct Approve & Fund Loan</h3>
+            <button class="modal-close" onclick="closeModal('directApproveModal')">&times;</button>
         </div>
-        <?php echo form_open('', ['id' => 'assignForm']); ?>
+        <?php echo form_open('', ['id' => 'directApproveForm']); ?>
             <div class="modal-body">
-                <div class="form-group">
-                    <label for="interest_rate">Interest Rate (%)</label>
-                    <input type="number" name="interest_rate" id="interest_rate" min="0" step="0.01" placeholder="e.g. 12" required>
+                <div class="form-group" style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                    <div>
+                        <label for="direct_interest_rate" style="display:block; font-size:12px; font-weight:600; color:#344054; margin-bottom:4px;">Total Interest Rate (%)</label>
+                        <input type="number" name="interest_rate" id="direct_interest_rate" min="0" step="0.01" placeholder="e.g. 20" required style="width:100%; border:1px solid #cbd5e1; border-radius:8px; padding:8px 12px; font-size:14px;">
+                    </div>
+                    <div>
+                        <label for="direct_investor_interest_rate" style="display:block; font-size:12px; font-weight:600; color:#344054; margin-bottom:4px;">Investor Rate (%)</label>
+                        <input type="number" name="investor_interest_rate" id="direct_investor_interest_rate" min="0" step="0.01" placeholder="e.g. 10" required style="width:100%; border:1px solid #cbd5e1; border-radius:8px; padding:8px 12px; font-size:14px;">
+                    </div>
                 </div>
                 <div class="form-group">
-                    <label>Select Investors (Balance >= Loan Amount)</label>
-                    <div class="investor-list" id="eligibleInvestorsList">
+                    <label>Select Investor (Balance >= Loan Amount)</label>
+                    <div class="investor-list" id="directEligibleInvestorsList">
                         <div style="text-align: center; color: #65758b; padding: 12px 0;">Loading eligible investors...</div>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeModal('assignModal')">Cancel</button>
-                <button type="submit" class="modal-btn modal-btn-submit">Assign</button>
+                <button type="button" class="modal-btn modal-btn-cancel" onclick="closeModal('directApproveModal')">Cancel</button>
+                <button type="submit" class="modal-btn modal-btn-submit" style="background: #10b981;">Approve & Fund</button>
             </div>
         <?php echo form_close(); ?>
     </div>
@@ -384,22 +458,23 @@
         openModal('viewModal');
     }
 
-    function openAssignModal(loanId, amount, interestRate) {
-        const form = document.getElementById('assignForm');
-        form.action = `<?php echo base_url('admin/loans/assign/'); ?>${loanId}`;
+
+
+    function openDirectApproveModal(loanId, amount, interestRate, investorInterestRate) {
+        const form = document.getElementById('directApproveForm');
+        form.action = `<?php echo base_url('admin/loans/direct_approve/'); ?>${loanId}`;
         
-        // Pre-fill the interest rate if it is set
-        const interestInput = document.getElementById('interest_rate');
-        if (interestRate > 0) {
-            interestInput.value = interestRate;
-        } else {
-            interestInput.value = '';
-        }
+        // Pre-fill the interest rates if set
+        const interestInput = document.getElementById('direct_interest_rate');
+        const investorInterestInput = document.getElementById('direct_investor_interest_rate');
         
-        const listDiv = document.getElementById('eligibleInvestorsList');
+        interestInput.value = interestRate > 0 ? interestRate : '';
+        investorInterestInput.value = investorInterestRate > 0 ? investorInterestRate : '';
+        
+        const listDiv = document.getElementById('directEligibleInvestorsList');
         listDiv.innerHTML = '<div style="text-align: center; color: #65758b; padding: 12px 0;">Loading eligible investors...</div>';
         
-        openModal('assignModal');
+        openModal('directApproveModal');
 
         // Fetch eligible investors
         fetch(`<?php echo base_url('admin/loans/get_eligible_investors/'); ?>${amount}`)
@@ -410,7 +485,7 @@
                 } else {
                     listDiv.innerHTML = data.map(inv => `
                         <label class="investor-item">
-                            <input type="checkbox" name="investor_ids[]" value="${inv.id}">
+                            <input type="radio" name="investor_id" value="${inv.id}" required>
                             <span><strong>${inv.name}</strong> (Bal: INR ${parseFloat(inv.balance).toLocaleString('en-IN', {minimumFractionDigits: 2})})</span>
                         </label>
                     `).join('');

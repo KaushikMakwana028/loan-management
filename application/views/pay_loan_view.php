@@ -294,13 +294,6 @@
         </div>
 
         <?php echo form_open_multipart('loans/submit_pay/' . $loan->id); ?>
-            <div class="form-group">
-                <label for="payment_method">Payment Method</label>
-                <select name="payment_method" id="payment_method" required style="background-color: #f8fafc; color: #475569; cursor: not-allowed;" readonly>
-                    <option value="online" selected>Online Transfer (UPI/IMPS/NEFT)</option>
-                </select>
-            </div>
-
             <div class="form-group" id="receipt-group">
                 <label for="receipt_image">Upload Payment Receipt / Screen Shot</label>
                 <input type="file" name="receipt_image" id="receipt_image" accept="image/*,application/pdf" required>

@@ -322,7 +322,7 @@
                         <div class="fin-icon fin-icon-rate">📈</div>
                         <div class="fin-info">
                             <span class="fin-label">Interest Rate</span>
-                            <span class="fin-value"><?php echo (float)$loan->interest_rate; ?>%</span>
+                            <span class="fin-value"><?php echo (float)(($loan->investor_interest_rate > 0) ? $loan->investor_interest_rate : $loan->interest_rate); ?>%</span>
                         </div>
                     </div>
                     <div class="fin-block">
@@ -330,7 +330,7 @@
                         <div class="fin-info">
                             <span class="fin-label">Calculated Profit</span>
                             <span class="fin-value" style="color: #16a34a;">
-                                INR <?php echo number_format($loan->amount * $loan->interest_rate / 100, 2); ?>
+                                INR <?php echo number_format($loan->amount * (($loan->investor_interest_rate > 0) ? $loan->investor_interest_rate : $loan->interest_rate) / 100, 2); ?>
                             </span>
                         </div>
                     </div>

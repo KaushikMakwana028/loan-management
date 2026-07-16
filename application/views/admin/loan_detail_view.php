@@ -673,8 +673,16 @@ $total_payout = $total_invested + $total_profit;
                 <input type="number" step="0.01" name="amount" id="offer_amount" value="<?php echo (float) $loan->amount; ?>" required style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
             </div>
             <div>
-                <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">Interest Rate (%)</label>
+                <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">Total Interest Rate (%)</label>
                 <input type="number" step="0.01" name="interest_rate" id="offer_interest" value="<?php echo (float) $loan->interest_rate; ?>" required style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
+            </div>
+            <div>
+                <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">Investor Interest Rate (%)</label>
+                <input type="number" step="0.01" name="investor_interest_rate" id="offer_investor_interest" value="<?php echo (float) ($loan->investor_interest_rate ?? 0.00); ?>" required style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none;">
+            </div>
+            <div>
+                <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">Admin Interest Rate (%)</label>
+                <input type="number" step="0.01" id="offer_admin_interest" value="<?php echo (float) ($loan->admin_interest_rate ?? 0.00); ?>" disabled style="width:100%; border:1px solid #cbd5e1; border-radius:10px; padding:10px 14px; font-size:14px; outline:none; background-color:#f8fafc; color:#64748b;">
             </div>
             <div>
                 <label style="display:block; font-size:13px; font-weight:600; color:#344054; margin-bottom:6px;">Processing Fee (INR)</label>
@@ -1036,9 +1044,23 @@ $total_payout = $total_invested + $total_profit;
         }
     }
 
+    function updateAdminInterest() {
+        var total = parseFloat(document.getElementById('offer_interest').value) || 0;
+        var investor = parseFloat(document.getElementById('offer_investor_interest').value) || 0;
+        var adminRate = total - investor;
+        document.getElementById('offer_admin_interest').value = adminRate.toFixed(2);
+    }
+
     // Attach live listeners for calculator
     document.getElementById('offer_amount').addEventListener('input', calculateTotalPayable);
-    document.getElementById('offer_interest').addEventListener('input', calculateTotalPayable);
+    document.getElementById('offer_interest').addEventListener('input', function() {
+        calculateTotalPayable();
+        updateAdminInterest();
+    });
+    document.getElementById('offer_investor_interest').addEventListener('input', function() {
+        calculateTotalPayable();
+        updateAdminInterest();
+    });
     document.getElementById('offer_processing').addEventListener('input', calculateTotalPayable);
     document.getElementById('offer_platform').addEventListener('input', calculateTotalPayable);
     document.getElementById('offer_gst').addEventListener('input', calculateTotalPayable);
@@ -1053,6 +1075,7 @@ $total_payout = $total_invested + $total_profit;
     // Call initial toggle and calculate
     toggleEmiFields();
     calculateTotalPayable();
+    updateAdminInterest();
 </script>
 
 <?php if ($this->session->flashdata('error')): ?>
