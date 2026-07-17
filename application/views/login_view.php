@@ -317,7 +317,7 @@
     <main class="auth-page">
         <section class="auth-brand">
             <a class="brand" href="<?php echo base_url(); ?>">
-                <img src="<?php echo base_url('assets/images/logo/bg-remove-logo.png'); ?>" alt="Logo" style="height: 60px; width: auto; object-fit: contain;">
+                <img src="<?php echo base_url('assets/images/logo/bg-remove-sidelogo.png'); ?>" alt="Logo" style="height: 52px; width: auto; object-fit: contain;">
             </a>
 
             <div class="hero-copy">
@@ -341,12 +341,12 @@
                 <h2>Welcome back</h2>
                 <p class="subtitle">Enter your mobile number and we will send an OTP to continue.</p>
 
-                <?php echo form_open('send-otp'); ?>
-                    <div class="field">
-                        <label>Mobile Number</label>
-                        <input type="tel" name="mobile" inputmode="numeric" autocomplete="tel" placeholder="Enter registered mobile number" required>
-                    </div>
-                    <button class="btn" type="submit">Send OTP</button>
+                <?php echo form_open('user/send-otp'); ?>
+                <div class="field">
+                    <label>Mobile Number</label>
+                    <input type="tel" name="mobile" inputmode="numeric" autocomplete="tel" placeholder="Enter registered mobile number" required>
+                </div>
+                <button class="btn" type="submit">Send OTP</button>
                 <?php echo form_close(); ?>
 
                 <div class="links">
@@ -358,13 +358,31 @@
     </main>
 
     <?php if ($this->session->flashdata('error')): ?>
-        <script>Swal.fire({icon:'error',title:'Error',text:<?php echo json_encode($this->session->flashdata('error')); ?>});</script>
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: <?php echo json_encode($this->session->flashdata('error')); ?>
+            });
+        </script>
     <?php endif; ?>
     <?php if ($this->session->flashdata('success')): ?>
-        <script>Swal.fire({icon:'success',title:'Success',text:<?php echo json_encode($this->session->flashdata('success')); ?>});</script>
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: <?php echo json_encode($this->session->flashdata('success')); ?>
+            });
+        </script>
     <?php endif; ?>
     <?php if (validation_errors()): ?>
-        <script>Swal.fire({icon:'error',title:'Validation Error',html:<?php echo json_encode(validation_errors()); ?>});</script>
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Validation Error',
+                html: <?php echo json_encode(validation_errors()); ?>
+            });
+        </script>
     <?php endif; ?>
 </body>
 

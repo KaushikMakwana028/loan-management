@@ -220,6 +220,10 @@
                         <span class="info-value"><?php echo html_escape($user_details->mobile); ?></span>
                     </div>
                     <div class="info-row">
+                        <span class="info-label">Referral Code</span>
+                        <span class="info-value" style="font-family: monospace; font-size: 14px; font-weight: 700; color: #1e3a8a; background: #eff6ff; padding: 3px 8px; border-radius: 6px; border: 1px solid #dbeafe;"><?php echo html_escape($user_details->referral_code ?: 'N/A'); ?></span>
+                    </div>
+                    <div class="info-row">
                         <span class="info-label">Date of Birth</span>
                         <span class="info-value"><?php echo !empty($user_details->dob) ? date('d M Y', strtotime($user_details->dob)) : 'Not Provided'; ?></span>
                     </div>

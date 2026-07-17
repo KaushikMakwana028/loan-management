@@ -295,8 +295,8 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
 
         .notif-badge {
             position: absolute;
-            top: -5px;
-            right: -5px;
+            top: -4px;
+            right: -4px;
             background: #ef4444;
             color: #fff;
             border-radius: 50%;
@@ -307,6 +307,7 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
             place-items: center;
             font-weight: 700;
             border: 2px solid #fff;
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);
         }
 
         .notif-dropdown {
@@ -314,43 +315,110 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
             position: absolute;
             right: 0;
             top: 52px;
-            width: 320px;
+            width: 330px;
             max-width: calc(100vw - 32px);
             background: #fff;
             border: 1px solid #dbe8e3;
             border-radius: 16px;
-            box-shadow: 0 18px 50px rgba(6, 61, 50, .13);
-            padding: 12px;
+            box-shadow: 0 10px 30px rgba(6, 61, 50, 0.1), 0 1px 8px rgba(6, 61, 50, 0.05);
+            padding: 16px;
             z-index: 100;
-            max-height: 400px;
+            max-height: 420px;
             overflow-y: auto;
+        }
+
+        .notif-dropdown::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .notif-dropdown::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .notif-dropdown::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        .notif-dropdown::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
 
         .notif-dropdown.open {
             display: block;
+            animation: fadeInNotif 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .notif-dropdown h4 {
-            margin: 0 0 12px;
-            font-size: 14px;
+        @keyframes fadeInNotif {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .notif-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eef8f4;
+            padding-bottom: 12px;
+            margin-bottom: 12px;
+        }
+
+        .notif-header h4 {
+            margin: 0;
+            font-size: 15px;
             font-weight: 700;
             color: #06483d;
-            border-bottom: 1px solid #dbe8e3;
-            padding-bottom: 8px;
+        }
+
+        .notif-show-all-btn {
+            font-size: 11px;
+            font-weight: 600;
+            color: #06483d;
+            background: #eef8f4;
+            padding: 4px 10px;
+            border-radius: 20px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .notif-show-all-btn:hover {
+            background: #06483d;
+            color: #fff;
+        }
+
+        .notif-dropdown-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         .notif-item {
             display: block;
-            padding: 10px;
-            border-bottom: 1px solid #eef8f4;
+            padding: 10px 12px;
             border-radius: 10px;
             font-size: 13px;
             cursor: pointer;
-            transition: background .15s ease;
+            transition: background .15s ease, transform 0.1s ease;
+            text-decoration: none;
+            border: 1px solid transparent;
+            background: #fff;
         }
 
         .notif-item:hover {
-            background: #fbfcfe;
+            background: #f8faf9;
+            border-color: #e6f2ee;
+            transform: translateY(-1px);
+        }
+
+        .notif-item:active {
+            transform: translateY(0);
         }
 
         .notif-item-title {
@@ -360,6 +428,7 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
             justify-content: space-between;
             align-items: center;
             gap: 8px;
+            line-height: 1.4;
         }
 
         .notif-item-title span:first-child {
@@ -369,44 +438,32 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
         }
 
         .notif-unread-dot {
-            width: 6px;
-            height: 6px;
+            width: 7px;
+            height: 7px;
             border-radius: 50%;
-            background: #06483d;
+            background: #10b981;
             flex: none;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
         }
 
         .notif-item-msg {
-            color: #6b7280;
-            font-size: 11px;
-            margin-top: 2px;
+            color: #4b5563;
+            font-size: 11.5px;
+            margin-top: 4px;
+            line-height: 1.4;
         }
 
         .notif-item-time {
             color: #9ca3af;
             font-size: 10px;
-            margin-top: 4px;
+            margin-top: 6px;
         }
 
         .notif-empty {
             text-align: center;
             color: #9ca3af;
             font-size: 13px;
-            padding: 16px 0;
-        }
-
-        .notif-footer {
-            border-top: 1px solid #eef8f4;
-            margin-top: 8px;
-            padding-top: 8px;
-            text-align: center;
-        }
-
-        .notif-footer a {
-            font-size: 12.5px;
-            font-weight: 600;
-            color: #06483d;
-            display: block;
+            padding: 24px 0;
         }
 
         .content {
@@ -636,8 +693,12 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
         /* ============ Small phones ============ */
         @media(max-width:480px) {
             .notif-dropdown {
-                width: calc(100vw - 24px);
-                right: -6px;
+                position: fixed !important;
+                left: 12px !important;
+                right: 12px !important;
+                width: auto !important;
+                max-width: none !important;
+                top: 68px !important;
             }
 
             .avatar {
@@ -1041,7 +1102,7 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
                             LEFT JOIN loans l ON n.loan_id = l.id 
                             LEFT JOIN users u ON l.user_id = u.id 
                             WHERE n.user_id = ? 
-                            ORDER BY n.id DESC LIMIT 10";
+                            ORDER BY n.id DESC LIMIT 5";
                         $notifications_list = $CI->db->query($sql, [$investor_id])->result_array();
                     }
                     ?>
@@ -1055,28 +1116,27 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
 
                         <!-- Notification Dropdown -->
                         <div class="notif-dropdown" id="notifDropdown">
-                            <h4>Notifications</h4>
+                            <div class="notif-header">
+                                <h4>Notifications</h4>
+                                <a href="<?php echo base_url('investor/notifications'); ?>" class="notif-show-all-btn">Show All</a>
+                            </div>
                             <?php if (!empty($notifications_list)): ?>
-                                <?php foreach ($notifications_list as $notif): ?>
-                                    <a class="notif-item" href="<?php echo base_url('investor/notifications/view/' . $notif['id']); ?>">
-                                        <div class="notif-item-title">
-                                            <span><?php echo html_escape($notif['title']); ?></span>
-                                            <?php if (!$notif['is_read']): ?>
-                                                <span class="notif-unread-dot"></span>
-                                            <?php endif; ?>
-                                        </div>
-                                        <div class="notif-item-msg"><?php echo html_escape($notif['message']); ?></div>
-                                        <div class="notif-item-time"><?php echo date('d M, h:i A', strtotime($notif['created_at'])); ?></div>
-                                    </a>
-                                <?php endforeach; ?>
-                                <div class="notif-footer">
-                                    <a href="<?php echo base_url('investor/notifications'); ?>">View All Notifications</a>
+                                <div class="notif-dropdown-list">
+                                    <?php foreach ($notifications_list as $notif): ?>
+                                        <a class="notif-item" href="<?php echo base_url('investor/notifications/view/' . $notif['id']); ?>">
+                                            <div class="notif-item-title">
+                                                <span><?php echo html_escape($notif['title']); ?></span>
+                                                <?php if (!$notif['is_read']): ?>
+                                                    <span class="notif-unread-dot"></span>
+                                                <?php endif; ?>
+                                            </div>
+                                            <div class="notif-item-msg"><?php echo html_escape($notif['message']); ?></div>
+                                            <div class="notif-item-time"><?php echo date('d M, h:i A', strtotime($notif['created_at'])); ?></div>
+                                        </a>
+                                    <?php endforeach; ?>
                                 </div>
                             <?php else: ?>
                                 <div class="notif-empty">No notifications found.</div>
-                                <div class="notif-footer">
-                                    <a href="<?php echo base_url('investor/notifications'); ?>">View All Notifications</a>
-                                </div>
                             <?php endif; ?>
                         </div>
                     </div>

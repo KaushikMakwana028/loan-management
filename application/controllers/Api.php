@@ -114,7 +114,7 @@ class Api extends CI_Controller
     private function authenticate()
     {
         $headers = $this->input->get_request_header('Authorization', TRUE);
-        
+
         // Fallback for Apache/FPM which sometimes strip the Authorization header
         if (!$headers) {
             if (isset($_SERVER['HTTP_AUTHORIZATION'])) {
@@ -264,7 +264,8 @@ class Api extends CI_Controller
                 'id' => $user['id'],
                 'name' => $user['name'],
                 'mobile' => $user['mobile'],
-                'email' => $user['email']
+                'email' => $user['email'],
+                'profile_image' => !empty($user['profile_image']) ? base_url($user['profile_image']) : null
             ]
         ], 'Logged in successfully.', 200);
     }
@@ -425,7 +426,8 @@ class Api extends CI_Controller
                 'id' => $user_id,
                 'name' => $user_data['name'],
                 'mobile' => $user_data['mobile'],
-                'referral_code' => $referral_code
+                'referral_code' => $referral_code,
+                'profile_image' => null
             ]
         ], 'Registration successful.', 200);
     }
@@ -1087,10 +1089,10 @@ class Api extends CI_Controller
         $tenure_days = (int) $this->input->post('tenure_days');
 
         $scheme = $this->db->where('from_amount <=', $amount)
-                           ->where('to_amount >=', $amount)
-                           ->where('tenure_days', $tenure_days)
-                           ->get('loan_schemes')
-                           ->row();
+            ->where('to_amount >=', $amount)
+            ->where('tenure_days', $tenure_days)
+            ->get('loan_schemes')
+            ->row();
 
         if (!$scheme) {
             $this->response(null, 'No matching loan scheme found for this amount and tenure. Please try another range.', 404);
@@ -1142,10 +1144,10 @@ class Api extends CI_Controller
         $tenure_days = (int) $this->input->post('tenure_days');
 
         $scheme = $this->db->where('from_amount <=', $amount)
-                           ->where('to_amount >=', $amount)
-                           ->where('tenure_days', $tenure_days)
-                           ->get('loan_schemes')
-                           ->row();
+            ->where('to_amount >=', $amount)
+            ->where('tenure_days', $tenure_days)
+            ->get('loan_schemes')
+            ->row();
 
         if (!$scheme) {
             $this->response(null, 'No matching loan scheme found for this amount and tenure.', 400);

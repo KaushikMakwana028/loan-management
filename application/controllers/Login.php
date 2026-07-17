@@ -8,6 +8,9 @@ class Login extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+        if ($this->uri->segment(1) !== 'user') {
+            redirect('user/' . $this->uri->uri_string());
+        }
         $this->load->model('General_model', 'general');
         $this->load->library(['upload', 'form_validation']);
     }
@@ -20,7 +23,7 @@ class Login extends CI_Controller
         }
 
         if ($this->session->userdata('user_id') && (int) $this->session->userdata('role') === $this->role) {
-            redirect('dashboard');
+            redirect('user/dashboard');
         }
 
         $this->load->view('login_view');
@@ -43,7 +46,7 @@ class Login extends CI_Controller
 
         if (!$user) {
             $this->session->set_flashdata('error', 'User not found. Please register.');
-            redirect('');
+            redirect('user');
         }
 
         $otp = $this->otp;
@@ -54,7 +57,7 @@ class Login extends CI_Controller
 
         if (!$sms_sent) {
             $this->session->set_flashdata('error', 'Failed to send OTP.');
-            redirect('');
+            redirect('user');
         }
 
         $this->session->set_flashdata('success', 'OTP sent successfully.');
@@ -86,12 +89,12 @@ class Login extends CI_Controller
                 ]);
                 $this->session->unset_userdata('otp');
 
-                echo json_encode(['redirect_url' => base_url('dashboard')]);
+                echo json_encode(['redirect_url' => base_url('user/dashboard')]);
                 return;
             }
 
             $this->session->set_flashdata('error', 'Invalid credentials.');
-            redirect('');
+            redirect('user');
         }
 
         http_response_code(401);
@@ -149,7 +152,7 @@ class Login extends CI_Controller
         }
 
         $this->session->set_flashdata('error', 'Failed to send OTP.');
-        redirect('register');
+        redirect('user/register');
     }
 
     public function register_verify_otp()
@@ -203,7 +206,7 @@ class Login extends CI_Controller
             $this->session->unset_userdata('otp');
             $this->session->unset_userdata('user_register_form_data');
 
-            echo json_encode(['redirect_url' => base_url('dashboard')]);
+            echo json_encode(['redirect_url' => base_url('user/dashboard')]);
             return;
         }
 
@@ -259,7 +262,7 @@ class Login extends CI_Controller
     {
         $this->session->unset_userdata('user');
         $this->session->sess_destroy();
-        redirect(base_url());
+        redirect(base_url('user'));
     }
 
     private function build_user_data($role)

@@ -896,7 +896,7 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
         <!-- /pf-sidebar -->
 
         <!-- ============ Form ============ -->
-        <?php echo form_open_multipart('profile/update', ['class' => 'pf-form', 'id' => 'pfForm', 'novalidate' => 'novalidate']); ?>
+        <?php echo form_open_multipart('user/profile/update', ['class' => 'pf-form', 'id' => 'pfForm', 'novalidate' => 'novalidate']); ?>
 
         <!-- Missing items warning checklist -->
         <?php 

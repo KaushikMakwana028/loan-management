@@ -5,9 +5,12 @@ class Referrals extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+        if ($this->uri->segment(1) !== 'user') {
+            redirect('user/' . $this->uri->uri_string());
+        }
         $this->load->model('General_model', 'general');
         if (!$this->session->userdata('user_id') || (int) $this->session->userdata('role') !== 0) {
-            redirect('');
+            redirect('user');
         }
     }
 
@@ -72,13 +75,13 @@ class Referrals extends CI_Controller
 
         if ($amount < $min_withdrawal) {
             $this->session->set_flashdata('error', 'Minimum withdrawal amount is INR ' . number_format($min_withdrawal, 2));
-            redirect('referrals');
+            redirect('user/referrals');
             return;
         }
 
         if ($amount > $wallet_balance) {
             $this->session->set_flashdata('error', 'Insufficient wallet balance. You only have INR ' . number_format($wallet_balance, 2));
-            redirect('referrals');
+            redirect('user/referrals');
             return;
         }
 
@@ -91,6 +94,6 @@ class Referrals extends CI_Controller
         ]);
 
         $this->session->set_flashdata('success', 'Withdrawal request of INR ' . number_format($amount, 2) . ' submitted successfully.');
-        redirect('referrals');
+        redirect('user/referrals');
     }
 }

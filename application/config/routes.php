@@ -49,7 +49,26 @@ defined('BASEPATH') or exit('No direct script access allowed');
 | Examples:	my-controller/index	-> my_controller/index
 |		my-controller/my-method	-> my_controller/my_method
 */
-$route['default_controller'] = 'login';
+$route['default_controller'] = 'welcome';
+
+// User-side Prefixed Routes
+$route['user'] = 'login';
+$route['user/register'] = 'login/register';
+$route['user/register-user'] = 'login/register_user';
+$route['user/register-verify-otp'] = 'login/register_verify_otp';
+$route['user/send-otp'] = 'login/send_otp';
+$route['user/verify-otp'] = 'login/verify_otp';
+$route['user/dashboard'] = 'dashboard';
+$route['user/profile'] = 'profile';
+$route['user/profile/update'] = 'profile/update';
+$route['user/logout'] = 'login/logout';
+$route['user/loans'] = 'loans';
+$route['user/loans/apply'] = 'loans/apply';
+$route['user/loans/pay/(:num)'] = 'loans/pay/$1';
+$route['user/loans/submit_pay/(:num)'] = 'loans/submit_pay/$1';
+$route['user/referrals'] = 'referrals';
+
+// Legacy User Routes (For compatibility, will redirect in controllers)
 $route['register'] = 'login/register';
 $route['register-user'] = 'login/register_user';
 $route['register-verify-otp'] = 'login/register_verify_otp';
@@ -59,6 +78,10 @@ $route['dashboard'] = 'dashboard';
 $route['profile'] = 'profile';
 $route['profile/update'] = 'profile/update';
 $route['logout'] = 'login/logout';
+$route['loans'] = 'loans';
+$route['loans/apply'] = 'loans/apply';
+$route['loans/pay/(:num)'] = 'loans/pay/$1';
+$route['loans/submit_pay/(:num)'] = 'loans/submit_pay/$1';
 
 $route['admin'] = 'admin/login';
 $route['admin/send-otp'] = 'admin/login/send_otp';
@@ -82,12 +105,6 @@ $route['investor/dashboard'] = 'investor/dashboard';
 $route['investor/profile'] = 'investor/profile';
 $route['investor/profile/update'] = 'investor/profile/update';
 $route['investor/logout'] = 'investor/login/logout';
-
-// User Loans
-$route['loans'] = 'loans';
-$route['loans/apply'] = 'loans/apply';
-$route['loans/pay/(:num)'] = 'loans/pay/$1';
-$route['loans/submit_pay/(:num)'] = 'loans/submit_pay/$1';
 
 // Admin Investors & Loans
 $route['admin/investors'] = 'admin/investors';

@@ -2,7 +2,7 @@
 $logged_user = isset($user) ? $user : NULL;
 $display_name = $logged_user && !empty($logged_user->name) ? $logged_user->name : 'User';
 $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url($logged_user->profile_image) : '';
-$current_segment = $this->uri->segment(1);
+$current_segment = ($this->uri->segment(1) === 'user') ? $this->uri->segment(2) : $this->uri->segment(1);
 ?>
 <!doctype html>
 <html lang="en">
@@ -570,23 +570,23 @@ $current_segment = $this->uri->segment(1);
     <div class="mobile-backdrop" id="mobileBackdrop"></div>
     <div class="app-shell">
         <aside class="sidebar" id="sidebar">
-            <a class="brand logo-brand" href="<?php echo base_url('dashboard'); ?>">
+            <a class="brand logo-brand" href="<?php echo base_url('user/dashboard'); ?>">
                 <img class="sidebar-logo" src="<?php echo base_url('assets/images/logo/bg-remove-sidelogo.png'); ?>" alt="Logo">
             </a>
             <nav class="menu">
-                <a class="<?php echo ($current_segment === 'dashboard' || empty($current_segment)) ? 'active' : ''; ?>" href="<?php echo base_url('dashboard'); ?>">
+                <a class="<?php echo ($current_segment === 'dashboard' || empty($current_segment)) ? 'active' : ''; ?>" href="<?php echo base_url('user/dashboard'); ?>">
                     <span class="menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"></path><path d="M5 10v10h14V10"></path></svg></span>
                     Dashboard
                 </a>
-                <a class="<?php echo ($current_segment === 'loans') ? 'active' : ''; ?>" href="<?php echo base_url('loans'); ?>">
+                <a class="<?php echo ($current_segment === 'loans') ? 'active' : ''; ?>" href="<?php echo base_url('user/loans'); ?>">
                     <span class="menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="14" rx="2"></rect><path d="M7 10h10M7 14h6"></path></svg></span>
                     My Loans
                 </a>
-                <a class="<?php echo ($current_segment === 'referrals') ? 'active' : ''; ?>" href="<?php echo base_url('referrals'); ?>">
+                <a class="<?php echo ($current_segment === 'referrals') ? 'active' : ''; ?>" href="<?php echo base_url('user/referrals'); ?>">
                     <span class="menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M19 8v6M22 11h-6"></path></svg></span>
                     Referrals
                 </a>
-                <a class="<?php echo ($current_segment === 'profile') ? 'active' : ''; ?>" href="<?php echo base_url('profile'); ?>">
+                <a class="<?php echo ($current_segment === 'profile') ? 'active' : ''; ?>" href="<?php echo base_url('user/profile'); ?>">
                     <span class="menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"></circle><path d="M4 21a8 8 0 0 1 16 0"></path></svg></span>
                     My Profile
                 </a>
@@ -605,7 +605,7 @@ $current_segment = $this->uri->segment(1);
                     </button>
                     -->
                     <div class="mobile-logo">
-                        <img src="<?php echo base_url('assets/images/logo/bg-remove-logo.png'); ?>" alt="Logo" style="height: 34px; width: auto; object-fit: contain;">
+                        <img src="<?php echo base_url('assets/images/logo/bg-remove-sidelogo.png'); ?>" alt="Logo" style="height: 34px; width: auto; object-fit: contain;">
                     </div>
                     <div class="page-label">
                         <strong><?php echo html_escape($page_title ?? 'Dashboard'); ?></strong>
@@ -619,8 +619,8 @@ $current_segment = $this->uri->segment(1);
                     </button>
                     <div class="profile-menu" id="profileMenu">
                         <div><?php echo html_escape($display_name); ?></div>
-                        <a href="<?php echo base_url('profile'); ?>">My Profile</a>
-                        <a href="<?php echo base_url('logout'); ?>">Logout</a>
+                        <a href="<?php echo base_url('user/profile'); ?>">My Profile</a>
+                        <a href="<?php echo base_url('user/logout'); ?>">Logout</a>
                     </div>
                 </div>
             </header>

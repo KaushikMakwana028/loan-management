@@ -29,6 +29,12 @@ class Profile extends CI_Controller
             redirect('investor');
         }
 
+        if ($this->input->method() !== 'post' || empty($this->input->post())) {
+            $this->session->set_flashdata('error', 'Invalid request or uploaded files exceed the maximum allowed size limit.');
+            redirect('investor/profile');
+            return;
+        }
+
         $investor = $this->general->getById('users', $this->session->userdata('user_id'));
         $data = $this->profile_data();
 
@@ -40,16 +46,16 @@ class Profile extends CI_Controller
     private function profile_data()
     {
         $data = [
-            'name' => trim($this->input->post('name', TRUE)),
-            'email' => trim($this->input->post('email', TRUE)) ?: NULL,
-            'mobile' => trim($this->input->post('mobile', TRUE)),
-            'address' => trim($this->input->post('address', TRUE)) ?: NULL,
-            'account_holder_name' => trim($this->input->post('account_holder_name', TRUE)) ?: NULL,
-            'bank_name' => trim($this->input->post('bank_name', TRUE)) ?: NULL,
-            'account_number' => trim($this->input->post('account_number', TRUE)) ?: NULL,
-            'ifsc_code' => trim($this->input->post('ifsc_code', TRUE)) ?: NULL,
-            'account_type' => trim($this->input->post('account_type', TRUE)) ?: NULL,
-            'branch_name' => trim($this->input->post('branch_name', TRUE)) ?: NULL
+            'name' => trim($this->input->post('name', TRUE) ?? ''),
+            'email' => trim($this->input->post('email', TRUE) ?? '') ?: NULL,
+            'mobile' => trim($this->input->post('mobile', TRUE) ?? ''),
+            'address' => trim($this->input->post('address', TRUE) ?? '') ?: NULL,
+            'account_holder_name' => trim($this->input->post('account_holder_name', TRUE) ?? '') ?: NULL,
+            'bank_name' => trim($this->input->post('bank_name', TRUE) ?? '') ?: NULL,
+            'account_number' => trim($this->input->post('account_number', TRUE) ?? '') ?: NULL,
+            'ifsc_code' => trim($this->input->post('ifsc_code', TRUE) ?? '') ?: NULL,
+            'account_type' => trim($this->input->post('account_type', TRUE) ?? '') ?: NULL,
+            'branch_name' => trim($this->input->post('branch_name', TRUE) ?? '') ?: NULL
         ];
 
         foreach (['profile_image'] as $field) {

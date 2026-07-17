@@ -5,12 +5,15 @@ class Dashboard extends CI_Controller
     public function __construct()
     {
         parent::__construct();
+        if ($this->uri->segment(1) !== 'user') {
+            redirect('user/' . $this->uri->uri_string());
+        }
         $this->load->model('General_model', 'general');
     }
     public function index()
     {
         if (!$this->session->userdata('user_id') || (int) $this->session->userdata('role') !== 0) {
-            redirect('');
+            redirect('user');
         }
 
         $user_id = $this->session->userdata('user_id');
