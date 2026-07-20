@@ -446,36 +446,228 @@
             font-size: 15px;
         }
 
-        .hero-stats {
+        /* --- Elevated Stats & Trust Showcase Section --- */
+        .stats-container {
+            margin-top: 54px;
+            position: relative;
+            z-index: 5;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 22px;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border: 1px solid rgba(6, 61, 50, 0.08);
+            border-radius: var(--radius-md);
+            padding: 24px 22px;
+            box-shadow: 0 10px 30px rgba(6, 61, 50, 0.05);
+            transition: var(--transition);
             display: flex;
-            gap: 40px;
-            border-top: 1px solid var(--line);
-            padding-top: 28px;
-            animation: fadeInUp 0.7s ease 0.32s both;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
         }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(18px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
-        .stat-item h3 {
-            font-size: 26px;
-            font-weight: 800;
+        .stat-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 40px rgba(6, 61, 50, 0.12);
+            border-color: rgba(6, 61, 50, 0.2);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+
+        .stat-icon-wrapper {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            transition: var(--transition);
+        }
+
+        .icon-users {
+            background: rgba(6, 61, 50, 0.08);
             color: var(--primary);
         }
 
-        .stat-item p {
+        .icon-investors {
+            background: rgba(197, 155, 39, 0.12);
+            color: #b38515;
+        }
+
+        .icon-support {
+            background: rgba(13, 92, 75, 0.1);
+            color: var(--primary-light);
+        }
+
+        .icon-loans {
+            background: rgba(6, 61, 50, 0.08);
+            color: var(--primary);
+        }
+
+        .stat-card:hover .stat-icon-wrapper {
+            transform: scale(1.08);
+        }
+
+        .stat-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.2px;
+        }
+
+        .pill-users {
+            background: rgba(6, 61, 50, 0.07);
+            color: var(--primary);
+        }
+
+        .pill-investors {
+            background: rgba(197, 155, 39, 0.12);
+            color: #8c670a;
+        }
+
+        .pill-support {
+            background: rgba(13, 92, 75, 0.1);
+            color: var(--primary-light);
+        }
+
+        .pill-loans {
+            background: rgba(6, 61, 50, 0.07);
+            color: var(--primary);
+        }
+
+        .pulse-dot {
+            width: 7px;
+            height: 7px;
+            background-color: #10b981;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            animation: pulse-ring 1.8s infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+
+        .stat-card-body {
+            margin-bottom: 16px;
+        }
+
+        .stat-number {
+            font-size: 34px;
+            font-weight: 800;
+            color: var(--primary);
+            line-height: 1.1;
+            margin-bottom: 4px;
+            letter-spacing: -0.5px;
+        }
+
+        .stat-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 6px;
+        }
+
+        .stat-desc {
             font-size: 12.5px;
             color: var(--muted);
+            line-height: 1.45;
             font-weight: 500;
+        }
+
+        .stat-card-footer {
+            padding-top: 14px;
+            border-top: 1px dashed var(--line);
+            display: flex;
+            align-items: center;
+        }
+
+        .trust-badge {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .trust-badge i {
+            color: var(--primary);
+            font-size: 12px;
+        }
+
+        /* Avatar group styling for Users stat */
+        .avatar-group {
+            display: flex;
+            align-items: center;
+        }
+
+        .avatar-sm {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: #ffffff;
+            font-size: 10px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #ffffff;
+            margin-left: -6px;
+        }
+
+        .avatar-sm:first-child {
+            margin-left: 0;
+        }
+
+        .avatar-more {
+            font-size: 11.5px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-left: 8px;
         }
 
         .hero-visual {
@@ -1400,9 +1592,13 @@
             }
 
             .hero-badge,
-            .hero-actions,
-            .hero-stats {
+            .hero-actions {
                 justify-content: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
             }
 
             .hero-desc {
@@ -1490,18 +1686,6 @@
                 padding: 40px 0 64px;
             }
 
-            .hero-stats {
-                flex-wrap: wrap;
-                gap: 18px 32px;
-                justify-content: space-between;
-                width: 100%;
-            }
-
-            .stat-item {
-                flex: 1 1 auto;
-                min-width: 90px;
-            }
-
             .features-grid {
                 grid-template-columns: 1fr;
             }
@@ -1527,6 +1711,25 @@
                 width: 26px;
                 height: 26px;
                 font-size: 11px;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .stats-container {
+                margin-top: 36px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 14px;
+            }
+
+            .stat-number {
+                font-size: 28px;
+            }
+
+            .stat-card {
+                padding: 20px 18px;
             }
         }
 
@@ -1595,14 +1798,6 @@
             .logo-text {
                 display: none;
             }
-
-            .hero-stats {
-                gap: 14px 24px;
-            }
-
-            .stat-item h3 {
-                font-size: 22px;
-            }
         }
     </style>
 </head>
@@ -1622,10 +1817,10 @@
                 <li><a href="#download">Download App</a></li>
             </ul>
             <div class="nav-actions">
-                <a href="#download" class="btn btn-primary"><i class="fa-solid fa-download" style="margin-right: 8px;"></i> Download App</a>
+                <a href="<?php echo base_url('assets/app/Kreditmitraa.apk'); ?>" download="Kreditmitraa.apk" class="btn btn-primary"><i class="fa-solid fa-download" style="margin-right: 8px;"></i> Download App</a>
             </div>
             <div class="nav-mobile-actions">
-                <a href="#download" class="nav-icon-btn" aria-label="Download app">
+                <a href="<?php echo base_url('assets/app/Kreditmitraa.apk'); ?>" download="Kreditmitraa.apk" class="nav-icon-btn" aria-label="Download app">
                     <i class="fa-solid fa-download"></i>
                 </a>
                 <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
@@ -1641,10 +1836,10 @@
             <li><a href="#how-it-works" class="mob-link"><i class="fa-solid fa-diagram-project"></i> How it Works</a></li>
             <li><a href="#features" class="mob-link"><i class="fa-solid fa-star"></i> Features</a></li>
             <li><a href="#referral" class="mob-link"><i class="fa-solid fa-gift"></i> Referral Program</a></li>
-            <li><a href="#download" class="mob-link"><i class="fa-solid fa-mobile-screen"></i> Download App</a></li>
+            <li><a href="<?php echo base_url('assets/app/Kreditmitraa.apk'); ?>" download="Kreditmitraa.apk" class="mob-link"><i class="fa-solid fa-mobile-screen"></i> Download App</a></li>
         </ul>
         <div class="mobile-menu-actions">
-            <a href="#download" class="btn btn-primary mob-link"><i class="fa-solid fa-download" style="margin-right: 8px;"></i> Download App</a>
+            <a href="<?php echo base_url('assets/app/Kreditmitraa.apk'); ?>" download="Kreditmitraa.apk" class="btn btn-primary mob-link"><i class="fa-solid fa-download" style="margin-right: 8px;"></i> Download App</a>
         </div>
     </div>
 
@@ -1664,26 +1859,8 @@
                     Get disbursed instantly, calculate repayments transparently, and earn cash rewards by inviting friends to Kreditmitraa.
                 </p>
                 <div class="hero-actions">
-                    <a href="#download" class="btn btn-primary"><i class="fa-solid fa-download" style="margin-right: 8px;"></i> Download App</a>
+                    <a href="<?php echo base_url('assets/app/Kreditmitraa.apk'); ?>" download="Kreditmitraa.apk" class="btn btn-primary"><i class="fa-solid fa-download" style="margin-right: 8px;"></i> Download App</a>
                     <a href="#calculator" class="btn btn-outline">Check EMI</a>
-                </div>
-                <div class="hero-stats">
-                    <div class="stat-item">
-                        <h3>300k</h3>
-                        <p>Happy Users</p>
-                    </div>
-                    <div class="stat-item">
-                        <h3>2k+</h3>
-                        <p>Trusted Investors</p>
-                    </div>
-                    <div class="stat-item">
-                        <h3>24/7</h3>
-                        <p>Instant Support</p>
-                    </div>
-                    <div class="stat-item">
-                        <h3>INR 25L+</h3>
-                        <p>Loans Disbursed</p>
-                    </div>
                 </div>
             </div>
             <div class="hero-visual">
@@ -1700,6 +1877,96 @@
                 <div class="float-chip chip-b">
                     <div class="chip-icon"><i class="fa-solid fa-wallet"></i></div>
                     <div>INR 25,000 disbursed<br><small>Straight to bank</small></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Elevated Stats & Trust Showcase Section -->
+        <div class="container stats-container reveal">
+            <div class="stats-grid">
+                <!-- Stat Card 1: Happy Users -->
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-icon-wrapper icon-users">
+                            <i class="fa-solid fa-users"></i>
+                        </div>
+                        <span class="stat-pill pill-users">
+                            <span class="pulse-dot"></span> Active
+                        </span>
+                    </div>
+                    <div class="stat-card-body">
+                        <h3 class="stat-number">300k+</h3>
+                        <p class="stat-title">Happy Users</p>
+                        <p class="stat-desc">Borrowers across India trusting Kreditmitraa daily</p>
+                    </div>
+                    <div class="stat-card-footer">
+                        <div class="avatar-group">
+                            <div class="avatar-sm"><i class="fa-solid fa-user"></i></div>
+                            <div class="avatar-sm"><i class="fa-solid fa-user"></i></div>
+                            <div class="avatar-sm"><i class="fa-solid fa-user"></i></div>
+                            <span class="avatar-more">+300k borrowers</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stat Card 2: Trusted Investors -->
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-icon-wrapper icon-investors">
+                            <i class="fa-solid fa-chart-line"></i>
+                        </div>
+                        <span class="stat-pill pill-investors">
+                            <i class="fa-solid fa-shield-halved"></i> Verified
+                        </span>
+                    </div>
+                    <div class="stat-card-body">
+                        <h3 class="stat-number">2k+</h3>
+                        <p class="stat-title">Trusted Investors</p>
+                        <p class="stat-desc">Active capital partners providing transparent funds</p>
+                    </div>
+                    <div class="stat-card-footer">
+                        <span class="trust-badge"><i class="fa-solid fa-circle-check"></i> 100% Risk Assessed</span>
+                    </div>
+                </div>
+
+                <!-- Stat Card 3: Instant Support -->
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-icon-wrapper icon-support">
+                            <i class="fa-solid fa-headset"></i>
+                        </div>
+                        <span class="stat-pill pill-support">
+                            <i class="fa-solid fa-clock"></i> 24/7 Live
+                        </span>
+                    </div>
+                    <div class="stat-card-body">
+                        <h3 class="stat-number">24/7</h3>
+                        <p class="stat-title">Instant Support</p>
+                        <p class="stat-desc">Dedicated human help whenever you need assistance</p>
+                    </div>
+                    <div class="stat-card-footer">
+                        <span class="trust-badge"><i class="fa-solid fa-bolt"></i> Avg Response &lt; 2 mins</span>
+                    </div>
+                </div>
+
+                <!-- Stat Card 4: Loans Disbursed -->
+                <div class="stat-card">
+                    <div class="stat-card-header">
+                        <div class="stat-icon-wrapper icon-loans">
+                            <i class="fa-solid fa-indian-rupee-sign"></i>
+                        </div>
+                        <span class="stat-pill pill-loans">
+                            <i class="fa-solid fa-vault"></i> Direct Bank
+                        </span>
+                    </div>
+                    <div class="stat-card-body">
+                        <h3 class="stat-number">INR 25L+</h3>
+                        <p class="stat-title">Loans Disbursed</p>
+                        <p class="stat-desc">Seamless, instant transfers directly into bank accounts</p>
+                    </div>
+                    <div class="stat-card-footer">
+                        <span class="trust-badge"><i class="fa-solid fa-lock"></i> 256-bit SSL Encrypted</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1759,7 +2026,7 @@
                             <span id="summaryTotal">INR 26,125.00</span>
                         </div>
                     </div>
-                    <a href="#download" class="btn btn-secondary" style="width:100%; text-align:center;"><i class="fa-solid fa-download" style="margin-right: 8px;"></i> Download App to Apply</a>
+                    <a href="<?php echo base_url('assets/app/Kreditmitraa.apk'); ?>" download="Kreditmitraa.apk" class="btn btn-secondary" style="width:100%; text-align:center;"><i class="fa-solid fa-download" style="margin-right: 8px;"></i> Download App to Apply</a>
                 </div>
             </div>
         </div>
@@ -1925,7 +2192,14 @@
                     Download our mobile application today to get instant push notifications about your loan status, track EMIs easily, update bank details securely, and share referral invites on the go.
                 </p>
                 <div class="store-btns">
-                    <a href="#" class="store-btn">
+                    <a href="<?php echo base_url('assets/app/Kreditmitraa.apk'); ?>" download="Kreditmitraa.apk" class="store-btn">
+                        <i class="fa-solid fa-android"></i>
+                        <div class="store-btn-text">
+                            <span>DIRECT DOWNLOAD</span>
+                            <strong>Download Android APK</strong>
+                        </div>
+                    </a>
+                    <a href="<?php echo base_url('assets/app/Kreditmitraa.apk'); ?>" download="Kreditmitraa.apk" class="store-btn">
                         <i class="fa-brands fa-google-play"></i>
                         <div class="store-btn-text">
                             <span>GET IT ON</span>

@@ -899,20 +899,20 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
         <?php echo form_open_multipart('user/profile/update', ['class' => 'pf-form', 'id' => 'pfForm', 'novalidate' => 'novalidate']); ?>
 
         <!-- Missing items warning checklist -->
-        <?php 
-            $missing = [];
-            if (empty($profile->name)) $missing[] = 'Full Name';
-            if (empty($profile->mobile)) $missing[] = 'Mobile Number';
-            if (empty($profile->address)) $missing[] = 'Address Details';
-            if (empty($profile->aadhaar_number)) $missing[] = 'Aadhaar Number';
-            if (empty($profile->aadhaar_photo)) $missing[] = 'Aadhaar Card Photo';
-            if (empty($profile->pan_number)) $missing[] = 'PAN Number';
-            if (empty($profile->pan_photo)) $missing[] = 'PAN Card Photo';
-            if (empty($profile->account_holder_name)) $missing[] = 'Bank Account Holder Name';
-            if (empty($profile->bank_name)) $missing[] = 'Bank Name';
-            if (empty($profile->account_number)) $missing[] = 'Bank Account Number';
-            if (empty($profile->ifsc_code)) $missing[] = 'Bank IFSC Code';
-            if (empty($profile->profile_image)) $missing[] = 'Profile Photo / Selfie';
+        <?php
+        $missing = [];
+        if (empty($profile->name)) $missing[] = 'Full Name';
+        if (empty($profile->mobile)) $missing[] = 'Mobile Number';
+        if (empty($profile->address)) $missing[] = 'Address Details';
+        if (empty($profile->aadhaar_number)) $missing[] = 'Aadhaar Number';
+        if (empty($profile->aadhaar_photo)) $missing[] = 'Aadhaar Card Photo';
+        if (empty($profile->pan_number)) $missing[] = 'PAN Number';
+        if (empty($profile->pan_photo)) $missing[] = 'PAN Card Photo';
+        if (empty($profile->account_holder_name)) $missing[] = 'Bank Account Holder Name';
+        if (empty($profile->bank_name)) $missing[] = 'Bank Name';
+        if (empty($profile->account_number)) $missing[] = 'Bank Account Number';
+        if (empty($profile->ifsc_code)) $missing[] = 'Bank IFSC Code';
+        if (empty($profile->profile_image)) $missing[] = 'Profile Photo / Selfie';
         ?>
         <?php if (!empty($missing)): ?>
             <div style="background: #fff5f5; border: 1px solid #feb2b2; border-radius: 16px; padding: 18px 24px; margin-bottom: 24px; box-shadow: 0 4px 12px rgba(254, 178, 178, 0.15);">
@@ -1488,7 +1488,17 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
             btnContinue.style.display = 'none';
             timerText.textContent = 'Starting camera...';
 
-            navigator.mediaDevices.getUserMedia({ video: { width: { ideal: 1024 }, height: { ideal: 768 }, facingMode: facing } })
+            navigator.mediaDevices.getUserMedia({
+                    video: {
+                        width: {
+                            ideal: 1024
+                        },
+                        height: {
+                            ideal: 768
+                        },
+                        facingMode: facing
+                    }
+                })
                 .then(function(stream) {
                     captureStream = stream;
                     video.srcObject = stream;
@@ -1499,7 +1509,11 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
                 })
                 .catch(function(err) {
                     console.error("Camera access error:", err);
-                    navigator.mediaDevices.getUserMedia({ video: { facingMode: facing } })
+                    navigator.mediaDevices.getUserMedia({
+                            video: {
+                                facingMode: facing
+                            }
+                        })
                         .then(function(stream) {
                             captureStream = stream;
                             video.srcObject = stream;
@@ -1568,7 +1582,9 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
                 preview.style.display = 'block';
 
                 if (captureStream) {
-                    captureStream.getTracks().forEach(function(track) { track.stop(); });
+                    captureStream.getTracks().forEach(function(track) {
+                        track.stop();
+                    });
                 }
 
                 document.getElementById('btnCaptureSnap').style.display = 'none';
@@ -1607,14 +1623,18 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
         function saveCapturedPhoto() {
             clearTimeout(captureAutoContinueTimer);
             if (captureBlob) {
-                var file = new File([captureBlob], captureField + ".png", { type: "image/png" });
+                var file = new File([captureBlob], captureField + ".png", {
+                    type: "image/png"
+                });
                 var container = new DataTransfer();
                 container.items.add(file);
 
                 var input = document.getElementById('input_' + captureField);
                 input.files = container.files;
 
-                var event = new Event('change', { bubbles: true });
+                var event = new Event('change', {
+                    bubbles: true
+                });
                 input.dispatchEvent(event);
             }
             window.closeCameraCapture();
@@ -1624,7 +1644,9 @@ $icon_check    = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" str
             clearInterval(captureCountdownTimer);
             clearInterval(captureAutoContinueTimer);
             if (captureStream) {
-                captureStream.getTracks().forEach(function(track) { track.stop(); });
+                captureStream.getTracks().forEach(function(track) {
+                    track.stop();
+                });
             }
             document.getElementById('cameraCaptureOverlay').style.display = 'none';
         };
