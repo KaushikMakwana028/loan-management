@@ -124,67 +124,82 @@
                 padding: 10px 8px 72px;
                 gap: 12px;
             }
+
             .uld-hero {
                 padding: 16px 12px 14px;
                 border-radius: 18px;
             }
+
             .uld-hero-top h1 {
                 font-size: 18px;
                 margin-bottom: 4px;
             }
+
             .uld-hero-top p {
                 font-size: 11px;
                 line-height: 1.45;
                 margin-bottom: 12px;
             }
+
             .uld-hero-stats {
                 grid-template-columns: repeat(3, minmax(0, 1fr));
                 gap: 6px;
                 max-width: none;
             }
+
             .uld-hero-stat {
                 min-width: 0;
                 padding: 9px 4px;
                 border-radius: 10px;
             }
+
             .uld-hero-stat strong {
                 font-size: 17px;
                 margin-bottom: 1px;
             }
+
             .uld-hero-stat span {
                 display: block;
                 font-size: 8px;
                 letter-spacing: 0;
                 line-height: 1.2;
             }
+
             .grid-cols-3 {
                 grid-template-columns: 1fr;
             }
+
             .uld-loan-cta {
                 padding: 16px 14px !important;
                 gap: 12px !important;
                 border-radius: 18px !important;
             }
-            .uld-loan-cta > div[style*="min-width: 280px"] {
+
+            .uld-loan-cta>div[style*="min-width: 280px"] {
                 min-width: 0 !important;
             }
+
             .uld-loan-cta-badge {
                 font-size: 8px !important;
                 padding: 4px 8px !important;
                 letter-spacing: 0 !important;
             }
+
             .uld-loan-cta h2 {
                 font-size: 18px !important;
                 margin: 8px 0 5px !important;
                 line-height: 1.15 !important;
             }
+
             .uld-loan-cta p {
                 font-size: 11px !important;
                 line-height: 1.35 !important;
             }
+
             .uld-loan-cta-action {
                 max-width: none !important;
             }
+
             .uld-loan-cta-action a {
                 padding: 12px 16px !important;
                 font-size: 14px !important;
@@ -258,7 +273,7 @@
                     var userUpdatedAt = '<?php echo strtotime($user->updated_at); ?>';
                     var storageKey = 'profile_approved_dismissed_' + userId + '_' + userUpdatedAt;
                     var banner = document.getElementById('profile-approved-banner');
-                    
+
                     if (localStorage.getItem(storageKey) !== '1') {
                         banner.style.display = 'flex';
                     }
@@ -268,7 +283,7 @@
                     var userId = '<?php echo $user->id; ?>';
                     var userUpdatedAt = '<?php echo strtotime($user->updated_at); ?>';
                     var storageKey = 'profile_approved_dismissed_' + userId + '_' + userUpdatedAt;
-                    
+
                     var banner = document.getElementById('profile-approved-banner');
                     if (banner) {
                         banner.style.display = 'none';
@@ -280,7 +295,9 @@
         <!-- Premium Apply Loan CTA (Shown ONLY after full KYC) -->
         <section class="uld-loan-cta" style="background: linear-gradient(135deg, var(--uld-primary) 0%, #042a22 100%); border-radius: var(--uld-radius-lg); padding: clamp(24px, 5vw, 36px); color: #fff; box-shadow: 0 20px 40px rgba(6, 61, 50, 0.25); display: flex; align-items: center; justify-content: space-between; gap: 24px; flex-wrap: wrap; position: relative; overflow: hidden;">
             <div style="position: absolute; right: -20px; bottom: -20px; opacity: 0.1; transform: rotate(-15deg); pointer-events: none;">
-                <svg width="200" height="200" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2-2 0-3 .9-3 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z"/></svg>
+                <svg width="200" height="200" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2-2 0-3 .9-3 2H7c0-2.76 2.24-5 5-5s5 2.24 5 5c0 1.04-.42 1.99-1.07 2.75z" />
+                </svg>
             </div>
             <div style="flex: 1; min-width: 280px; z-index: 1;">
                 <span class="uld-loan-cta-badge" style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 99px; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">KYC Verification Complete ✅</span>
@@ -366,12 +383,12 @@
                 <div style="width: 36px; height: 36px; border-radius: 50%; background: <?php echo $approved ? '#dcf5e4' : '#f1f5f9'; ?>; color: <?php echo $approved ? '#15803d' : '#64748b'; ?>; display: flex; align-items: center; justify-content: center; font-weight: 700; border: 2px solid <?php echo $approved ? '#bbf7d0' : '#e2e8f0'; ?>;">4</div>
                 <strong style="font-size: 13px; color: var(--uld-text);">Disbursement</strong>
                 <span style="font-size: 11px; color: <?php echo $approved ? '#15803d' : '#64748b'; ?>; font-weight: 600;">
-                    <?php 
-                        if ($latest_loan) {
-                            echo html_escape($latest_loan->status);
-                        } else {
-                            echo 'Waiting';
-                        }
+                    <?php
+                    if ($latest_loan) {
+                        echo html_escape($latest_loan->status);
+                    } else {
+                        echo 'Waiting';
+                    }
                     ?>
                 </span>
             </div>
@@ -439,6 +456,155 @@
             <li>Use the in-browser webcam kyc capture modal in a well-lit room for high quality profile photo validation.</li>
             <li>Maintain a clean repayment history to unlock larger loan products instantly.</li>
         </ul>
+    </section>
+
+    <!-- Instant Partner Loan Apps Widget -->
+    <style>
+        .dashboard-apps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+        }
+
+        @media (max-width: 640px) {
+            .dashboard-apps-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 8px !important;
+            }
+            .dash-app-card {
+                padding: 10px 8px !important;
+                border-radius: 12px !important;
+                min-width: 0 !important;
+            }
+            .dash-app-header {
+                gap: 6px !important;
+                margin-bottom: 6px !important;
+                min-width: 0 !important;
+            }
+            .dash-app-logo {
+                width: 36px !important;
+                height: 36px !important;
+                border-radius: 8px !important;
+                flex-shrink: 0 !important;
+            }
+            .dash-app-title {
+                font-size: 12px !important;
+                margin-bottom: 2px !important;
+                line-height: 1.15 !important;
+                white-space: nowrap !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+            }
+            .dash-app-sub {
+                font-size: 9.5px !important;
+                display: block !important;
+                white-space: nowrap !important;
+            }
+            .dash-app-desc {
+                font-size: 10.5px !important;
+                line-height: 1.3 !important;
+                margin-bottom: 8px !important;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+            .dash-app-btn {
+                padding: 6px 2px !important;
+                font-size: 9.5px !important;
+                border-radius: 6px !important;
+                white-space: nowrap !important;
+            }
+        }
+    </style>
+    <section style="background: #fff; border: 1px solid var(--uld-border); border-radius: var(--uld-radius-lg); padding: clamp(20px, 3vw, 24px); box-shadow: var(--uld-shadow-sm); margin-top: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 18px;">
+            <div>
+                <h3 style="margin: 0; font-size: 16px; font-weight: 800; color: var(--uld-text); display: flex; align-items: center; gap: 8px;">
+                    <span>📲 Recommended Partner Loan Apps</span>
+                </h3>
+                <p style="margin: 4px 0 0; font-size: 13px; color: var(--uld-text-soft);">Download top verified loan applications directly from Google Play Store</p>
+            </div>
+            <span style="background: #eef8f4; color: #063d32; font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 99px; text-transform: uppercase;">Verified Direct Links</span>
+        </div>
+
+        <div class="dashboard-apps-grid">
+            <!-- Moneyview -->
+            <a href="https://play.google.com/store/apps/details?id=com.whizdm.moneyview.loans" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: inherit; display: block;">
+                <div class="dash-app-card" style="border: 1px solid var(--uld-border); border-radius: 16px; padding: 16px; background: #fafbfc; transition: all 0.2s ease; height: 100%; display: flex; flex-direction: column; justify-content: space-between;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='#063d32';" onmouseout="this.style.transform='none'; this.style.borderColor='var(--uld-border)';">
+                    <div>
+                        <div class="dash-app-header" style="display: flex; align-items: center; gap: 14px; margin-bottom: 12px;">
+                            <img class="dash-app-logo" src="<?php echo base_url('assets/images/apps/Moneyview.webp'); ?>" alt="Moneyview" style="width: 48px; height: 48px; border-radius: 12px; object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; background: #fff;">
+                            <div>
+                                <h4 class="dash-app-title" style="margin: 0; font-size: 15px; font-weight: 800; color: var(--uld-text);">Moneyview</h4>
+                                <span class="dash-app-sub" style="font-size: 11px; color: #16a34a; font-weight: 700;">★ 4.8 • 50M+</span>
+                            </div>
+                        </div>
+                        <p class="dash-app-desc" style="margin: 0 0 12px; font-size: 12px; color: var(--uld-text-soft); line-height: 1.4;">Instant personal loans up to ₹10 Lakhs with 100% paperless KYC.</p>
+                    </div>
+                    <div class="dash-app-btn" style="background: #063d32; color: #fff; text-align: center; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        Get on Google Play ↗
+                    </div>
+                </div>
+            </a>
+
+            <!-- RING by Kissht -->
+            <a href="https://play.google.com/store/apps/details?id=com.ideopay.user" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: inherit; display: block;">
+                <div class="dash-app-card" style="border: 1px solid var(--uld-border); border-radius: 16px; padding: 16px; background: #fafbfc; transition: all 0.2s ease; height: 100%; display: flex; flex-direction: column; justify-content: space-between;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='#2563eb';" onmouseout="this.style.transform='none'; this.style.borderColor='var(--uld-border)';">
+                    <div>
+                        <div class="dash-app-header" style="display: flex; align-items: center; gap: 14px; margin-bottom: 12px;">
+                            <img class="dash-app-logo" src="<?php echo base_url('assets/images/apps/RING by Kissht.webp'); ?>" alt="RING by Kissht" style="width: 48px; height: 48px; border-radius: 12px; object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; background: #fff;">
+                            <div>
+                                <h4 class="dash-app-title" style="margin: 0; font-size: 15px; font-weight: 800; color: var(--uld-text);">RING by Kissht</h4>
+                                <span class="dash-app-sub" style="font-size: 11px; color: #2563eb; font-weight: 700;">★ 4.9 • 10M+</span>
+                            </div>
+                        </div>
+                        <p class="dash-app-desc" style="margin: 0 0 12px; font-size: 12px; color: var(--uld-text-soft); line-height: 1.4;">Instant RING Power Loan up to ₹3,00,000 with 100% digital processing.</p>
+                    </div>
+                    <div class="dash-app-btn" style="background: #2563eb; color: #fff; text-align: center; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        Get on Google Play ↗
+                    </div>
+                </div>
+            </a>
+
+            <!-- True Balance -->
+            <a href="https://play.google.com/store/apps/details?id=com.balancehero.truebalance" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: inherit; display: block;">
+                <div class="dash-app-card" style="border: 1px solid var(--uld-border); border-radius: 16px; padding: 16px; background: #fafbfc; transition: all 0.2s ease; height: 100%; display: flex; flex-direction: column; justify-content: space-between;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='#dc2626';" onmouseout="this.style.transform='none'; this.style.borderColor='var(--uld-border)';">
+                    <div>
+                        <div class="dash-app-header" style="display: flex; align-items: center; gap: 14px; margin-bottom: 12px;">
+                            <img class="dash-app-logo" src="<?php echo base_url('assets/images/apps/True Balance.webp'); ?>" alt="True Balance" style="width: 48px; height: 48px; border-radius: 12px; object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; background: #fff;">
+                            <div>
+                                <h4 class="dash-app-title" style="margin: 0; font-size: 15px; font-weight: 800; color: var(--uld-text);">True Balance</h4>
+                                <span class="dash-app-sub" style="font-size: 11px; color: #dc2626; font-weight: 700;">★ 4.6 • 50M+</span>
+                            </div>
+                        </div>
+                        <p class="dash-app-desc" style="margin: 0 0 12px; font-size: 12px; color: var(--uld-text-soft); line-height: 1.4;">Trusted personal loan app up to ₹5,00,000 direct bank credit.</p>
+                    </div>
+                    <div class="dash-app-btn" style="background: #dc2626; color: #fff; text-align: center; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        Get on Google Play ↗
+                    </div>
+                </div>
+            </a>
+
+            <!-- RamFincorp -->
+            <a href="https://play.google.com/store/apps/details?id=com.ramfin_calculator" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: inherit; display: block;">
+                <div class="dash-app-card" style="border: 1px solid var(--uld-border); border-radius: 16px; padding: 16px; background: #fafbfc; transition: all 0.2s ease; height: 100%; display: flex; flex-direction: column; justify-content: space-between;" onmouseover="this.style.transform='translateY(-3px)'; this.style.borderColor='#d97706';" onmouseout="this.style.transform='none'; this.style.borderColor='var(--uld-border)';">
+                    <div>
+                        <div class="dash-app-header" style="display: flex; align-items: center; gap: 14px; margin-bottom: 12px;">
+                            <img class="dash-app-logo" src="<?php echo base_url('assets/images/apps/RamFincorp.webp'); ?>" alt="RamFincorp" style="width: 48px; height: 48px; border-radius: 12px; object-fit: cover; box-shadow: 0 4px 10px rgba(0,0,0,0.06); border: 1px solid #e2e8f0; background: #fff;">
+                            <div>
+                                <h4 class="dash-app-title" style="margin: 0; font-size: 15px; font-weight: 800; color: var(--uld-text);">RamFincorp</h4>
+                                <span class="dash-app-sub" style="font-size: 11px; color: #d97706; font-weight: 700;">★ 2.7 • 500K+</span>
+                            </div>
+                        </div>
+                        <p class="dash-app-desc" style="margin: 0 0 12px; font-size: 12px; color: var(--uld-text-soft); line-height: 1.4;">Official R.K Bansal Finance EMI calculator & loan assistant.</p>
+                    </div>
+                    <div class="dash-app-btn" style="background: #d97706; color: #fff; text-align: center; padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        Get on Google Play ↗
+                    </div>
+                </div>
+            </a>
+        </div>
     </section>
 </div>
 

@@ -582,9 +582,11 @@
             0% {
                 box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
             }
+
             70% {
                 box-shadow: 0 0 0 6px rgba(16, 185, 129, 0);
             }
+
             100% {
                 box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
             }
@@ -1588,7 +1590,6 @@
         @media (max-width: 980px) {
             .hero-grid {
                 grid-template-columns: 1fr;
-                text-align: center;
             }
 
             .hero-badge,
@@ -1799,6 +1800,395 @@
                 display: none;
             }
         }
+
+        /* ============================================================
+           Partner Loan Apps Section — enhanced
+           ============================================================ */
+        .partner-apps-section {
+            padding: 90px 0;
+            background: linear-gradient(180deg, var(--bg-light) 0%, #edf3fa 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .partner-apps-section::before {
+            content: '';
+            position: absolute;
+            top: -140px;
+            right: -120px;
+            width: 320px;
+            height: 320px;
+            background: radial-gradient(circle, rgba(6, 61, 50, 0.06), transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: blobFloat 10s ease-in-out infinite;
+        }
+
+        .partner-apps-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 24px;
+            margin-top: 40px;
+        }
+
+        .app-card-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            height: 100%;
+        }
+
+        .app-card {
+            background: var(--surface);
+            border-radius: var(--radius-md);
+            border: 1px solid var(--line);
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            transition: var(--transition);
+            box-shadow: var(--shadow-sm);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            opacity: 0;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+
+        .app-card-link:hover .app-card,
+        .app-card-link:focus-visible .app-card {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+            border-color: rgba(6, 61, 50, 0.2);
+        }
+
+        .app-card-link:active .app-card {
+            transform: translateY(-3px) scale(0.99);
+        }
+
+        .app-card-link:hover .app-card::before,
+        .app-card-link:focus-visible .app-card::before {
+            opacity: 1;
+            transform: scaleX(1);
+        }
+
+        .app-card-top {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+
+        .app-logo-box {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            overflow: hidden;
+            flex-shrink: 0;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--line);
+            background: #fff;
+            display: grid;
+            place-items: center;
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.35s ease;
+        }
+
+        .app-card-link:hover .app-logo-box {
+            transform: scale(1.08) rotate(-3deg);
+            box-shadow: 0 10px 24px rgba(6, 61, 50, 0.16);
+        }
+
+        .app-logo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .app-title-group {
+            flex-grow: 1;
+            min-width: 0;
+        }
+
+        .app-title-group h3 {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--ink);
+            line-height: 1.25;
+            margin-bottom: 6px;
+        }
+
+        .app-tag {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .tag-green {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .tag-blue {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .tag-red {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .tag-amber {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .app-card-desc {
+            font-size: 13.5px;
+            color: var(--muted);
+            line-height: 1.55;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .app-rating-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-top: 12px;
+            border-top: 1px solid var(--line);
+            font-size: 12px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .app-stars {
+            color: #f59e0b;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-weight: 700;
+        }
+
+        .app-play-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px 16px;
+            background: #111827;
+            color: #ffffff;
+            border-radius: var(--radius-sm);
+            font-size: 13.5px;
+            font-weight: 700;
+            transition: var(--transition);
+            box-shadow: 0 4px 12px rgba(17, 24, 39, 0.15);
+            min-height: 44px;
+        }
+
+        .app-play-btn i {
+            transition: transform 0.3s ease;
+        }
+
+        .app-card-link:hover .app-play-btn {
+            background: var(--primary);
+            box-shadow: 0 6px 18px rgba(6, 61, 50, 0.3);
+        }
+
+        .app-card-link:hover .app-play-btn i {
+            transform: translateY(-2px);
+        }
+
+        /* Tablet: 2-column, roomier cards */
+        @media (max-width: 1024px) {
+            .partner-apps-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        /* Mobile: full rebuild of the card for readability + touch,
+           no more single-line ellipsis truncation on titles/descriptions */
+        @media (max-width: 640px) {
+            .partner-apps-section {
+                padding: 48px 0;
+            }
+
+            .partner-apps-section .section-header {
+                margin-bottom: 28px;
+            }
+
+            .partner-apps-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 12px;
+                margin-top: 22px;
+            }
+
+            .app-card-link {
+                min-width: 0;
+                width: 100%;
+            }
+
+            .app-card {
+                padding: 14px 12px;
+                border-radius: 16px;
+                min-width: 0;
+                gap: 4px;
+            }
+
+            .app-card::before {
+                height: 3px;
+            }
+
+            .app-card-top {
+                display: flex;
+                align-items: flex-start;
+                gap: 8px;
+                margin-bottom: 8px;
+                min-width: 0;
+            }
+
+            .app-logo-box {
+                width: 40px;
+                height: 40px;
+                border-radius: 10px;
+                flex-shrink: 0;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+            }
+
+            .app-title-group {
+                min-width: 0;
+                overflow: hidden;
+            }
+
+            .app-title-group h3 {
+                font-size: 12.5px;
+                font-weight: 800;
+                line-height: 1.2;
+                margin-bottom: 4px;
+                white-space: normal;
+                overflow-wrap: break-word;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .app-tag {
+                font-size: 8px;
+                padding: 2px 6px;
+                border-radius: 5px;
+                letter-spacing: 0.1px;
+                display: inline-block;
+                white-space: nowrap;
+            }
+
+            .app-card-desc {
+                font-size: 10.5px;
+                line-height: 1.4;
+                margin-bottom: 8px;
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                min-height: 2.8em;
+            }
+
+            .app-rating-row {
+                font-size: 10px;
+                margin-bottom: 8px;
+                padding-top: 8px;
+                border-top: 1px solid var(--line);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 4px;
+            }
+
+            .app-stars {
+                font-size: 10.5px;
+            }
+
+            .app-play-btn {
+                padding: 9px 4px;
+                font-size: 10px;
+                border-radius: 8px;
+                gap: 4px;
+                font-weight: 800;
+                white-space: nowrap;
+                min-height: 38px;
+            }
+
+            .app-play-btn i {
+                font-size: 11px;
+            }
+
+            /* Staggered pop-in for each card, independent of scroll observer
+               so the grid always feels alive as soon as it's on screen */
+            .partner-apps-grid.reveal-stagger>* {
+                animation: appCardPop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+                animation-play-state: paused;
+            }
+
+            .partner-apps-grid.reveal-stagger.in-view>*:nth-child(1) {
+                animation-delay: 0.05s;
+            }
+
+            .partner-apps-grid.reveal-stagger.in-view>*:nth-child(2) {
+                animation-delay: 0.12s;
+            }
+
+            .partner-apps-grid.reveal-stagger.in-view>*:nth-child(3) {
+                animation-delay: 0.19s;
+            }
+
+            .partner-apps-grid.reveal-stagger.in-view>*:nth-child(4) {
+                animation-delay: 0.26s;
+            }
+
+            .partner-apps-grid.reveal-stagger.in-view>* {
+                animation-play-state: running;
+            }
+        }
+
+        @keyframes appCardPop {
+            0% {
+                opacity: 0;
+                transform: translateY(18px) scale(0.94);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @media (max-width: 380px) {
+            .app-card-desc {
+                display: none;
+            }
+
+            .app-card-top {
+                margin-bottom: 10px;
+            }
+        }
     </style>
 </head>
 
@@ -1813,6 +2203,7 @@
             <ul class="nav-links">
                 <li><a href="#how-it-works">How it Works</a></li>
                 <li><a href="#features">Features</a></li>
+                <li><a href="#loan-apps">Loan Apps</a></li>
                 <li><a href="#referral">Referral Program</a></li>
                 <li><a href="#download">Download App</a></li>
             </ul>
@@ -1835,6 +2226,7 @@
         <ul>
             <li><a href="#how-it-works" class="mob-link"><i class="fa-solid fa-diagram-project"></i> How it Works</a></li>
             <li><a href="#features" class="mob-link"><i class="fa-solid fa-star"></i> Features</a></li>
+            <li><a href="#loan-apps" class="mob-link"><i class="fa-solid fa-mobile-screen-button"></i> Loan Apps</a></li>
             <li><a href="#referral" class="mob-link"><i class="fa-solid fa-gift"></i> Referral Program</a></li>
             <li><a href="<?php echo base_url('assets/app/Kreditmitraa.apk'); ?>" download="Kreditmitraa.apk" class="mob-link"><i class="fa-solid fa-mobile-screen"></i> Download App</a></li>
         </ul>
@@ -2068,6 +2460,144 @@
         </div>
     </section>
 
+    <!-- Featured Partner Apps Section -->
+    <section class="partner-apps-section" id="loan-apps">
+        <div class="container">
+            <div class="section-header reveal">
+                <span class="section-eyebrow">Instant Loan Applications</span>
+                <h2>Download Partner Loan Applications</h2>
+                <p>Access top-rated instant personal loan applications available on Google Play Store for fast approval, 100% digital verification, and direct bank disbursal.</p>
+            </div>
+            <div class="partner-apps-grid reveal-stagger">
+
+                <!-- App 1: Moneyview -->
+                <a href="https://play.google.com/store/apps/details?id=com.whizdm.moneyview.loans" target="_blank" rel="noopener noreferrer" class="app-card-link">
+                    <div class="app-card">
+                        <div>
+                            <div class="app-card-top">
+                                <div class="app-logo-box">
+                                    <img src="<?php echo base_url('assets/images/apps/Moneyview.webp'); ?>" alt="Moneyview Logo">
+                                </div>
+                                <div class="app-title-group">
+                                    <h3>Moneyview</h3>
+                                    <span class="app-tag tag-green">Instant Loan</span>
+                                </div>
+                            </div>
+                            <p class="app-card-desc">
+                                Get instant personal loans up to ₹10 Lakhs with 100% paperless verification and flexible EMI plans.
+                            </p>
+                        </div>
+                        <div>
+                            <div class="app-rating-row">
+                                <div class="app-stars">
+                                    <i class="fa-solid fa-star"></i> 4.8
+                                </div>
+                                <span>50M+ Downloads</span>
+                            </div>
+                            <div class="app-play-btn">
+                                <i class="fa-brands fa-google-play"></i> Get on Google Play
+                            </div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- App 2: RING by Kissht -->
+                <a href="https://play.google.com/store/apps/details?id=com.ideopay.user" target="_blank" rel="noopener noreferrer" class="app-card-link">
+                    <div class="app-card">
+                        <div>
+                            <div class="app-card-top">
+                                <div class="app-logo-box">
+                                    <img src="<?php echo base_url('assets/images/apps/RING by Kissht.webp'); ?>" alt="RING by Kissht Logo">
+                                </div>
+                                <div class="app-title-group">
+                                    <h3>RING by Kissht</h3>
+                                    <span class="app-tag tag-blue">Power Loan</span>
+                                </div>
+                            </div>
+                            <p class="app-card-desc">
+                                Instant RING Power Loan up to ₹3,00,000 with quick approval and 100% digital processing.
+                            </p>
+                        </div>
+                        <div>
+                            <div class="app-rating-row">
+                                <div class="app-stars">
+                                    <i class="fa-solid fa-star"></i> 4.9
+                                </div>
+                                <span>10M+ Downloads</span>
+                            </div>
+                            <div class="app-play-btn">
+                                <i class="fa-brands fa-google-play"></i> Get on Google Play
+                            </div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- App 3: True Balance -->
+                <a href="https://play.google.com/store/apps/details?id=com.balancehero.truebalance" target="_blank" rel="noopener noreferrer" class="app-card-link">
+                    <div class="app-card">
+                        <div>
+                            <div class="app-card-top">
+                                <div class="app-logo-box">
+                                    <img src="<?php echo base_url('assets/images/apps/True Balance.webp'); ?>" alt="True Balance Logo">
+                                </div>
+                                <div class="app-title-group">
+                                    <h3>True Balance</h3>
+                                    <span class="app-tag tag-red">Up to ₹5 Lakhs</span>
+                                </div>
+                            </div>
+                            <p class="app-card-desc">
+                                Trusted financial app offering quick personal cash loans up to ₹5,00,000 directly to your bank.
+                            </p>
+                        </div>
+                        <div>
+                            <div class="app-rating-row">
+                                <div class="app-stars">
+                                    <i class="fa-solid fa-star"></i> 4.6
+                                </div>
+                                <span>50M+ Downloads</span>
+                            </div>
+                            <div class="app-play-btn">
+                                <i class="fa-brands fa-google-play"></i> Get on Google Play
+                            </div>
+                        </div>
+                    </div>
+                </a>
+
+                <!-- App 4: RamFincorp -->
+                <a href="https://play.google.com/store/apps/details?id=com.ramfin_calculator" target="_blank" rel="noopener noreferrer" class="app-card-link">
+                    <div class="app-card">
+                        <div>
+                            <div class="app-card-top">
+                                <div class="app-logo-box">
+                                    <img src="<?php echo base_url('assets/images/apps/RamFincorp.webp'); ?>" alt="RamFincorp Logo">
+                                </div>
+                                <div class="app-title-group">
+                                    <h3>RamFincorp</h3>
+                                    <span class="app-tag tag-amber">EMI Calculator</span>
+                                </div>
+                            </div>
+                            <p class="app-card-desc">
+                                Official R.K Bansal Finance Private Limited EMI calculator and fast loan approval assistant.
+                            </p>
+                        </div>
+                        <div>
+                            <div class="app-rating-row">
+                                <div class="app-stars">
+                                    <i class="fa-solid fa-star"></i> 2.7
+                                </div>
+                                <span>500K+ Downloads</span>
+                            </div>
+                            <div class="app-play-btn">
+                                <i class="fa-brands fa-google-play"></i> Get on Google Play
+                            </div>
+                        </div>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+    </section>
+
     <!-- How It Works -->
     <section class="how-it-works" id="how-it-works">
         <div class="container">
@@ -2245,6 +2775,7 @@
                 <ul>
                     <li><a href="#how-it-works">How it Works</a></li>
                     <li><a href="#features">Features</a></li>
+                    <li><a href="#loan-apps">Loan Apps</a></li>
                     <li><a href="#referral">Referral Program</a></li>
                     <li><a href="#download">Download App</a></li>
                 </ul>
