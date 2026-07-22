@@ -103,6 +103,11 @@ $total_payout = $total_invested + $total_profit;
         color: #b91c1c;
     }
 
+    .status-disbursed {
+        background: #f3e8ff;
+        color: #7e22ce;
+    }
+
     /* HERO */
     .loan-hero {
         position: relative;

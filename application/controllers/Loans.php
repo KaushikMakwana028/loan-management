@@ -32,7 +32,7 @@ class Loans extends CI_Controller
 
         // Check if user has active/pending loan
         $active_loan = $this->db->where('user_id', $user_id)
-            ->where_in('status', ['pending', 'assigned', 'funded', 'approved'])
+            ->where_in('status', ['pending', 'assigned', 'funded', 'approved', 'disbursed'])
             ->get('loans')
             ->row();
         $data['has_active_loan'] = !empty($active_loan);
@@ -60,7 +60,7 @@ class Loans extends CI_Controller
 
         // Check if user has active/pending loan to prevent concurrent loans
         $active_loan = $this->db->where('user_id', $user_id)
-            ->where_in('status', ['pending', 'assigned', 'funded', 'approved'])
+            ->where_in('status', ['pending', 'assigned', 'funded', 'approved', 'disbursed'])
             ->get('loans')
             ->row();
         if (!empty($active_loan)) {
@@ -210,8 +210,8 @@ class Loans extends CI_Controller
             return;
         }
 
-        if ($data['loan']->status !== 'approved') {
-            $this->session->set_flashdata('error', 'Only active approved loans can be paid.');
+        if ($data['loan']->status !== 'disbursed') {
+            $this->session->set_flashdata('error', 'Only active disbursed loans can be paid.');
             redirect('loans');
             return;
         }
@@ -234,7 +234,7 @@ class Loans extends CI_Controller
     {
         $user_id = $this->session->userdata('user_id');
         $loan = $this->general->getOne('loans', ['id' => $id, 'user_id' => $user_id]);
-        if (!$loan || $loan->status !== 'approved') {
+        if (!$loan || $loan->status !== 'disbursed') {
             $this->session->set_flashdata('error', 'Invalid loan or loan status.');
             redirect('loans');
             return;

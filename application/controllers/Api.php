@@ -500,7 +500,7 @@ class Api extends CI_Controller
 
         // Check if user has active/pending loan
         $active_loan = $this->db->where('user_id', $user->id)
-            ->where_in('status', ['pending', 'assigned', 'funded', 'approved'])
+            ->where_in('status', ['pending', 'assigned', 'funded', 'approved', 'disbursed'])
             ->get('loans')
             ->row();
 
@@ -520,7 +520,49 @@ class Api extends CI_Controller
             'can_apply_loan' => $profile_completed && empty($active_loan),
             'total_loans' => $total_loans,
             'latest_loan' => $latest_loan,
-            'has_active_loan' => !empty($active_loan)
+            'has_active_loan' => !empty($active_loan),
+            'partner_apps' => [
+                [
+                    'name' => 'Moneyview',
+                    'logo' => base_url('assets/images/apps/Moneyview.webp'),
+                    'tag' => 'Instant Loan',
+                    'tag_class' => 'tag-green',
+                    'description' => 'Get instant personal loans up to ₹10 Lakhs with 100% paperless verification and flexible EMI plans.',
+                    'rating' => 4.8,
+                    'downloads' => '50M+ Downloads',
+                    'play_store_url' => 'https://play.google.com/store/apps/details?id=com.whizdm.moneyview.loans'
+                ],
+                [
+                    'name' => 'RING by Kissht',
+                    'logo' => base_url('assets/images/apps/RING by Kissht.webp'),
+                    'tag' => 'Power Loan',
+                    'tag_class' => 'tag-blue',
+                    'description' => 'Instant RING Power Loan up to ₹3,00,000 with quick approval and 100% digital processing.',
+                    'rating' => 4.9,
+                    'downloads' => '10M+ Downloads',
+                    'play_store_url' => 'https://play.google.com/store/apps/details?id=com.ideopay.user'
+                ],
+                [
+                    'name' => 'True Balance',
+                    'logo' => base_url('assets/images/apps/True Balance.webp'),
+                    'tag' => 'Up to ₹5 Lakhs',
+                    'tag_class' => 'tag-red',
+                    'description' => 'Trusted financial app offering quick personal cash loans up to ₹5,00,000 directly to your bank.',
+                    'rating' => 4.6,
+                    'downloads' => '50M+ Downloads',
+                    'play_store_url' => 'https://play.google.com/store/apps/details?id=com.balancehero.truebalance'
+                ],
+                [
+                    'name' => 'RamFincorp',
+                    'logo' => base_url('assets/images/apps/RamFincorp.webp'),
+                    'tag' => 'EMI Calculator',
+                    'tag_class' => 'tag-amber',
+                    'description' => 'Official R.K Bansal Finance Private Limited EMI calculator and fast loan approval assistant.',
+                    'rating' => 2.7,
+                    'downloads' => '500K+ Downloads',
+                    'play_store_url' => 'https://play.google.com/store/apps/details?id=com.ramfin_calculator'
+                ]
+            ]
         ], 'Dashboard data fetched successfully.', 200);
     }
 
@@ -919,7 +961,7 @@ class Api extends CI_Controller
         $loans = $this->general->getAll('loans', ['user_id' => $user->id]);
 
         $active_loan = $this->db->where('user_id', $user->id)
-            ->where_in('status', ['pending', 'assigned', 'funded', 'approved'])
+            ->where_in('status', ['pending', 'assigned', 'funded', 'approved', 'disbursed'])
             ->get('loans')
             ->row();
 
@@ -927,7 +969,7 @@ class Api extends CI_Controller
         foreach ($loans as $loan) {
             // Days Left calculation
             $days_left = '-';
-            if ($loan->status === 'approved') {
+            if (in_array($loan->status, ['approved', 'disbursed'])) {
                 $tenure_days = (int) $loan->tenure_days;
                 $start_date = new DateTime(date('Y-m-d', strtotime($loan->approved_at ?: $loan->updated_at ?: $loan->created_at)));
                 $due_date = clone $start_date;
@@ -949,12 +991,14 @@ class Api extends CI_Controller
 
             // Action status
             $action_status = 'none';
-            if ($loan->status === 'approved') {
+            if ($loan->status === 'disbursed') {
                 if (!empty($loan->repayment_submitted_at)) {
                     $action_status = 'verification_pending';
                 } else {
                     $action_status = 'pay_now';
                 }
+            } elseif ($loan->status === 'approved') {
+                $action_status = 'details';
             } elseif ($loan->status === 'completed' || $loan->status === 'paid') {
                 $action_status = 'completed';
             }
@@ -1007,7 +1051,7 @@ class Api extends CI_Controller
 
         // Days Left calculation
         $days_left = '-';
-        if ($loan->status === 'approved') {
+        if (in_array($loan->status, ['approved', 'disbursed'])) {
             $is_emi = isset($loan->is_emi) ? (int) $loan->is_emi : 0;
             $tenure_days = ($is_emi === 1) ? (int) $loan->emi_count * 30 : (int) $loan->tenure_days;
             $start_date = new DateTime(date('Y-m-d', strtotime($loan->approved_at ?: $loan->updated_at ?: $loan->created_at)));
@@ -1030,12 +1074,14 @@ class Api extends CI_Controller
 
         // Action status
         $action_status = 'none';
-        if ($loan->status === 'approved') {
+        if ($loan->status === 'disbursed') {
             if (!empty($loan->repayment_submitted_at)) {
                 $action_status = 'verification_pending';
             } else {
                 $action_status = 'pay_now';
             }
+        } elseif ($loan->status === 'approved') {
+            $action_status = 'details';
         } elseif ($loan->status === 'completed' || $loan->status === 'paid') {
             $action_status = 'completed';
         }
@@ -1125,7 +1171,7 @@ class Api extends CI_Controller
 
         // Prevent concurrent loans
         $active_loan = $this->db->where('user_id', $user->id)
-            ->where_in('status', ['pending', 'assigned', 'funded', 'approved'])
+            ->where_in('status', ['pending', 'assigned', 'funded', 'approved', 'disbursed'])
             ->get('loans')
             ->row();
         if (!empty($active_loan)) {
@@ -1221,8 +1267,8 @@ class Api extends CI_Controller
             $this->response(null, 'Loan record not found.', 404);
         }
 
-        if ($loan->status !== 'approved') {
-            $this->response(null, 'Only active approved loans can be paid.', 400);
+        if ($loan->status !== 'disbursed') {
+            $this->response(null, 'Only active disbursed loans can be paid.', 400);
         }
 
         // Fetch payment config
@@ -1249,7 +1295,7 @@ class Api extends CI_Controller
         $user = $this->authenticate();
 
         $loan = $this->general->getOne('loans', ['id' => $id, 'user_id' => $user->id]);
-        if (!$loan || $loan->status !== 'approved') {
+        if (!$loan || $loan->status !== 'disbursed') {
             $this->response(null, 'Invalid loan or loan status.', 400);
         }
 

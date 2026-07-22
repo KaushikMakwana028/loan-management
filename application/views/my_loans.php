@@ -131,6 +131,11 @@
         color: #7e22ce;
     }
 
+    .badge-disbursed {
+        background: #f3e8ff;
+        color: #7e22ce;
+    }
+
     .badge-completed {
         background: #f1f5f9;
         color: #475569;
@@ -389,7 +394,7 @@
                                 </span>
                             </td>
                             <td>
-                                <?php if ($loan->status === 'approved'): ?>
+                                <?php if ($loan->status === 'approved' || $loan->status === 'disbursed'): ?>
                                     <?php
                                     $is_emi = isset($loan->is_emi) ? (int) $loan->is_emi : 0;
                                     $tenure_days = ($is_emi === 1) ? (int) $loan->emi_count * 30 : (int) $loan->tenure_days;
@@ -418,6 +423,10 @@
                             <td><?php echo date('d M Y, h:i A', strtotime($loan->created_at)); ?></td>
                             <td>
                                 <?php if ($loan->status === 'approved'): ?>
+                                    <a href="javascript:void(0)" onclick="viewTerms(<?php echo $json_terms; ?>)" style="background:#063d32; color:#fff; border:0; padding:6px 12px; border-radius:8px; font-size:12.5px; font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:4px; transition:background 0.2s ease;">
+                                        Detail
+                                    </a>
+                                <?php elseif ($loan->status === 'disbursed'): ?>
                                     <?php if (!empty($loan->repayment_submitted_at)): ?>
                                         <span class="badge" style="background:#f1f5f9; color:#475569; border:1px solid #e2e8f0; text-transform:none;">Verification Pending</span>
                                     <?php else: ?>
@@ -472,7 +481,7 @@
                 $json_terms = html_escape(json_encode($terms_data));
                 $days_label = '-';
                 $days_style = '';
-                if ($loan->status === 'approved') {
+                if ($loan->status === 'approved' || $loan->status === 'disbursed') {
                     $is_emi = isset($loan->is_emi) ? (int) $loan->is_emi : 0;
                     $tenure_days = ($is_emi === 1) ? (int) $loan->emi_count * 30 : (int) $loan->tenure_days;
                     $start_date = new DateTime(date('Y-m-d', strtotime($loan->approved_at ?: $loan->updated_at ?: $loan->created_at)));
@@ -537,6 +546,8 @@
                     <div class="loan-card-actions">
                         <a href="javascript:void(0)" onclick="viewTerms(<?php echo $json_terms; ?>)" class="loan-card-link">View Terms</a>
                         <?php if ($loan->status === 'approved'): ?>
+                            <a href="javascript:void(0)" onclick="viewTerms(<?php echo $json_terms; ?>)" class="loan-card-pay">Detail</a>
+                        <?php elseif ($loan->status === 'disbursed'): ?>
                             <?php if (!empty($loan->repayment_submitted_at)): ?>
                                 <span class="loan-card-link">Verification Pending</span>
                             <?php else: ?>
@@ -625,7 +636,7 @@
             `;
         }
 
-        var showPay = (data.status === 'approved');
+        var showPay = (data.status === 'disbursed');
         Swal.fire({
             title: 'Loan Offer Terms',
             html: `

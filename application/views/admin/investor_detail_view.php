@@ -5,12 +5,14 @@
         max-width: 100%;
         overflow: hidden;
     }
+
     .header-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 26px;
     }
+
     .back-btn {
         background: #fff;
         color: #475569;
@@ -24,15 +26,17 @@
         align-items: center;
         gap: 8px;
         text-decoration: none;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
         transition: all 0.2s ease;
     }
+
     .back-btn:hover {
         background: #f8fafc;
         border-color: #cbd5e1;
         color: #0f172a;
         transform: translateX(-3px);
     }
+
     .detail-grid {
         display: grid;
         grid-template-columns: minmax(280px, 360px) minmax(0, 1fr);
@@ -41,11 +45,13 @@
         width: 100%;
         max-width: 100%;
     }
+
     @media (max-width: 1200px) {
         .detail-grid {
             grid-template-columns: 1fr;
         }
     }
+
     .profile-card {
         background: #fff;
         border: 1px solid #e5edf6;
@@ -54,10 +60,12 @@
         box-shadow: 0 14px 40px rgba(22, 34, 51, 0.05);
         min-width: 0;
     }
+
     .avatar-wrapper {
         text-align: center;
         margin-bottom: 24px;
     }
+
     .avatar-circle {
         width: 100px;
         height: 100px;
@@ -73,23 +81,27 @@
         border: 4px solid #fff;
         box-shadow: 0 10px 25px rgba(37, 99, 235, 0.2);
     }
+
     .avatar-circle img {
         width: 100%;
         height: 100%;
         object-fit: cover;
     }
+
     .profile-name {
         font-size: 22px;
         font-weight: 700;
         color: #0f172a;
         margin: 0 0 6px;
     }
+
     .profile-email {
         font-size: 14px;
         color: #64748b;
         margin: 0 0 16px;
         overflow-wrap: anywhere;
     }
+
     .status-badge-pill {
         display: inline-block;
         padding: 6px 14px;
@@ -99,16 +111,19 @@
         text-transform: uppercase;
         letter-spacing: 0.05em;
     }
+
     .status-pill-active {
         background: #ecfdf5;
         color: #059669;
         border: 1px solid #a7f3d0;
     }
+
     .status-pill-inactive {
         background: #fef2f2;
         color: #dc2626;
         border: 1px solid #fecaca;
     }
+
     .wallet-card-premium {
         background: linear-gradient(135deg, #1e3a8a, #3b82f6);
         border-radius: 20px;
@@ -119,6 +134,7 @@
         position: relative;
         overflow: hidden;
     }
+
     .wallet-card-premium::before {
         content: '';
         position: absolute;
@@ -129,6 +145,7 @@
         top: -60px;
         right: -60px;
     }
+
     .wallet-card-premium .label {
         font-size: 11px;
         text-transform: uppercase;
@@ -137,14 +154,17 @@
         font-weight: 600;
         margin-bottom: 8px;
     }
+
     .wallet-card-premium .amount {
         font-size: 26px;
         font-weight: 800;
     }
+
     .details-section {
         border-top: 1px solid #f1f5f9;
         padding-top: 20px;
     }
+
     .details-title {
         font-size: 12px;
         text-transform: uppercase;
@@ -153,26 +173,31 @@
         font-weight: 600;
         margin-bottom: 14px;
     }
+
     .info-list-premium {
         display: grid;
         gap: 16px;
     }
+
     .info-item-premium {
         display: flex;
         flex-direction: column;
         gap: 4px;
     }
+
     .info-item-premium span:first-child {
         font-size: 12px;
         color: #64748b;
         font-weight: 500;
     }
+
     .info-item-premium span:last-child {
         font-size: 14px;
         color: #0f172a;
         font-weight: 600;
         overflow-wrap: anywhere;
     }
+
     .investments-card {
         background: #fff;
         border: 1px solid #e5edf6;
@@ -182,29 +207,35 @@
         min-width: 0;
         max-width: 100%;
     }
+
     .investments-card h3 {
         margin: 0 0 24px;
         font-size: 20px;
         font-weight: 700;
         color: #0f172a;
     }
+
     .table-wrapper {
         width: 100%;
         max-width: 100%;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
     }
+
     .table-wrapper table {
         width: 100%;
         border-collapse: collapse;
         text-align: left;
         min-width: 860px;
     }
-    .table-wrapper th, .table-wrapper td {
+
+    .table-wrapper th,
+    .table-wrapper td {
         padding: 16px 20px;
         border-bottom: 1px solid #f1f5f9;
         vertical-align: middle;
     }
+
     .table-wrapper th {
         background: #f8fafc;
         font-weight: 600;
@@ -213,16 +244,20 @@
         text-transform: uppercase;
         letter-spacing: 0.5px;
     }
+
     .table-wrapper td {
         font-size: 14px;
         color: #334155;
     }
+
     .table-wrapper tr:last-child td {
         border-bottom: 0;
     }
+
     .table-wrapper tr:hover td {
         background-color: #f8fafc;
     }
+
     .badge {
         display: inline-block;
         padding: 5px 12px;
@@ -231,30 +266,81 @@
         font-weight: 600;
         text-transform: capitalize;
     }
-    .badge-invited { background: #f1f5f9; color: #475569; }
-    .badge-interested { background: #fef3c7; color: #d97706; }
-    .badge-selected { background: #dcf5e4; color: #15803d; }
-    .badge-declined { background: #fee2e2; color: #b91c1c; }
 
-    .badge-loan-pending { background: #f1f5f9; color: #475569; }
-    .badge-loan-assigned { background: #e0f2fe; color: #0369a1; }
-    .badge-loan-funded { background: #e0e7ff; color: #4338ca; }
-    .badge-loan-approved { background: #dcf5e4; color: #15803d; }
-    .badge-loan-active { background: #f3e8ff; color: #7e22ce; }
-    .badge-loan-completed { background: #f1f5f9; color: #475569; }
-    .badge-loan-rejected { background: #fee2e2; color: #b91c1c; }
-    
+    .badge-invited {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .badge-interested {
+        background: #fef3c7;
+        color: #d97706;
+    }
+
+    .badge-selected {
+        background: #dcf5e4;
+        color: #15803d;
+    }
+
+    .badge-declined {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+    .badge-loan-pending {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .badge-loan-assigned {
+        background: #e0f2fe;
+        color: #0369a1;
+    }
+
+    .badge-loan-funded {
+        background: #e0e7ff;
+        color: #4338ca;
+    }
+
+    .badge-loan-approved {
+        background: #dcf5e4;
+        color: #15803d;
+    }
+
+    .badge-loan-active {
+        background: #f3e8ff;
+        color: #7e22ce;
+    }
+
+    .badge-loan-disbursed {
+        background: #f3e8ff;
+        color: #7e22ce;
+    }
+
+    .badge-loan-completed {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .badge-loan-rejected {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
     .expected-profit {
         color: #16a34a;
         font-weight: 700;
     }
+
     .no-records {
         padding: 48px;
         text-align: center;
         color: #64748b;
         font-size: 15px;
     }
+
     @media (max-width: 640px) {
+
         .profile-card,
         .investments-card {
             padding: 20px;
