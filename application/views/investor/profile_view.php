@@ -368,6 +368,7 @@ $ring_offset = round($ring_circ * (1 - ($completion / 100)), 2);
 
     .ap-wrap input[type="text"],
     .ap-wrap input[type="email"],
+    .ap-wrap input[type="password"],
     .ap-wrap select,
     .ap-wrap textarea {
         width: 100%;
@@ -399,6 +400,7 @@ $ring_offset = round($ring_circ * (1 - ($completion / 100)), 2);
 
     .ap-wrap input[type="text"]:focus,
     .ap-wrap input[type="email"]:focus,
+    .ap-wrap input[type="password"]:focus,
     .ap-wrap select:focus,
     .ap-wrap textarea:focus {
         border-color: var(--ap-blue);
@@ -895,6 +897,33 @@ $ring_offset = round($ring_circ * (1 - ($completion / 100)), 2);
             </div>
         </section>
 
+        <!-- Security details card -->
+        <section class="ap-card">
+            <div class="ap-card-head">
+                <span class="ap-badge" style="background: #fee2e2; color: #ef4444;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                </span>
+                <div>
+                    <h2>Security</h2>
+                    <span>Update your login password</span>
+                </div>
+            </div>
+
+            <div class="ap-grid">
+                <div class="ap-field">
+                    <label for="ap_new_pass">New Password</label>
+                    <input type="password" id="ap_new_pass" name="new_password" placeholder="Leave blank to keep current">
+                </div>
+                <div class="ap-field">
+                    <label for="ap_confirm_pass">Confirm Password</label>
+                    <input type="password" id="ap_confirm_pass" name="confirm_password" placeholder="Leave blank to keep current">
+                </div>
+            </div>
+        </section>
+
         <div class="ap-submit-bar">
             <button class="ap-submit-btn" type="submit">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1057,6 +1086,7 @@ $ring_offset = round($ring_circ * (1 - ($completion / 100)), 2);
             el.addEventListener('input', apUpdateProgress);
             el.addEventListener('change', apUpdateProgress);
         });
+
     })();
 </script>
 

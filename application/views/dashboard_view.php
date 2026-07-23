@@ -1,6 +1,219 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <div class="uld-dashboard">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap');
+        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+
+        /* Partner Apps grid & card styles */
+        .partner-apps-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            width: 100%;
+        }
+
+        .partner-app-card-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            height: 100%;
+        }
+
+        .partner-app-card {
+            background: #fff;
+            border-radius: var(--uld-radius-md);
+            border: 1px solid var(--uld-border);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            transition: all 0.3s ease;
+            box-shadow: var(--uld-shadow-sm);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .partner-app-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--uld-primary), var(--uld-accent));
+            opacity: 0;
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: opacity 0.35s ease, transform 0.35s ease;
+        }
+
+        .partner-app-card-link:hover .partner-app-card,
+        .partner-app-card-link:focus-visible .partner-app-card {
+            transform: translateY(-6px);
+            box-shadow: var(--uld-shadow-lg);
+            border-color: rgba(6, 61, 50, 0.15);
+        }
+
+        .partner-app-card-link:hover .partner-app-card::before,
+        .partner-app-card-link:focus-visible .partner-app-card::before {
+            opacity: 1;
+            transform: scaleX(1);
+        }
+
+        .partner-app-card-top {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .partner-app-logo-box {
+            width: 52px;
+            height: 52px;
+            border-radius: 12px;
+            overflow: hidden;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            border: 1px solid var(--uld-border);
+            background: #fff;
+            display: grid;
+            place-items: center;
+            transition: transform 0.35s ease;
+        }
+
+        .partner-app-card-link:hover .partner-app-logo-box {
+            transform: scale(1.06) rotate(-2deg);
+        }
+
+        .partner-app-logo-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .partner-app-title-group h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--uld-text);
+            margin: 0 0 4px 0;
+            line-height: 1.2;
+        }
+
+        .partner-app-tag {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .partner-tag-green {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .partner-tag-blue {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .partner-tag-red {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .partner-tag-amber {
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .partner-app-card-desc {
+            font-size: 12px;
+            color: var(--uld-text-soft);
+            line-height: 1.5;
+            margin: 0 0 16px 0;
+        }
+
+        .partner-app-rating-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-top: 10px;
+            border-top: 1px solid var(--uld-border);
+            font-size: 11px;
+            color: var(--uld-text-soft);
+            font-weight: 600;
+        }
+
+        .partner-app-stars {
+            color: #f59e0b;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+            font-weight: 700;
+        }
+
+        .partner-app-play-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            padding: 10px 12px;
+            background: #111827;
+            color: #ffffff;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(17, 24, 39, 0.1);
+            min-height: 38px;
+        }
+
+        .partner-app-card-link:hover .partner-app-play-btn {
+            background: var(--uld-primary);
+            box-shadow: 0 6px 14px rgba(6, 61, 50, 0.2);
+        }
+
+        @media (max-width: 1024px) {
+            .partner-apps-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .partner-apps-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            .partner-app-card {
+                padding: 12px;
+            }
+            .partner-app-logo-box {
+                width: 44px;
+                height: 44px;
+                border-radius: 10px;
+            }
+            .partner-app-title-group h3 {
+                font-size: 13px;
+            }
+            .partner-app-tag {
+                font-size: 8px;
+                padding: 1px 4px;
+            }
+            .partner-app-card-desc {
+                font-size: 11px;
+                margin-bottom: 12px;
+            }
+            .partner-app-play-btn {
+                font-size: 11px;
+                padding: 8px 10px;
+            }
+        }
 
         .uld-dashboard {
             --uld-bg: #f8fafc;
@@ -397,6 +610,165 @@
             <a href="mailto:support@loanmanagement.com" style="background: #fff; border: 1px solid var(--uld-border); border-radius: var(--uld-radius-md); padding: 16px; text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; box-shadow: var(--uld-shadow-sm); transition: transform 0.15s ease;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
                 <span style="font-size: 24px;">📞</span>
                 <span style="font-size: 13px; font-weight: 600; color: var(--uld-text);">Support</span>
+            </a>
+        </div>
+    </section>
+
+    <!-- Partner Loan Apps Section -->
+    <section class="partner-apps-section">
+        <h3 style="margin: 0 0 16px; font-size: 16px; font-weight: 700; color: var(--uld-text); display: flex; align-items: center; gap: 8px;">
+            <span>📲 Download Partner Loan Applications</span>
+        </h3>
+        <p style="margin: -8px 0 16px 0; color: var(--uld-text-soft); font-size: 13.5px; line-height: 1.5;">
+            Access top-rated instant personal loan applications available on Google Play Store for fast approval, 100% digital verification, and direct bank disbursal.
+        </p>
+        <div class="partner-apps-grid">
+            <!-- App 1: Moneyview -->
+            <a href="https://play.google.com/store/apps/details?id=com.whizdm.moneyview.loans" target="_blank" rel="noopener noreferrer" class="partner-app-card-link">
+                <div class="partner-app-card">
+                    <div>
+                        <div class="partner-app-card-top">
+                            <div class="partner-app-logo-box">
+                                <img src="<?php echo base_url('assets/images/apps/Moneyview.webp'); ?>" alt="Moneyview Logo">
+                            </div>
+                            <div class="partner-app-title-group">
+                                <h3>Moneyview</h3>
+                                <span class="partner-app-tag partner-tag-green">Instant Loan</span>
+                            </div>
+                        </div>
+                        <p class="partner-app-card-desc">
+                            Get instant personal loans up to ₹10 Lakhs with 100% paperless verification and flexible EMI plans.
+                        </p>
+                    </div>
+                    <div>
+                        <div class="partner-app-rating-row">
+                            <div class="partner-app-stars" style="display: flex; align-items: center; gap: 4px;">
+                                <svg viewBox="0 0 576 512" width="13" height="13" fill="#f59e0b" style="flex: none; display: inline-block;">
+                                    <path d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z"/>
+                                </svg>
+                                <span>4.8</span>
+                            </div>
+                            <span>50M+ Downloads</span>
+                        </div>
+                        <div class="partner-app-play-btn" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                            <svg viewBox="0 0 512 512" width="14" height="14" fill="currentColor" style="flex: none; display: inline-block;">
+                                <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58 33.3 60.1 60.1c13-6.8 21.7-19.2 21.7-35.3t-8.7-28.5l-15.1-9.6zM104.6 499l220.7-220.7 60.1 60.1L104.6 499z"/>
+                            </svg>
+                            <span>Get on Google Play</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- App 2: RING by Kissht -->
+            <a href="https://play.google.com/store/apps/details?id=com.ideopay.user" target="_blank" rel="noopener noreferrer" class="partner-app-card-link">
+                <div class="partner-app-card">
+                    <div>
+                        <div class="partner-app-card-top">
+                            <div class="partner-app-logo-box">
+                                <img src="<?php echo base_url('assets/images/apps/RING by Kissht.webp'); ?>" alt="RING by Kissht Logo">
+                            </div>
+                            <div class="partner-app-title-group">
+                                <h3>RING by Kissht</h3>
+                                <span class="partner-app-tag partner-tag-blue">Power Loan</span>
+                            </div>
+                        </div>
+                        <p class="partner-app-card-desc">
+                            Instant RING Power Loan up to ₹3,00,000 with quick approval and 100% digital processing.
+                        </p>
+                    </div>
+                    <div>
+                        <div class="partner-app-rating-row">
+                            <div class="partner-app-stars" style="display: flex; align-items: center; gap: 4px;">
+                                <svg viewBox="0 0 576 512" width="13" height="13" fill="#f59e0b" style="flex: none; display: inline-block;">
+                                    <path d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z"/>
+                                </svg>
+                                <span>4.9</span>
+                            </div>
+                            <span>10M+ Downloads</span>
+                        </div>
+                        <div class="partner-app-play-btn" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                            <svg viewBox="0 0 512 512" width="14" height="14" fill="currentColor" style="flex: none; display: inline-block;">
+                                <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58 33.3 60.1 60.1c13-6.8 21.7-19.2 21.7-35.3t-8.7-28.5l-15.1-9.6zM104.6 499l220.7-220.7 60.1 60.1L104.6 499z"/>
+                            </svg>
+                            <span>Get on Google Play</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- App 3: True Balance -->
+            <a href="https://play.google.com/store/apps/details?id=com.balancehero.truebalance" target="_blank" rel="noopener noreferrer" class="partner-app-card-link">
+                <div class="partner-app-card">
+                    <div>
+                        <div class="partner-app-card-top">
+                            <div class="partner-app-logo-box">
+                                <img src="<?php echo base_url('assets/images/apps/True Balance.webp'); ?>" alt="True Balance Logo">
+                            </div>
+                            <div class="partner-app-title-group">
+                                <h3>True Balance</h3>
+                                <span class="partner-app-tag partner-tag-red">Up to ₹5 Lakhs</span>
+                            </div>
+                        </div>
+                        <p class="partner-app-card-desc">
+                            Trusted financial app offering quick personal cash loans up to ₹5,0,000 directly to your bank.
+                        </p>
+                    </div>
+                    <div>
+                        <div class="partner-app-rating-row">
+                            <div class="partner-app-stars" style="display: flex; align-items: center; gap: 4px;">
+                                <svg viewBox="0 0 576 512" width="13" height="13" fill="#f59e0b" style="flex: none; display: inline-block;">
+                                    <path d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z"/>
+                                </svg>
+                                <span>4.6</span>
+                            </div>
+                            <span>50M+ Downloads</span>
+                        </div>
+                        <div class="partner-app-play-btn" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                            <svg viewBox="0 0 512 512" width="14" height="14" fill="currentColor" style="flex: none; display: inline-block;">
+                                <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58 33.3 60.1 60.1c13-6.8 21.7-19.2 21.7-35.3t-8.7-28.5l-15.1-9.6zM104.6 499l220.7-220.7 60.1 60.1L104.6 499z"/>
+                            </svg>
+                            <span>Get on Google Play</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- App 4: RamFincorp -->
+            <a href="https://play.google.com/store/apps/details?id=com.ramfin_calculator" target="_blank" rel="noopener noreferrer" class="partner-app-card-link">
+                <div class="partner-app-card">
+                    <div>
+                        <div class="partner-app-card-top">
+                            <div class="partner-app-logo-box">
+                                <img src="<?php echo base_url('assets/images/apps/RamFincorp.webp'); ?>" alt="RamFincorp Logo">
+                            </div>
+                            <div class="partner-app-title-group">
+                                <h3>RamFincorp</h3>
+                                <span class="partner-app-tag partner-tag-amber">EMI Calculator</span>
+                            </div>
+                        </div>
+                        <p class="partner-app-card-desc">
+                            Official R.K Bansal Finance Private Limited EMI calculator and fast loan approval assistant.
+                        </p>
+                    </div>
+                    <div>
+                        <div class="partner-app-rating-row">
+                            <div class="partner-app-stars" style="display: flex; align-items: center; gap: 4px;">
+                                <svg viewBox="0 0 576 512" width="13" height="13" fill="#f59e0b" style="flex: none; display: inline-block;">
+                                    <path d="M259.3 17.8L194 150.2 47.9 171.5c-26.2 3.8-36.7 36.1-17.7 54.6l105.7 103-25 145.5c-4.5 26.3 23.2 46 46.4 33.7L288 439.6l130.7 68.7c23.2 12.2 50.9-7.4 46.4-33.7l-25-145.5 105.7-103c19-18.5 8.5-50.8-17.7-54.6L382 150.2 316.7 17.8c-11.7-23.6-45.6-23.9-57.4 0z"/>
+                                </svg>
+                                <span>2.7</span>
+                            </div>
+                            <span>500K+ Downloads</span>
+                        </div>
+                        <div class="partner-app-play-btn" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                            <svg viewBox="0 0 512 512" width="14" height="14" fill="currentColor" style="flex: none; display: inline-block;">
+                                <path d="M325.3 234.3L104.6 13l280.8 161.2-60.1 60.1zM47 0C34 6.8 25.3 19.2 25.3 35.3v441.3c0 16.1 8.7 28.5 21.7 35.3l256.6-256L47 0zm425.2 225.6l-58 33.3 60.1 60.1c13-6.8 21.7-19.2 21.7-35.3t-8.7-28.5l-15.1-9.6zM104.6 499l220.7-220.7 60.1 60.1L104.6 499z"/>
+                            </svg>
+                            <span>Get on Google Play</span>
+                        </div>
+                    </div>
+                </div>
             </a>
         </div>
     </section>

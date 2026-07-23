@@ -49,10 +49,14 @@ class Login extends CI_Controller
             redirect('user');
         }
 
-        $otp = $this->otp;
+        // Generate real random 6 digit OTP
+        $otp = (string) rand(100000, 999999);
+        log_message('info', "Generated OTP for login (Mobile: $mobile): $otp");
         $this->session->set_userdata('otp', $otp);
         $this->session->set_userdata('mobile', $mobile);
 
+        // Send real-time OTP via Dove SMS
+        $this->send_otp_via_sms($mobile, $otp);
         $sms_sent = true;
 
         if (!$sms_sent) {
@@ -141,8 +145,13 @@ class Login extends CI_Controller
 
         $form_data = $this->build_user_data($this->role);
         $this->session->set_userdata('user_register_form_data', $form_data);
-        $this->session->set_userdata('otp', $this->otp);
+        // Generate real random 6 digit OTP
+        $otp = (string) rand(100000, 999999);
+        log_message('info', "Generated OTP for registration (Mobile: " . $form_data['mobile'] . "): $otp");
+        $this->session->set_userdata('otp', $otp);
 
+        // Send real-time OTP via Dove SMS
+        $this->send_otp_via_sms($form_data['mobile'], $otp);
         $sms_sent = true;
 
         if ($sms_sent) {

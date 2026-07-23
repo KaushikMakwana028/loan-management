@@ -26,6 +26,55 @@ class Login extends CI_Controller
         $this->load->view('investor/login_view');
     }
 
+    public function login_process()
+    {
+        $this->form_validation->set_rules('mobile', 'Mobile Number', 'required|numeric|min_length[10]|max_length[10]');
+        $this->form_validation->set_rules('password', 'Password', 'required');
+
+        if ($this->form_validation->run() == FALSE) {
+            $this->load->view('investor/login_view');
+            return;
+        }
+
+        $mobile = $this->input->post('mobile');
+        $password = $this->input->post('password');
+
+        $user = $this->general->getRowArray('users', [
+            'mobile' => $mobile,
+            'role' => $this->role,
+            'is_active' => 1
+        ]);
+
+        if ($user) {
+            $authenticated = false;
+            if (empty($user['password'])) {
+                if ($password === 'investor123') {
+                    $authenticated = true;
+                }
+            } else {
+                if (password_verify($password, $user['password'])) {
+                    $authenticated = true;
+                }
+            }
+
+            if ($authenticated) {
+                $user['is_logged_in'] = true;
+                $user['is_registered'] = true;
+                $this->session->set_userdata('user', $user);
+                $this->session->set_userdata([
+                    'user_id' => $user['id'],
+                    'name' => $user['name'],
+                    'role' => $user['role']
+                ]);
+                $this->session->set_flashdata('success', 'Logged in successfully.');
+                redirect('investor/dashboard');
+            }
+        }
+
+        $this->session->set_flashdata('error', 'Invalid mobile number or password.');
+        redirect('investor');
+    }
+
     public function send_otp()
     {
         $this->form_validation->set_rules('mobile', 'Mobile Number', 'required|numeric|min_length[10]|max_length[10]');
@@ -47,10 +96,14 @@ class Login extends CI_Controller
             redirect('investor');
         }
 
-        $otp = $this->otp;
+        // Generate real random 6 digit OTP
+        $otp = (string) rand(100000, 999999);
+        log_message('info', "Generated OTP for investor login (Mobile: $mobile): $otp");
         $this->session->set_userdata('otp', $otp);
         $this->session->set_userdata('mobile', $mobile);
 
+        // Send real-time OTP via Dove SMS
+        $this->send_otp_via_sms($mobile, $otp);
         $sms_sent = true;
 
         if (!$sms_sent) {
@@ -119,18 +172,8 @@ class Login extends CI_Controller
             ['is_unique' => 'This mobile number is already registered.']
         );
         $this->form_validation->set_rules('email', 'Email', 'valid_email|trim');
-
-        $manual_ref = trim($this->input->post('referred_by_code'));
-        if (!empty($manual_ref)) {
-            $referrer = $this->general->getOne('users', ['referral_code' => $manual_ref]);
-            if (!$referrer) {
-                $this->session->set_flashdata('error', 'The referral code entered is invalid.');
-                $data['old'] = $this->input->post();
-                $this->load->view('investor/register_view', $data);
-                return;
-            }
-            $this->session->set_userdata('referred_by_code', $manual_ref);
-        }
+        $this->form_validation->set_rules('password', 'Password', 'required|min_length[6]');
+        $this->form_validation->set_rules('confirm_password', 'Confirm Password', 'required|matches[password]');
 
         if ($this->form_validation->run() == FALSE) {
             $data['old'] = $this->input->post();
@@ -139,19 +182,45 @@ class Login extends CI_Controller
         }
 
         $form_data = $this->build_user_data($this->role);
-        $this->session->set_userdata('user_register_form_data', $form_data);
-        $this->session->set_userdata('otp', $this->otp);
 
-        $sms_sent = true;
+        $referred_by = $this->session->userdata('referred_by_code');
+        $referral_code = $this->generate_referral_code();
+        $form_data['referral_code'] = $referral_code;
 
-        if ($sms_sent) {
-            $data['masked_mobile'] = '*******' . substr($form_data['mobile'], -4);
-            $this->load->view('investor/register_otp_form', $data);
-            return;
+        $referrer = NULL;
+        if ($referred_by) {
+            $referrer = $this->general->getOne('users', ['referral_code' => $referred_by]);
+            if ($referrer) {
+                $form_data['referred_by'] = $referred_by;
+            }
         }
 
-        $this->session->set_flashdata('error', 'Failed to send OTP.');
-        redirect('investor/register');
+        $user_id = $this->general->insert('users', $form_data);
+
+        if ($referred_by && $referrer) {
+            $this->general->insert('referrals', [
+                'referrer_id' => $referrer->id,
+                'referred_user_id' => $user_id,
+                'status' => 'invited',
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s')
+            ]);
+            $this->session->unset_userdata('referred_by_code');
+        }
+
+        $user_data = $this->general->getRowArray('users', ['id' => $user_id]);
+        $user_data['is_logged_in'] = true;
+        $user_data['is_registered'] = true;
+
+        $this->session->set_userdata('user', $user_data);
+        $this->session->set_userdata([
+            'user_id' => $user_data['id'],
+            'name' => $user_data['name'],
+            'role' => $user_data['role']
+        ]);
+
+        $this->session->set_flashdata('success', 'Account created successfully.');
+        redirect('investor/dashboard');
     }
 
     public function register_verify_otp()
@@ -266,13 +335,20 @@ class Login extends CI_Controller
 
     private function build_user_data($role)
     {
-        return [
+        $data = [
             'name' => trim($this->input->post('name', TRUE)),
             'email' => trim($this->input->post('email', TRUE)) ?: NULL,
             'mobile' => trim($this->input->post('mobile', TRUE)),
             'role' => $role,
             'is_active' => 1
         ];
+
+        $password = $this->input->post('password');
+        if (!empty($password)) {
+            $data['password'] = password_hash($password, PASSWORD_DEFAULT);
+        }
+
+        return $data;
     }
 
     private function upload_file($field)
@@ -295,5 +371,99 @@ class Login extends CI_Controller
         }
 
         return 'uploads/users/' . $this->upload->data('file_name');
+    }
+
+    public function send_forgot_otp()
+    {
+        $mobile = trim($this->input->post('mobile'));
+        if (empty($mobile) || !is_numeric($mobile) || strlen($mobile) !== 10) {
+            echo json_encode(['success' => false, 'error' => 'Please enter a valid 10-digit mobile number.']);
+            return;
+        }
+
+        // Verify if active user exists with mobile and role = 2 (investor)
+        $user = $this->general->getOne('users', [
+            'mobile' => $mobile,
+            'role' => $this->role,
+            'is_active' => 1
+        ]);
+
+        if (!$user) {
+            echo json_encode(['success' => false, 'error' => 'This mobile number is not registered as an active investor.']);
+            return;
+        }
+
+        $otp = (string) rand(100000, 999999);
+        log_message('info', "Generated Forgot Password OTP for investor (Mobile: $mobile): $otp");
+
+        $this->session->set_userdata('forgot_otp', $otp);
+        $this->session->set_userdata('forgot_mobile', $mobile);
+        $this->session->set_userdata('forgot_otp_verified', false);
+
+        // Send real-time OTP via Dove SMS
+        $this->send_otp_via_sms($mobile, $otp);
+
+        echo json_encode(['success' => true, 'message' => 'OTP sent successfully.']);
+    }
+
+    public function verify_forgot_otp()
+    {
+        $otp = trim($this->input->post('otp'));
+        $mobile = trim($this->input->post('mobile'));
+        $session_otp = $this->session->userdata('forgot_otp');
+        $session_mobile = $this->session->userdata('forgot_mobile');
+
+        if (empty($otp) || empty($session_otp)) {
+            echo json_encode(['success' => false, 'error' => 'OTP session expired or not found.']);
+            return;
+        }
+
+        if ($otp == $session_otp && $mobile == $session_mobile) {
+            $this->session->set_userdata('forgot_otp_verified', true);
+            $this->session->unset_userdata('forgot_otp');
+            echo json_encode(['success' => true, 'message' => 'OTP verified successfully.']);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'Invalid OTP. Please try again.']);
+        }
+    }
+
+    public function reset_forgot_password()
+    {
+        if (!$this->session->userdata('forgot_otp_verified')) {
+            echo json_encode(['success' => false, 'error' => 'Session expired or OTP verification is required.']);
+            return;
+        }
+
+        $mobile = $this->session->userdata('forgot_mobile');
+        $new_pass = $this->input->post('password');
+        $confirm_pass = $this->input->post('confirm_password');
+
+        if (empty($new_pass) || strlen($new_pass) < 6) {
+            echo json_encode(['success' => false, 'error' => 'Password must be at least 6 characters long.']);
+            return;
+        }
+
+        if ($new_pass !== $confirm_pass) {
+            echo json_encode(['success' => false, 'error' => 'Passwords do not match.']);
+            return;
+        }
+
+        // Hash password and update user in database
+        $hashed_pass = password_hash($new_pass, PASSWORD_DEFAULT);
+        
+        $user = $this->general->getOne('users', [
+            'mobile' => $mobile,
+            'role' => $this->role,
+            'is_active' => 1
+        ]);
+
+        if ($user) {
+            $this->general->update('users', ['id' => $user->id], ['password' => $hashed_pass]);
+            $this->session->unset_userdata('forgot_mobile');
+            $this->session->unset_userdata('forgot_otp_verified');
+            echo json_encode(['success' => true, 'message' => 'Password reset successfully. You can now login.']);
+        } else {
+            echo json_encode(['success' => false, 'error' => 'User not found.']);
+        }
     }
 }

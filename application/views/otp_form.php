@@ -147,10 +147,10 @@
             <img src="<?php echo base_url('assets/images/logo/logo.jpeg'); ?>" alt="Logo" style="height: 72px; width: auto; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.06);">
         </div>
         <h1>Verify OTP</h1>
-        <p>OTP sent to <?php echo html_escape($masked_mobile ?? 'your mobile'); ?>. Test OTP is 000000.</p>
+        <p>OTP sent to <?php echo html_escape($masked_mobile ?? 'your mobile'); ?>.</p>
         <form id="otpForm" method="post" action="<?php echo base_url('user/verify-otp'); ?>">
             <label>Enter OTP</label>
-            <input type="text" name="otp" inputmode="numeric" maxlength="6" value="000000" required>
+            <input type="text" name="otp" inputmode="numeric" maxlength="6" placeholder="Enter OTP" required>
             <button type="submit">Verify & Login</button>
         </form>
         <a class="back" href="<?php echo base_url(); ?>">Back to Login</a>

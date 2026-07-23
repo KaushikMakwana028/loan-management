@@ -14,10 +14,10 @@
 <body>
     <main class="card">
         <h1>Verify Admin OTP</h1>
-        <p>OTP sent to <?php echo html_escape($masked_mobile ?? 'your mobile'); ?>. Test OTP is 000000.</p>
+        <p>OTP sent to <?php echo html_escape($masked_mobile ?? 'your mobile'); ?>.</p>
         <form id="otpForm" method="post" action="<?php echo base_url('admin/verify-otp'); ?>">
             <label>Enter OTP</label>
-            <input type="text" name="otp" value="000000" required>
+            <input type="text" name="otp" placeholder="Enter OTP" required>
             <button type="submit">Verify & Login</button>
         </form>
         <div class="msg" id="otpMessage"></div>

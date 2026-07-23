@@ -36,7 +36,25 @@ class Profile extends CI_Controller
         }
 
         $admin = $this->general->getById('users', $this->session->userdata('user_id'));
+        
+        $new_pass = $this->input->post('new_password');
+        $confirm_pass = $this->input->post('confirm_password');
+        
         $data = $this->profile_data();
+
+        if (!empty($new_pass)) {
+            if (strlen($new_pass) < 6) {
+                $this->session->set_flashdata('error', 'Password must be at least 6 characters long.');
+                redirect('admin/profile');
+                return;
+            }
+            if ($new_pass !== $confirm_pass) {
+                $this->session->set_flashdata('error', 'Passwords do not match.');
+                redirect('admin/profile');
+                return;
+            }
+            $data['password'] = password_hash($new_pass, PASSWORD_DEFAULT);
+        }
 
         $this->general->update('users', ['id' => $admin->id], $data);
         $this->session->set_flashdata('success', 'Profile updated successfully.');
