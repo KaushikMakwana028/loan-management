@@ -6,6 +6,7 @@ class General_model extends CI_Model
     {
         parent::__construct();
         $this->load->database();
+        $this->db->query("SET time_zone = '+05:30'");
     }
 
     /*

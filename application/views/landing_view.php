@@ -2352,7 +2352,7 @@
                         </span>
                     </div>
                     <div class="stat-card-body">
-                        <h3 class="stat-number">INR 25L+</h3>
+                        <h3 class="stat-number">INR 25Cr+</h3>
                         <p class="stat-title">Loans Disbursed</p>
                         <p class="stat-desc">Seamless, instant transfers directly into bank accounts</p>
                     </div>
