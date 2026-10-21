@@ -132,7 +132,7 @@
     <h1>Apply for a New Loan</h1>
     <p>Please enter your loan requirements below. Your profile must be complete to apply.</p>
 
-    <?php echo form_open('loans/apply'); ?>
+    <?php echo form_open('user/loans/apply'); ?>
         <div class="form-group">
             <label for="amount">Loan Amount (INR)</label>
             <input type="number" name="amount" id="amount" placeholder="e.g. 50000" min="1" step="any" value="<?php echo set_value('amount'); ?>" required>
@@ -251,7 +251,7 @@
 
         const tenure = parseInt(tenureRadio.value);
 
-        fetch('<?php echo base_url("loans/calculate"); ?>', {
+        fetch('<?php echo base_url("user/loans/calculate"); ?>', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'

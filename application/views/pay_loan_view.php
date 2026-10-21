@@ -293,7 +293,7 @@
             </div>
         </div>
 
-        <?php echo form_open_multipart('loans/submit_pay/' . $loan->id); ?>
+        <?php echo form_open_multipart('user/loans/submit_pay/' . $loan->id); ?>
             <div class="form-group" id="receipt-group">
                 <label for="receipt_image">Upload Payment Receipt / Screen Shot</label>
                 <input type="file" name="receipt_image" id="receipt_image" accept="image/*,application/pdf" required>

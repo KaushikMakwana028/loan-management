@@ -160,7 +160,8 @@ class Loans extends CI_Controller
 
         $count = count($investor_ids);
         $invested_amount = $loan->amount / $count;
-        $profit_amount = $invested_amount * $loan->interest_rate / 100;
+        $investor_rate = ((float)$loan->investor_interest_rate > 0) ? (float)$loan->investor_interest_rate : (float)$loan->interest_rate;
+        $profit_amount = $invested_amount * $investor_rate / 100;
 
         // Verify all selected investors have enough balance
         foreach ($investor_ids as $investor_id) {
@@ -436,6 +437,7 @@ class Loans extends CI_Controller
 
         // Fetch loan details and borrower details
         $sql = "SELECT l.*, u.name as borrower_name, u.email as borrower_email, u.mobile as borrower_mobile, u.address as borrower_address,
+                       u.profile_image as borrower_photo,
                        u.reference_name_1, u.reference_mobile_1, u.reference_name_2, u.reference_mobile_2
                 FROM loans l
                 JOIN users u ON l.user_id = u.id

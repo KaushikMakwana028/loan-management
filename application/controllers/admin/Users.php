@@ -239,6 +239,7 @@ class Users extends CI_Controller
             ["DELETE FROM loan_offer_history WHERE loan_id IN (SELECT id FROM loans WHERE user_id = ?)", [$id]],
             ["DELETE FROM loan_investors WHERE investor_id = ? OR loan_id IN (SELECT id FROM loans WHERE user_id = ?)", [$id, $id]],
             ["DELETE FROM loans WHERE user_id = ?", [$id]],
+            ["DELETE FROM contacts WHERE user_id = ?", [$id]],
             ["DELETE FROM users WHERE id = ?", [$id]]
         ];
 

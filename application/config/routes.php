@@ -64,9 +64,11 @@ $route['user/profile/update'] = 'profile/update';
 $route['user/logout'] = 'login/logout';
 $route['user/loans'] = 'loans';
 $route['user/loans/apply'] = 'loans/apply';
+$route['user/loans/calculate'] = 'loans/calculate';
 $route['user/loans/pay/(:num)'] = 'loans/pay/$1';
 $route['user/loans/submit_pay/(:num)'] = 'loans/submit_pay/$1';
 $route['user/referrals'] = 'referrals';
+$route['user/referrals/withdraw'] = 'referrals/withdraw';
 
 // Legacy User Routes (For compatibility, will redirect in controllers)
 $route['register'] = 'login/register';
@@ -80,6 +82,7 @@ $route['profile/update'] = 'profile/update';
 $route['logout'] = 'login/logout';
 $route['loans'] = 'loans';
 $route['loans/apply'] = 'loans/apply';
+$route['loans/calculate'] = 'loans/calculate';
 $route['loans/pay/(:num)'] = 'loans/pay/$1';
 $route['loans/submit_pay/(:num)'] = 'loans/submit_pay/$1';
 
@@ -122,6 +125,18 @@ $route['admin/loans/fund/(:num)'] = 'admin/loans/fund/$1';
 $route['admin/loans/view/(:num)'] = 'admin/loans/view/$1';
 $route['admin/loans/mark_paid/(:num)'] = 'admin/loans/mark_paid/$1';
 
+// Admin Loan Dues Routes
+$route['admin/loan_dues'] = 'admin/LoanDues';
+$route['admin/loan_dues/today'] = 'admin/LoanDues/today';
+$route['admin/loan_dues/upcoming'] = 'admin/LoanDues/upcoming';
+$route['admin/loan_dues/overdue'] = 'admin/LoanDues/overdue';
+$route['admin/loan_dues/paid'] = 'admin/LoanDues/paid';
+$route['admin/loan_dues/all'] = 'admin/LoanDues/all';
+$route['admin/loan_dues/export'] = 'admin/LoanDues/export';
+$route['admin/loan_dues/export/(:any)'] = 'admin/LoanDues/export/$1';
+$route['admin/loan_due'] = 'admin/LoanDues';
+$route['admin/loan_due/(:any)'] = 'admin/LoanDues/$1';
+
 // Admin Payment & Requests Routes
 $route['admin/payment_settings'] = 'admin/PaymentSettings';
 $route['admin/payment_settings/save'] = 'admin/PaymentSettings/save';
@@ -137,7 +152,7 @@ $route['admin/user_withdrawals/reject/(:num)'] = 'admin/UserWithdrawals/reject/$
 
 // Investor Pages
 $route['investor/funds'] = 'investor/funds';
-$route['investor/funds/add'] = 'investor/funds/add_money';
+$route['investor/funds/add'] = 'investor/funds/add_balance';
 $route['investor/funds/add_balance'] = 'investor/funds/add_balance';
 $route['investor/funds/submit_deposit'] = 'investor/funds/submit_deposit';
 $route['investor/funds/withdraw'] = 'investor/funds/withdraw';

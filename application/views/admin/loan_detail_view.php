@@ -759,21 +759,34 @@ $total_payout = $total_invested + $total_profit;
         <div class="card-head">
             <h3>Borrower Profile</h3>
         </div>
+        <?php
+        $default_avatar = base_url('assets/images/default.jpg');
+        $borrower_photo_url = $default_avatar;
+        if (!empty($loan->borrower_photo) && file_exists(FCPATH . $loan->borrower_photo)) {
+            $borrower_photo_url = base_url($loan->borrower_photo);
+        }
+        $b_name_clean = trim((string)$loan->borrower_name);
+        $b_mobile_clean = trim((string)$loan->borrower_mobile);
+        $b_email_clean = trim((string)$loan->borrower_email);
+        $b_address_clean = trim((string)$loan->borrower_address);
+        ?>
         <div class="borrower-profile">
-            <div class="borrower-avatar"><?php echo strtoupper(substr($loan->borrower_name, 0, 1)); ?></div>
+            <div class="borrower-avatar" style="overflow:hidden; border-radius:18px; padding:0;">
+                <img src="<?php echo $borrower_photo_url; ?>" alt="Avatar" style="width:100%; height:100%; object-fit:cover;" onerror="this.onerror=null;this.src='<?php echo $default_avatar; ?>';">
+            </div>
             <div>
-                <h4><?php echo html_escape($loan->borrower_name); ?></h4>
-                <p><?php echo html_escape($loan->borrower_email ?: 'No email registered'); ?></p>
+                <h4><?php echo !empty($b_name_clean) ? html_escape($b_name_clean) : '<span style="color:#94a3b8; font-style:italic;">Empty</span>'; ?></h4>
+                <p><?php echo !empty($b_email_clean) ? html_escape($b_email_clean) : '<span style="color:#94a3b8; font-style:italic;">Empty</span>'; ?></p>
             </div>
         </div>
         <div class="info-list">
             <div class="info-row">
                 <span class="info-label">Mobile Number</span>
-                <span class="info-value"><?php echo html_escape($loan->borrower_mobile); ?></span>
+                <span class="info-value"><?php echo !empty($b_mobile_clean) ? html_escape($b_mobile_clean) : '<span style="color:#94a3b8; font-style:italic;">Empty</span>'; ?></span>
             </div>
             <div class="info-row">
                 <span class="info-label">Address</span>
-                <span class="info-value"><?php echo html_escape($loan->borrower_address ?: 'Not provided'); ?></span>
+                <span class="info-value"><?php echo !empty($b_address_clean) ? html_escape($b_address_clean) : '<span style="color:#94a3b8; font-style:italic;">Empty</span>'; ?></span>
             </div>
         </div>
     </div>

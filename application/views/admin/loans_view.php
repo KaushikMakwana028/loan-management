@@ -362,9 +362,9 @@
                         <tr <?php echo (!empty($loan['repayment_submitted_at']) && $loan['status'] !== 'paid') ? 'style="background-color: #fefce8;"' : ''; ?>>
                             <td><?php echo $sno++; ?></td>
                             <td>
-                                <strong><?php echo html_escape($loan['user_name']); ?></strong>
+                                <strong><?php echo !empty(trim($loan['user_name'] ?? '')) ? html_escape($loan['user_name']) : '<span style="color:#94a3b8; font-style:italic; font-weight:500;">Empty</span>'; ?></strong>
                                 <br>
-                                <span style="font-size: 12px; color: #65758b;"><?php echo html_escape($loan['user_mobile']); ?></span>
+                                <span style="font-size: 12px; color: #65758b;"><?php echo !empty(trim($loan['user_mobile'] ?? '')) ? html_escape($loan['user_mobile']) : '<span style="color:#94a3b8; font-style:italic;">Empty</span>'; ?></span>
                             </td>
                             <td>
                                 <div style="display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap;">

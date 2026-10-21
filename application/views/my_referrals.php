@@ -310,7 +310,7 @@
         <!-- Card 3: Request Withdrawal -->
         <div style="background: #fff; border: 1px solid #e8eef6; border-radius: 18px; padding: 20px 24px; box-shadow: 0 14px 40px rgba(22, 34, 51, 0.07); display: flex; flex-direction: column; justify-content: center; gap: 8px;">
             <h4 style="margin: 0; font-size: 14px; color: #172033; font-weight: 700;">Request Withdrawal</h4>
-            <?php echo form_open('referrals/withdraw', ['style' => 'display: flex; gap: 8px; flex-direction: column; margin: 0;']); ?>
+            <?php echo form_open('user/referrals/withdraw', ['style' => 'display: flex; gap: 8px; flex-direction: column; margin: 0;']); ?>
                 <div style="display: flex; gap: 8px; margin: 0;">
                     <input type="number" step="0.01" min="<?php echo (float)$min_withdrawal; ?>" max="<?php echo (float)$wallet_balance; ?>" name="amount" placeholder="Min INR <?php echo number_format($min_withdrawal, 2); ?>" style="flex: 1; border: 1px solid #dbe3ef; border-radius: 12px; padding: 10px 14px; font-size: 13.5px; outline: none; height: 42px; background: #fff;" required>
                     <button type="submit" style="background: #063d32; color: #fff; border: 0; border-radius: 12px; padding: 0 18px; font-weight: 700; font-size: 13.5px; cursor: pointer; height: 42px;">

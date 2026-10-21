@@ -1,7 +1,9 @@
 <?php
 $logged_user = isset($admin) ? $admin : NULL;
 $display_name = $logged_user && !empty($logged_user->name) ? $logged_user->name : 'Admin';
-$profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url($logged_user->profile_image) : '';
+$profile_image = ($logged_user && !empty($logged_user->profile_image) && file_exists(FCPATH . $logged_user->profile_image)) 
+    ? base_url($logged_user->profile_image) 
+    : base_url('assets/images/default.jpg');
 ?>
 <!doctype html>
 <html lang="en">
@@ -34,11 +36,13 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
             font-family: 'Poppins', sans-serif;
         }
 
-        body {
+        html, body {
             margin: 0;
             background: var(--lm-bg);
             color: var(--lm-ink);
             font-size: 14px;
+            max-width: 100%;
+            overflow-x: hidden;
         }
 
         a {
@@ -235,7 +239,9 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
         .main-area {
             margin-left: var(--lm-sidebar-w);
             width: calc(100% - var(--lm-sidebar-w));
+            max-width: calc(100% - var(--lm-sidebar-w));
             min-height: 100vh;
+            overflow-x: hidden;
             transition: margin-left .22s ease, width .22s ease;
         }
 
@@ -410,12 +416,13 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
         }
 
         .content {
-            padding: 24px;
+            padding: 20px 24px;
         }
 
         .page-inner {
-            max-width: 1180px;
-            margin: 0 auto;
+            max-width: 100%;
+            margin: 0;
+            width: 100%;
         }
 
         /* ---------- Dashboard bits kept for continuity ---------- */
@@ -628,6 +635,8 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
             .main-area {
                 margin-left: 0;
                 width: 100%;
+                max-width: 100%;
+                overflow-x: hidden;
             }
 
             .topbar {
@@ -649,7 +658,9 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
             }
 
             .content {
-                padding: 16px;
+                padding: 12px;
+                max-width: 100%;
+                overflow-x: hidden;
             }
 
             .hero-card {
@@ -744,6 +755,14 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
                     </span>
                     <span class="menu-label">Loans</span>
                 </a>
+                <a class="<?php echo in_array($this->uri->segment(2), ['loan_dues', 'loan_due'], true) ? 'active' : ''; ?>" href="<?php echo base_url('admin/loan_dues'); ?>" title="Loan Dues">
+                    <span class="menu-icon">
+                        <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </span>
+                    <span class="menu-label">Loan Dues</span>
+                </a>
                 <div class="menu-section-label">Finance</div>
                 <a class="<?php echo ($this->uri->segment(2) === 'payment_settings') ? 'active' : ''; ?>" href="<?php echo base_url('admin/payment_settings'); ?>" title="Payment Settings">
                     <span class="menu-icon">
@@ -822,7 +841,7 @@ $profile_image = $logged_user && !empty($logged_user->profile_image) ? base_url(
                 </div>
                 <div class="top-actions">
                     <button class="profile-btn" type="button" id="profileToggle">
-                        <span class="avatar"><?php if ($profile_image): ?><img src="<?php echo $profile_image; ?>" alt="Profile"><?php else: ?><?php echo strtoupper(substr($display_name, 0, 1)); ?><?php endif; ?></span>
+                        <span class="avatar"><img src="<?php echo $profile_image; ?>" alt="Profile" onerror="this.onerror=null;this.src='<?php echo base_url('assets/images/default.jpg'); ?>';"></span>
                         <span class="profile-name"><?php echo html_escape($display_name); ?></span>
                     </button>
                     <div class="profile-menu" id="profileMenu">

@@ -111,32 +111,45 @@
 		style.id = "js-table-pagination-styles";
 		style.textContent = `
             .js-table-controls-bar {
-                display: grid;
-                grid-template-columns: minmax(240px, 1fr) auto;
-                gap: 12px;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 10px;
                 align-items: center;
+                justify-content: space-between;
                 width: 100%;
-                padding: 14px 16px;
+                max-width: 100%;
+                box-sizing: border-box;
+                padding: 10px 14px;
                 margin: 0;
                 background: #ffffff;
                 border-bottom: 1px solid #edf2f7;
             }
 
-            .js-table-search-wrap,
+            .js-table-search-wrap {
+                position: relative;
+                flex: 1 1 200px;
+                min-width: 0;
+                max-width: 100%;
+                box-sizing: border-box;
+            }
+
             .js-table-filter-wrap {
                 position: relative;
+                flex: 0 1 auto;
                 min-width: 0;
+                max-width: 100%;
+                box-sizing: border-box;
             }
 
             .js-table-search-wrap::before {
                 content: '';
                 position: absolute;
-                left: 15px;
+                left: 14px;
                 top: 50%;
-                width: 15px;
-                height: 15px;
+                width: 14px;
+                height: 14px;
                 transform: translateY(-50%);
-                background: #8190a5;
+                background: #64748b;
                 -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='black' stroke-width='2.4'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z'/%3E%3C/svg%3E") center / contain no-repeat;
                 mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='black' stroke-width='2.4'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='m21 21-4.35-4.35M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Z'/%3E%3C/svg%3E") center / contain no-repeat;
                 pointer-events: none;
@@ -145,12 +158,12 @@
             .js-table-filter-wrap::before {
                 content: '';
                 position: absolute;
-                left: 15px;
+                left: 14px;
                 top: 50%;
-                width: 15px;
-                height: 15px;
+                width: 14px;
+                height: 14px;
                 transform: translateY(-50%);
-                background: #8190a5;
+                background: #64748b;
                 -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='black' stroke-width='2.4'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M3 5h18M6 12h12M10 19h4'/%3E%3C/svg%3E") center / contain no-repeat;
                 mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='black' stroke-width='2.4'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M3 5h18M6 12h12M10 19h4'/%3E%3C/svg%3E") center / contain no-repeat;
                 pointer-events: none;
@@ -159,47 +172,51 @@
             .js-table-search-input,
             .js-table-status-select {
                 width: 100%;
-                height: 44px;
-                border: 1px solid #d7e1ec;
-                border-radius: 12px;
-                background: #fdfefe;
-                color: #172033;
-                font-size: 14px;
+                height: 38px;
+                border: 1px solid #cbd5e1;
+                border-radius: 9px;
+                background: #ffffff;
+                color: #0f172a;
+                font-size: 13px;
                 font-weight: 500;
                 outline: none;
-                transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
+                box-sizing: border-box;
+                transition: border-color .15s ease, box-shadow .15s ease;
             }
 
             .js-table-search-input {
-                padding: 0 15px 0 42px;
+                padding: 0 14px 0 38px;
             }
 
             .js-table-status-select {
-                min-width: 178px;
-                padding: 0 38px 0 42px;
+                min-width: 140px;
+                padding: 0 32px 0 38px;
                 cursor: pointer;
                 appearance: none;
                 background-image: linear-gradient(45deg, transparent 50%, #64748b 50%), linear-gradient(135deg, #64748b 50%, transparent 50%);
-                background-position: calc(100% - 18px) 19px, calc(100% - 13px) 19px;
+                background-position: calc(100% - 15px) 16px, calc(100% - 11px) 16px;
                 background-size: 5px 5px, 5px 5px;
                 background-repeat: no-repeat;
             }
 
             .js-table-search-input::placeholder {
-                color: #8a9ab0;
+                color: #94a3b8;
                 font-weight: 400;
             }
 
             .js-table-search-input:focus,
             .js-table-status-select:focus {
                 background: #fff;
-                border-color: #0f766e;
-                box-shadow: 0 0 0 4px rgba(15, 118, 110, .11);
+                border-color: #2563eb;
+                box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
             }
 
             .js-table-scroll-wrap {
                 overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
                 width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
             }
 
             .js-pagination-bar {
@@ -207,45 +224,63 @@
                 justify-content: space-between;
                 align-items: center;
                 width: 100%;
-                gap: 12px;
-                padding: 14px 16px;
+                max-width: 100%;
+                box-sizing: border-box;
+                gap: 10px;
+                padding: 10px 14px;
                 border-top: 1px solid #edf2f7;
                 background: #fff;
+                flex-wrap: wrap;
             }
 
             .js-pagination-info {
-                font-size: 13px;
+                font-size: 12px;
                 color: #64748b;
                 font-weight: 500;
             }
 
             .js-pagination-links {
                 display: flex;
-                gap: 6px;
+                gap: 5px;
                 align-items: center;
                 flex-wrap: wrap;
             }
 
-            @media (max-width: 640px) {
+            @media (max-width: 768px) {
                 .js-table-controls-bar {
-                    grid-template-columns: 1fr;
-                    padding: 12px;
+                    flex-direction: column;
+                    align-items: stretch;
+                    padding: 8px 10px;
+                    gap: 8px;
+                }
+
+                .js-table-search-wrap,
+                .js-table-filter-wrap {
+                    width: 100%;
+                    flex: 1 1 100%;
                 }
 
                 .js-table-status-select {
-                    min-width: 0;
+                    min-width: 100% !important;
+                    width: 100% !important;
                 }
 
                 .js-pagination-bar {
                     flex-direction: column;
-                    align-items: stretch;
-                    padding: 12px;
-                    gap: 10px;
+                    align-items: center;
+                    padding: 8px 10px;
+                    gap: 6px;
+                }
+
+                .js-pagination-info {
+                    font-size: 11.5px;
+                    text-align: center;
                 }
 
                 .js-pagination-links {
                     width: 100%;
                     justify-content: center;
+                    gap: 4px;
                 }
             }
         `;

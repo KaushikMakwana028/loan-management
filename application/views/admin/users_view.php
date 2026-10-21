@@ -459,13 +459,13 @@
                         ?>
                         <tr>
                             <td data-label="Sr. No."><?php echo $sno++; ?></td>
-                            <td data-label="Name"><strong><?php echo html_escape($usr['name']); ?></strong></td>
+                            <td data-label="Name"><strong><?php echo !empty(trim($usr['name'] ?? '')) ? html_escape($usr['name']) : '<span style="color:#94a3b8; font-style:italic; font-weight:500;">Empty</span>'; ?></strong></td>
                             <td data-label="Contact Info">
-                                <?php echo html_escape($usr['mobile']); ?>
+                                <?php echo !empty(trim($usr['mobile'] ?? '')) ? html_escape($usr['mobile']) : '<span style="color:#94a3b8; font-style:italic;">Empty</span>'; ?>
                                 <br>
-                                <span style="font-size: 12px; color: #65758b;"><?php echo html_escape($usr['email'] ?: '-'); ?></span>
+                                <span style="font-size: 12px; color: #65758b;"><?php echo !empty(trim($usr['email'] ?? '')) ? html_escape($usr['email']) : '<span style="color:#94a3b8; font-style:italic;">Empty</span>'; ?></span>
                             </td>
-                            <td data-label="Address"><?php echo html_escape($usr['address'] ?: '-'); ?></td>
+                            <td data-label="Address"><?php echo !empty(trim($usr['address'] ?? '')) ? html_escape($usr['address']) : '<span style="color:#94a3b8; font-style:italic;">Empty</span>'; ?></td>
                             <td data-label="KYC Status">
                                 <?php if ($kyc_completed): ?>
                                     <span class="kyc-badge kyc-done">

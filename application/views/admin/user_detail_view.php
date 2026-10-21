@@ -199,11 +199,14 @@
             <div class="detail-card">
                 <div class="profile-header-section">
                     <div class="profile-avatar-large">
-                        <?php if (!empty($user_details->profile_image)): ?>
-                            <img src="<?php echo base_url($user_details->profile_image); ?>" alt="Profile Photo">
-                        <?php else: ?>
-                            <?php echo strtoupper(substr($user_details->name, 0, 1)); ?>
-                        <?php endif; ?>
+                        <?php
+                        $default_user_avatar = base_url('assets/images/default.jpg');
+                        $user_photo_url = $default_user_avatar;
+                        if (!empty($user_details->profile_image) && file_exists(FCPATH . $user_details->profile_image)) {
+                            $user_photo_url = base_url($user_details->profile_image);
+                        }
+                        ?>
+                        <img src="<?php echo $user_photo_url; ?>" alt="Profile Photo" onerror="this.onerror=null;this.src='<?php echo $default_user_avatar; ?>';">
                     </div>
                     <h2><?php echo html_escape($user_details->name); ?></h2>
                     <p><?php echo html_escape($user_details->email ?: 'No email registered'); ?></p>
