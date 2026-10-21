@@ -1,0 +1,556 @@
+<style>
+    .back-btn {
+        background: #f1f5f9;
+        color: #475569;
+        border: 1px solid #cbd5e1;
+        border-radius: 12px;
+        padding: 10px 18px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        margin-bottom: 20px;
+        transition: all 0.15s ease;
+    }
+
+    .back-btn:hover {
+        background: #e2e8f0;
+        color: #1e293b;
+    }
+
+    .page-header-section {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .page-title {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        color: #172033;
+    }
+
+    .sub-title {
+        font-size: 14px;
+        color: #65758b;
+        margin-top: 4px;
+    }
+
+    .table-container-card {
+        background: #fff;
+        border: 1px solid #e8eef6;
+        border-radius: 20px;
+        box-shadow: 0 14px 40px rgba(22, 34, 51, 0.07);
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+
+    .controls-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .search-input-wrapper {
+        position: relative;
+        display: inline-block;
+        width: 320px;
+        max-width: 100%;
+    }
+
+    .search-input-wrapper svg {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #94a3b8;
+        pointer-events: none;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 10px 16px 10px 42px;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        font-size: 14px;
+        color: #1e293b;
+        outline: none;
+        transition: border-color 0.15s ease;
+    }
+
+    .search-input:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .contacts-badge {
+        background: #eaf1ff;
+        color: #2563eb;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 6px 12px;
+        border-radius: 8px;
+    }
+
+    .table-responsive-wrapper {
+        overflow-x: auto;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+    }
+
+    table.contacts-table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+    }
+
+    table.contacts-table th,
+    table.contacts-table td {
+        padding: 12px 18px;
+        border-bottom: 1px solid #eef3f8;
+        font-size: 14px;
+    }
+
+    table.contacts-table th {
+        background: #f8fafc;
+        font-weight: 600;
+        color: #65758b;
+        font-size: 12px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+    }
+
+    table.contacts-table tr:last-child td {
+        border-bottom: 0;
+    }
+
+    table.contacts-table tbody tr:hover {
+        background: #fafbfe;
+    }
+
+    .action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        transition: all 0.15s ease;
+        text-decoration: none;
+    }
+
+    .mobile-btn {
+        background: #eff6ff;
+        color: #2563eb;
+        border: 1px solid #bfdbfe;
+    }
+
+    .mobile-btn:hover {
+        background: #2563eb;
+        color: #fff;
+        border-color: #2563eb;
+    }
+
+    .whatsapp-btn {
+        background: #f0fdf4;
+        color: #16a34a;
+        border: 1px solid #bbf7d0;
+    }
+
+    .whatsapp-btn:hover {
+        background: #16a34a;
+        color: #fff;
+        border-color: #16a34a;
+    }
+
+    .pagination-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+        flex-wrap: wrap;
+        gap: 16px;
+    }
+
+    .pagination-info {
+        font-size: 14px;
+        color: #65758b;
+    }
+
+    .pagination-buttons {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+    }
+
+    .pagination-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        padding: 0 12px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        background: #fff;
+        color: #475569;
+        border: 1px solid #cbd5e1;
+        text-decoration: none;
+        user-select: none;
+        outline: none;
+    }
+
+    .pagination-btn:hover:not(.disabled):not(.active) {
+        background: #f1f5f9;
+        border-color: #94a3b8;
+        color: #1e293b;
+    }
+
+    .pagination-btn.active {
+        background: #1e293b;
+        color: #fff;
+        border-color: #1e293b;
+        font-weight: 600;
+    }
+
+    .pagination-btn.disabled {
+        background: #f8fafc;
+        color: #cbd5e1;
+        border-color: #e2e8f0;
+        cursor: not-allowed;
+    }
+
+    .pagination-ellipsis {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        height: 36px;
+        color: #65758b;
+        font-size: 14px;
+        user-select: none;
+    }
+</style>
+
+<div class="container-fluid" style="margin-top: 10px;">
+    <a href="<?php echo base_url('admin/users/view/' . $user_details->id); ?>" class="back-btn">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+        </svg>
+        Back to User Details
+    </a>
+
+    <div class="page-header-section">
+        <div>
+            <h1 class="page-title">Contacts File Details</h1>
+            <div class="sub-title">User: <strong><?php echo html_escape($user_details->name); ?></strong> (<?php echo html_escape($user_details->mobile); ?>)</div>
+        </div>
+        <div>
+            <a href="<?php echo base_url($user_details->contacts_file); ?>" download class="back-btn" style="margin-bottom: 0; background: #fff; border-color: #cbd5e1;">
+                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Download Raw File
+            </a>
+        </div>
+    </div>
+
+    <?php if (!empty($error_message)): ?>
+        <div style="background: #fee2e2; border: 1px solid #fecaca; border-radius: 16px; padding: 20px; color: #b91c1c; display: flex; align-items: flex-start; gap: 12px; margin-bottom: 24px;">
+            <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <div>
+                <h4 style="margin: 0 0 6px; font-weight: 700; font-size: 15px;">Cannot View Contacts Inline</h4>
+                <p style="margin: 0; font-size: 14px; line-height: 1.5; color: #dc2626;"><?php echo html_escape($error_message); ?></p>
+            </div>
+        </div>
+    <?php elseif (empty($contacts) || count($contacts) <= 1): ?>
+        <div class="table-container-card" style="text-align: center; padding: 48px; color: #65758b;">
+            <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto 16px; display: block; color: #cbd5e1;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <p style="margin: 0; font-size: 15px; font-weight: 500;">No contact records found in this file (only headers or empty file).</p>
+        </div>
+    <?php else: ?>
+        <?php
+        $headers = $contacts[0];
+        $rows = array_slice($contacts, 1);
+        $total_records = count($rows);
+
+        // Find index of 'Relationship' (case-insensitive)
+        $relationshipIndex = -1;
+        $mobileIndex = -1;
+        foreach ($headers as $index => $header) {
+            $trimmedHeader = strtolower(trim((string)$header));
+            if ($trimmedHeader === 'relationship') {
+                $relationshipIndex = $index;
+            } elseif ($trimmedHeader === 'mobile' || $trimmedHeader === 'phone' || $trimmedHeader === 'contact') {
+                $mobileIndex = $index;
+            }
+        }
+
+        // Filter out 'Relationship' from headers
+        if ($relationshipIndex !== -1) {
+            unset($headers[$relationshipIndex]);
+        }
+        ?>
+        <div class="table-container-card">
+            <div class="controls-row">
+                <div class="search-input-wrapper">
+                    <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                    <input type="text" id="contactSearch" onkeyup="filterContacts()" class="search-input" placeholder="Search contacts...">
+                </div>
+                <div>
+                    <span class="contacts-badge">
+                        Showing <span id="visibleCount"><?php echo $total_records; ?></span> of <?php echo $total_records; ?> Contacts
+                    </span>
+                </div>
+            </div>
+
+            <div class="table-responsive-wrapper">
+                <table class="contacts-table" id="contactsTable">
+                    <thead>
+                        <tr>
+                            <th>Sr. No.</th>
+                            <?php foreach ($headers as $header): ?>
+                                <th><?php echo html_escape(!empty($header) ? $header : 'Column'); ?></th>
+                            <?php endforeach; ?>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php $sno = 1; ?>
+                        <?php foreach ($rows as $row): ?>
+                            <tr>
+                                <td><?php echo $sno++; ?></td>
+                                <?php foreach ($headers as $colIndex => $header): ?>
+                                    <td><?php echo html_escape(isset($row[$colIndex]) ? $row[$colIndex] : ''); ?></td>
+                                <?php endforeach; ?>
+                                <td>
+                                    <?php
+                                    $mobileNum = '';
+                                    if ($mobileIndex !== -1 && isset($row[$mobileIndex])) {
+                                        $mobileNum = preg_replace('/[^\d+]/', '', $row[$mobileIndex]);
+                                    }
+                                    ?>
+                                    <div style="display: flex; gap: 8px; justify-content: flex-start; align-items: center;">
+                                        <?php if (!empty($mobileNum)): ?>
+                                            <a href="tel:<?php echo html_escape($mobileNum); ?>" class="action-btn mobile-btn" title="Call Mobile">
+                                                <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.302a12.017 12.017 0 01-5.322-5.322c-.24-.44-.074-.927.302-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z" />
+                                                </svg>
+                                            </a>
+                                            <a href="https://wa.me/<?php echo html_escape(ltrim($mobileNum, '+')); ?>" target="_blank" class="action-btn whatsapp-btn" title="WhatsApp">
+                                                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                                                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.458 5.704 1.459h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                                                </svg>
+                                            </a>
+                                        <?php endif; ?>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination Controls -->
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    Showing <span id="pageStart">1</span> to <span id="pageEnd">20</span> of <span id="totalItems"><?php echo $total_records; ?></span> items
+                </div>
+                <div class="pagination-buttons" id="paginationButtons">
+                    <!-- Dynamic buttons -->
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
+</div>
+
+<script>
+    let allRows = [];
+    let filteredRows = [];
+    const rowsPerPage = 20;
+    let currentPage = 1;
+
+    document.addEventListener("DOMContentLoaded", function() {
+        const table = document.getElementById('contactsTable');
+        if (!table) return;
+
+        const tbody = table.getElementsByTagName('tbody')[0];
+        if (!tbody) return;
+
+        const trs = Array.from(tbody.getElementsByTagName('tr'));
+
+        // Store all rows
+        allRows = trs;
+        filteredRows = [...allRows];
+
+        // Initialize pagination
+        initPagination();
+    });
+
+    function initPagination() {
+        currentPage = 1;
+        updatePagination();
+    }
+
+    function updatePagination() {
+        const totalItems = filteredRows.length;
+        const totalPages = Math.ceil(totalItems / rowsPerPage) || 1;
+
+        if (currentPage > totalPages) {
+            currentPage = totalPages;
+        }
+        if (currentPage < 1) {
+            currentPage = 1;
+        }
+
+        const startIndex = (currentPage - 1) * rowsPerPage;
+        const endIndex = Math.min(startIndex + rowsPerPage, totalItems);
+
+        // Hide all rows first
+        allRows.forEach(row => {
+            row.style.display = "none";
+        });
+
+        // Show only the rows for the current page
+        for (let i = startIndex; i < endIndex; i++) {
+            if (filteredRows[i]) {
+                filteredRows[i].style.display = "";
+            }
+        }
+
+        // Update the info texts
+        const pageStartEl = document.getElementById('pageStart');
+        const pageEndEl = document.getElementById('pageEnd');
+        const totalItemsEl = document.getElementById('totalItems');
+        const visibleCountEl = document.getElementById('visibleCount');
+
+        if (pageStartEl) pageStartEl.innerText = totalItems === 0 ? 0 : startIndex + 1;
+        if (pageEndEl) pageEndEl.innerText = endIndex;
+        if (totalItemsEl) totalItemsEl.innerText = totalItems;
+        if (visibleCountEl) visibleCountEl.innerText = totalItems;
+
+        // Generate pagination buttons
+        renderPaginationButtons(totalPages);
+    }
+
+    function renderPaginationButtons(totalPages) {
+        const container = document.getElementById('paginationButtons');
+        if (!container) return;
+        container.innerHTML = '';
+
+        // Helper to add button
+        function addButton(page, label, isActive = false, isDisabled = false) {
+            const btn = document.createElement('button');
+            btn.className = 'pagination-btn' + (isActive ? ' active' : '') + (isDisabled ? ' disabled' : '');
+            btn.innerText = label;
+            btn.type = 'button';
+            if (!isDisabled) {
+                btn.onclick = function() {
+                    currentPage = page;
+                    updatePagination();
+
+                    // Scroll to top of table card smoothly
+                    const card = document.querySelector('.table-container-card');
+                    if (card) {
+                        card.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                };
+            }
+            container.appendChild(btn);
+        }
+
+        // Helper to add ellipsis
+        function addEllipsis() {
+            const span = document.createElement('span');
+            span.className = 'pagination-ellipsis';
+            span.innerText = '...';
+            container.appendChild(span);
+        }
+
+        // Prev button
+        addButton(currentPage - 1, 'Prev', false, currentPage === 1);
+
+        // Logic for page numbers to match standard sliding window
+        const maxVisible = 5;
+        if (totalPages <= maxVisible) {
+            for (let i = 1; i <= totalPages; i++) {
+                addButton(i, i, i === currentPage);
+            }
+        } else {
+            // Always show page 1
+            addButton(1, '1', currentPage === 1);
+
+            let startRange = Math.max(2, currentPage - 1);
+            let endRange = Math.min(totalPages - 1, currentPage + 1);
+
+            if (currentPage <= 3) {
+                endRange = 4;
+            }
+            if (currentPage >= totalPages - 2) {
+                startRange = totalPages - 3;
+            }
+
+            if (startRange > 2) {
+                addEllipsis();
+            }
+
+            for (let i = startRange; i <= endRange; i++) {
+                addButton(i, i, i === currentPage);
+            }
+
+            if (endRange < totalPages - 1) {
+                addEllipsis();
+            }
+
+            // Always show last page
+            addButton(totalPages, totalPages, currentPage === totalPages);
+        }
+
+        // Next button
+        addButton(currentPage + 1, 'Next', false, currentPage === totalPages);
+    }
+
+    function filterContacts() {
+        const input = document.getElementById('contactSearch');
+        const filter = input.value.toLowerCase();
+
+        filteredRows = allRows.filter(row => {
+            const tds = row.getElementsByTagName('td');
+            // Skip the first cell (Sr. No.) and the last cell (Actions)
+            for (let j = 1; j < tds.length - 1; j++) {
+                if (tds[j]) {
+                    const txtValue = tds[j].textContent || tds[j].innerText;
+                    if (txtValue.toLowerCase().indexOf(filter) > -1) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        });
+
+        initPagination();
+    }
+</script>

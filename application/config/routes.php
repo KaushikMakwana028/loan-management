@@ -1,0 +1,196 @@
+<?php
+defined('BASEPATH') or exit('No direct script access allowed');
+
+/*
+| -------------------------------------------------------------------------
+| URI ROUTING
+| -------------------------------------------------------------------------
+| This file lets you re-map URI requests to specific controller functions.
+|
+| Typically there is a one-to-one relationship between a URL string
+| and its corresponding controller class/method. The segments in a
+| URL normally follow this pattern:
+|
+|	example.com/class/method/id/
+|
+| In some instances, however, you may want to remap this relationship
+| so that a different class/function is called than the one
+| corresponding to the URL.
+|
+| Please see the user guide for complete details:
+|
+|	https://codeigniter.com/userguide3/general/routing.html
+|
+| -------------------------------------------------------------------------
+| RESERVED ROUTES
+| -------------------------------------------------------------------------
+|
+| There are three reserved routes:
+|
+|	$route['default_controller'] = 'welcome';
+|
+| This route indicates which controller class should be loaded if the
+| URI contains no data. In the above example, the "welcome" class
+| would be loaded.
+|
+|	$route['404_override'] = 'errors/page_missing';
+|
+| This route will tell the Router which controller/method to use if those
+| provided in the URL cannot be matched to a valid route.
+|
+|	$route['translate_uri_dashes'] = FALSE;
+|
+| This is not exactly a route, but allows you to automatically route
+| controller and method names that contain dashes. '-' isn't a valid
+| class or method name character, so it requires translation.
+| When you set this option to TRUE, it will replace ALL dashes in the
+| controller and method URI segments.
+|
+| Examples:	my-controller/index	-> my_controller/index
+|		my-controller/my-method	-> my_controller/my_method
+*/
+$route['default_controller'] = 'welcome';
+
+// User-side Prefixed Routes
+$route['user'] = 'login';
+$route['user/register'] = 'login/register';
+$route['user/register-user'] = 'login/register_user';
+$route['user/register-verify-otp'] = 'login/register_verify_otp';
+$route['user/send-otp'] = 'login/send_otp';
+$route['user/verify-otp'] = 'login/verify_otp';
+$route['user/dashboard'] = 'dashboard';
+$route['user/profile'] = 'profile';
+$route['user/profile/update'] = 'profile/update';
+$route['user/logout'] = 'login/logout';
+$route['user/loans'] = 'loans';
+$route['user/loans/apply'] = 'loans/apply';
+$route['user/loans/pay/(:num)'] = 'loans/pay/$1';
+$route['user/loans/submit_pay/(:num)'] = 'loans/submit_pay/$1';
+$route['user/referrals'] = 'referrals';
+
+// Legacy User Routes (For compatibility, will redirect in controllers)
+$route['register'] = 'login/register';
+$route['register-user'] = 'login/register_user';
+$route['register-verify-otp'] = 'login/register_verify_otp';
+$route['send-otp'] = 'login/send_otp';
+$route['verify-otp'] = 'login/verify_otp';
+$route['dashboard'] = 'dashboard';
+$route['profile'] = 'profile';
+$route['profile/update'] = 'profile/update';
+$route['logout'] = 'login/logout';
+$route['loans'] = 'loans';
+$route['loans/apply'] = 'loans/apply';
+$route['loans/pay/(:num)'] = 'loans/pay/$1';
+$route['loans/submit_pay/(:num)'] = 'loans/submit_pay/$1';
+
+$route['admin'] = 'admin/login';
+$route['admin/send-otp'] = 'admin/login/send_otp';
+$route['admin/verify-otp'] = 'admin/login/verify_otp';
+$route['admin/login-process'] = 'admin/login/login_process';
+$route['admin/dashboard'] = 'admin/dashboard';
+$route['admin/users'] = 'admin/users';
+$route['admin/users/view/(:num)'] = 'admin/users/view/$1';
+$route['admin/users/status/(:num)/(:num)'] = 'admin/users/status/$1/$2';
+$route['admin/users/delete/(:num)'] = 'admin/users/delete/$1';
+$route['admin/profile'] = 'admin/profile';
+$route['admin/profile/update'] = 'admin/profile/update';
+$route['admin/logout'] = 'admin/login/logout';
+
+$route['investor'] = 'investor/login';
+$route['investor/register'] = 'investor/login/register';
+$route['investor/register-user'] = 'investor/login/register_user';
+$route['investor/register-verify-otp'] = 'investor/login/register_verify_otp';
+$route['investor/send-otp'] = 'investor/login/send_otp';
+$route['investor/verify-otp'] = 'investor/login/verify_otp';
+$route['investor/login-process'] = 'investor/login/login_process';
+$route['investor/login/send-forgot-otp'] = 'investor/login/send_forgot_otp';
+$route['investor/login/verify-forgot-otp'] = 'investor/login/verify_forgot_otp';
+$route['investor/login/reset-password'] = 'investor/login/reset_forgot_password';
+$route['investor/dashboard'] = 'investor/dashboard';
+$route['investor/profile'] = 'investor/profile';
+$route['investor/profile/update'] = 'investor/profile/update';
+$route['investor/logout'] = 'investor/login/logout';
+
+// Admin Investors & Loans
+$route['admin/investors'] = 'admin/investors';
+$route['admin/investors/view/(:num)'] = 'admin/investors/view/$1';
+$route['admin/loans'] = 'admin/loans';
+$route['admin/loans/assign/(:num)'] = 'admin/loans/assign/$1';
+$route['admin/loans/reject/(:num)'] = 'admin/loans/reject/$1';
+$route['admin/loans/responses/(:num)'] = 'admin/loans/responses/$1';
+$route['admin/loans/fund/(:num)'] = 'admin/loans/fund/$1';
+$route['admin/loans/view/(:num)'] = 'admin/loans/view/$1';
+$route['admin/loans/mark_paid/(:num)'] = 'admin/loans/mark_paid/$1';
+
+// Admin Payment & Requests Routes
+$route['admin/payment_settings'] = 'admin/PaymentSettings';
+$route['admin/payment_settings/save'] = 'admin/PaymentSettings/save';
+$route['admin/deposit_requests'] = 'admin/DepositRequests';
+$route['admin/deposit_requests/approve/(:num)'] = 'admin/DepositRequests/approve/$1';
+$route['admin/deposit_requests/reject/(:num)'] = 'admin/DepositRequests/reject/$1';
+$route['admin/withdrawal_requests'] = 'admin/WithdrawalRequests';
+$route['admin/withdrawal_requests/approve/(:num)'] = 'admin/WithdrawalRequests/approve/$1';
+$route['admin/withdrawal_requests/reject/(:num)'] = 'admin/WithdrawalRequests/reject/$1';
+$route['admin/user_withdrawals'] = 'admin/UserWithdrawals';
+$route['admin/user_withdrawals/approve/(:num)'] = 'admin/UserWithdrawals/approve/$1';
+$route['admin/user_withdrawals/reject/(:num)'] = 'admin/UserWithdrawals/reject/$1';
+
+// Investor Pages
+$route['investor/funds'] = 'investor/funds';
+$route['investor/funds/add'] = 'investor/funds/add_money';
+$route['investor/funds/add_balance'] = 'investor/funds/add_balance';
+$route['investor/funds/submit_deposit'] = 'investor/funds/submit_deposit';
+$route['investor/funds/withdraw'] = 'investor/funds/withdraw';
+$route['investor/funds/submit_withdrawal'] = 'investor/funds/submit_withdrawal';
+$route['investor/investments'] = 'investor/investments';
+$route['investor/returns'] = 'investor/returns';
+$route['investor/notifications'] = 'investor/notifications';
+$route['investor/opportunities'] = 'investor/notifications/opportunities';
+$route['investor/notifications/view/(:num)'] = 'investor/notifications/view/$1';
+$route['investor/notifications/invest/(:num)/(:num)'] = 'investor/notifications/invest/$1/$2';
+$route['investor/notifications/reject/(:num)/(:num)'] = 'investor/notifications/reject/$1/$2';
+
+// Referral System Routes
+$route['referrals'] = 'referrals';
+$route['admin/referral_settings'] = 'admin/ReferralSettings';
+$route['admin/referral_settings/save'] = 'admin/ReferralSettings/save';
+
+// Admin Loan Schemes Routes
+$route['admin/loan_schemes'] = 'admin/LoanSchemes';
+$route['admin/loan_schemes/save'] = 'admin/LoanSchemes/save';
+$route['admin/loan_schemes/delete/(:num)'] = 'admin/LoanSchemes/delete/$1';
+
+// Admin Loan Actions
+$route['admin/loans/disburse/(:num)'] = 'admin/loans/disburse/$1';
+$route['admin/loans/update_offer/(:num)'] = 'admin/loans/update_offer/$1';
+
+// User API calculation route
+$route['api/loans/calculate'] = 'api/loans_calculate';
+$route['api/admin-payment-detail'] = 'api/admin_payment_detail';
+
+// User API Routes
+$route['api/auth/login-send-otp'] = 'api/login_send_otp';
+$route['api/auth/login_send_otp'] = 'api/login_send_otp';
+$route['api/auth/login-verify-otp'] = 'api/login_verify_otp';
+$route['api/auth/login_verify_otp'] = 'api/login_verify_otp';
+$route['api/auth/register-send-otp'] = 'api/register_send_otp';
+$route['api/auth/register_send_otp'] = 'api/register_send_otp';
+$route['api/auth/register-verify-otp'] = 'api/register_verify_otp';
+$route['api/auth/register_verify_otp'] = 'api/register_verify_otp';
+$route['api/dashboard'] = 'api/dashboard';
+$route['api/profile'] = 'api/profile';
+$route['api/profile/update'] = 'api/profile_update';
+$route['api/profile/contacts-preview'] = 'api/contacts_preview';
+$route['api/profile/contacts_preview'] = 'api/contacts_preview';
+$route['api/loans'] = 'api/loans';
+$route['api/loans/apply'] = 'api/loans_apply';
+$route['api/loans/pay/(:num)'] = 'api/loans_pay/$1';
+$route['api/loans/details/(:num)'] = 'api/loan_details/$1';
+$route['api/loans/detail/(:num)'] = 'api/loan_details/$1';
+$route['api/loans/submit-pay/(:num)'] = 'api/loans_submit_pay/$1';
+$route['api/loans/submit_pay/(:num)'] = 'api/loans_submit_pay/$1';
+$route['api/referrals'] = 'api/referrals';
+$route['api/referrals/withdraw'] = 'api/referrals_withdraw';
+
+$route['404_override'] = '';
+$route['translate_uri_dashes'] = FALSE;
