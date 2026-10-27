@@ -30,12 +30,15 @@ class Loans extends CI_Controller
 
         $data['show_approved_alert'] = $this->should_show_approved_alert($user_id);
 
-        // Check if user has active/pending loan
-        $active_loan = $this->db->where('user_id', $user_id)
-            ->where_in('status', ['pending', 'assigned', 'funded', 'approved', 'disbursed'])
-            ->get('loans')
-            ->row();
-        $data['has_active_loan'] = !empty($active_loan);
+        // Check active loan limits set by admin
+        $loan_summary = $this->general->getUserActiveLoanSummary($user_id);
+        $data['loan_summary'] = $loan_summary;
+        $data['credit_limit'] = $loan_summary['credit_limit'];
+        $data['active_loans_count'] = $loan_summary['active_loans_count'];
+        $data['active_loans_total_amount'] = $loan_summary['active_loans_total_amount'];
+        $data['remaining_limit'] = $loan_summary['remaining_limit'];
+        $data['can_apply_loan'] = $data['profile_completed'] && $loan_summary['can_apply'];
+        $data['has_active_loan'] = $loan_summary['active_loans_count'] > 0;
 
         $this->load->view('header', $data);
         $this->load->view('my_loans', $data);
@@ -58,13 +61,10 @@ class Loans extends CI_Controller
             return;
         }
 
-        // Check if user has active/pending loan to prevent concurrent loans
-        $active_loan = $this->db->where('user_id', $user_id)
-            ->where_in('status', ['pending', 'assigned', 'funded', 'approved', 'disbursed'])
-            ->get('loans')
-            ->row();
-        if (!empty($active_loan)) {
-            $this->session->set_flashdata('error', 'You already have an active or pending loan application. You must pay off your existing loan before applying.');
+        // Check active loan limits (max 4 concurrent loans and total <= 2 Lakhs)
+        $loan_summary = $this->general->getUserActiveLoanSummary($user_id);
+        if (!$loan_summary['can_apply']) {
+            $this->session->set_flashdata('error', $loan_summary['block_reason']);
             redirect('loans');
             return;
         }
@@ -75,12 +75,22 @@ class Loans extends CI_Controller
         if ($this->form_validation->run() === FALSE) {
             $data['page_title'] = 'Apply Loan';
             $data['profile_completed'] = $profile_completed;
+            $data['loan_summary'] = $loan_summary;
+            $data['credit_limit'] = $loan_summary['credit_limit'];
+            $data['remaining_limit'] = $loan_summary['remaining_limit'];
             $this->load->view('header', $data);
             $this->load->view('apply_loan', $data);
             $this->load->view('footer', $data);
         } else {
             $amount = (float) $this->input->post('amount');
             $tenure_days = (int) $this->input->post('tenure_days');
+
+            $eligibility = $this->general->validateLoanEligibility($user_id, $amount);
+            if (!$eligibility['eligible']) {
+                $this->session->set_flashdata('error', $eligibility['message']);
+                redirect('loans/apply');
+                return;
+            }
 
             $scheme = $this->db->where('from_amount <=', $amount)
                                ->where('to_amount >=', $amount)
@@ -304,10 +314,18 @@ class Loans extends CI_Controller
             return;
         }
 
+        $user_id = $this->session->userdata('user_id');
+
         // Handle JSON or standard POST inputs
         $json_input = json_decode(file_get_contents('php://input'), true);
         $amount = (float) ($this->input->post('amount') ?: ($json_input['amount'] ?? 0));
         $tenure_days = (int) ($this->input->post('tenure_days') ?: ($json_input['tenure_days'] ?? 0));
+
+        $eligibility = $this->general->validateLoanEligibility($user_id, $amount);
+        if (!$eligibility['eligible']) {
+            echo json_encode(['status' => false, 'message' => $eligibility['message'], 'loan_limit' => $eligibility['summary']]);
+            return;
+        }
 
         $scheme = $this->db->where('from_amount <=', $amount)
                            ->where('to_amount >=', $amount)

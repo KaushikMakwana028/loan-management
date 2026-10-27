@@ -200,16 +200,73 @@ class Users extends CI_Controller
         }
 
         $is_active = ((int) $status === 1) ? 1 : 0;
-        $this->general->update('users', ['id' => $id], [
+        $update_data = [
             'is_active' => $is_active,
+            'updated_at' => date('Y-m-d H:i:s')
+        ];
+
+        // Check if credit limit is provided during activation
+        $credit_limit_input = $this->input->post('credit_limit') ?: $this->input->get('credit_limit');
+        if ($credit_limit_input !== null && $credit_limit_input !== '' && is_numeric($credit_limit_input)) {
+            $update_data['credit_limit'] = max(0.0, (float) $credit_limit_input);
+        }
+
+        $this->general->update('users', ['id' => $id], $update_data);
+
+        $limit_text = isset($update_data['credit_limit']) ? ' with credit limit of ₹' . number_format($update_data['credit_limit'], 2) : '';
+        $message = $is_active
+            ? 'User profile activated successfully' . $limit_text . '. The user can now apply for loans.'
+            : 'User profile marked inactive. Loan applications are now blocked for this user.';
+        $this->session->set_flashdata('success', $message);
+
+        $redirect_to = $this->input->get('redirect') ?: 'admin/users';
+        redirect($redirect_to);
+    }
+
+    public function update_credit_limit($id = null)
+    {
+        $user_id = $id ?: $this->input->post('id');
+        $user = $this->general->getOne('users', ['id' => $user_id, 'role' => 0]);
+        if (!$user) {
+            if ($this->input->is_ajax_request()) {
+                echo json_encode(['status' => false, 'message' => 'User not found.']);
+                return;
+            }
+            $this->session->set_flashdata('error', 'User not found.');
+            redirect('admin/users');
+            return;
+        }
+
+        $limit = $this->input->post('credit_limit') !== null ? $this->input->post('credit_limit') : $this->input->get('credit_limit');
+        if ($limit === null || !is_numeric($limit) || (float) $limit < 0) {
+            if ($this->input->is_ajax_request()) {
+                echo json_encode(['status' => false, 'message' => 'Please provide a valid credit limit amount.']);
+                return;
+            }
+            $this->session->set_flashdata('error', 'Please provide a valid credit limit amount.');
+            redirect('admin/users');
+            return;
+        }
+
+        $new_limit = (float) $limit;
+        $this->general->update('users', ['id' => $user_id], [
+            'credit_limit' => $new_limit,
             'updated_at' => date('Y-m-d H:i:s')
         ]);
 
-        $message = $is_active
-            ? 'User profile activated successfully. The user can now apply for loans.'
-            : 'User profile marked inactive. Loan applications are now blocked for this user.';
-        $this->session->set_flashdata('success', $message);
-        redirect('admin/users');
+        if ($this->input->is_ajax_request()) {
+            echo json_encode([
+                'status' => true,
+                'message' => 'Credit limit for ' . $user->name . ' updated to ₹' . number_format($new_limit, 2) . ' successfully.',
+                'credit_limit' => $new_limit,
+                'formatted_limit' => '₹' . number_format($new_limit, 2)
+            ]);
+            return;
+        }
+
+        $this->session->set_flashdata('success', 'Credit limit for ' . $user->name . ' updated to ₹' . number_format($new_limit, 2) . ' successfully.');
+        $redirect_to = $this->input->get('redirect') ?: 'admin/users';
+        redirect($redirect_to);
     }
 
     public function delete($id)

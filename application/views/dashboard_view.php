@@ -501,7 +501,11 @@
                 <p style="margin: 0; color: #ccfbf1; font-size: clamp(13px, 1.6vw, 14.5px); line-height: 1.5; max-width: 500px;">Get funding disbursed directly to your bank account with easy interest options and flexible EMI returns.</p>
             </div>
             <div class="uld-loan-cta-action" style="z-index: 1; width: 100%; max-width: 200px;">
-                <a href="<?php echo base_url('loans/apply'); ?>" style="display: block; text-align: center; background: #fff; color: var(--uld-primary); padding: 16px 28px; border-radius: var(--uld-radius-md); font-weight: 800; font-size: 15.5px; text-decoration: none; box-shadow: 0 10px 25px rgba(0,0,0,0.1); transition: all 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='none';">Apply Now ⚡</a>
+                <?php if (!empty($can_apply_loan)): ?>
+                    <a href="<?php echo base_url('loans/apply'); ?>" style="display: block; text-align: center; background: #fff; color: var(--uld-primary); padding: 16px 28px; border-radius: var(--uld-radius-md); font-weight: 800; font-size: 15.5px; text-decoration: none; box-shadow: 0 10px 25px rgba(0,0,0,0.1); transition: all 0.2s ease;" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='none';">Apply Now ⚡</a>
+                <?php else: ?>
+                    <a href="<?php echo base_url('loans'); ?>" style="display: block; text-align: center; background: rgba(255,255,255,0.9); color: var(--uld-primary); padding: 16px 20px; border-radius: var(--uld-radius-md); font-weight: 800; font-size: 14px; text-decoration: none; box-shadow: 0 10px 25px rgba(0,0,0,0.1); transition: all 0.2s ease;" title="<?php echo html_escape($loan_summary['block_reason'] ?? 'Limit reached'); ?>">View Loans 📋</a>
+                <?php endif; ?>
             </div>
         </section>
     <?php endif; ?>

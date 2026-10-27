@@ -132,10 +132,19 @@
     <h1>Apply for a New Loan</h1>
     <p>Please enter your loan requirements below. Your profile must be complete to apply.</p>
 
+    <?php if (isset($loan_summary)): ?>
+        <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 14px; padding: 12px 18px; margin-bottom: 22px; font-size: 13.5px; color: #166534;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                <span><strong>Total Credit Limit:</strong> ₹<?php echo number_format($credit_limit ?? 50000, 2); ?></span>
+                <span><strong>Available Credit:</strong> ₹<?php echo number_format($remaining_limit ?? 50000, 2); ?></span>
+            </div>
+        </div>
+    <?php endif; ?>
+
     <?php echo form_open('user/loans/apply'); ?>
         <div class="form-group">
-            <label for="amount">Loan Amount (INR)</label>
-            <input type="number" name="amount" id="amount" placeholder="e.g. 50000" min="1" step="any" value="<?php echo set_value('amount'); ?>" required>
+            <label for="amount">Loan Amount (INR) <span style="font-weight: 400; color: #64748b;">(Max Available: ₹<?php echo number_format($remaining_limit ?? 50000, 2); ?>)</span></label>
+            <input type="number" name="amount" id="amount" placeholder="e.g. 50000" min="1" max="<?php echo isset($remaining_limit) ? $remaining_limit : 50000; ?>" step="any" value="<?php echo set_value('amount'); ?>" required>
             <?php echo form_error('amount', '<div style="color: #b91c1c; font-size: 12px; margin-top: 4px;">', '</div>'); ?>
         </div>
 
@@ -246,6 +255,17 @@
         if (isNaN(amount) || amount <= 0 || !tenureRadio) {
             summaryCard.style.display = 'none';
             warningCard.style.display = 'none';
+            return;
+        }
+
+        const remainingLimit = <?php echo isset($remaining_limit) ? (float) $remaining_limit : 50000; ?>;
+        if (amount > remainingLimit) {
+            summaryCard.style.display = 'none';
+            warningCard.innerText = 'Amount exceeds your available credit limit of ₹' + remainingLimit.toLocaleString('en-IN', {minimumFractionDigits: 2}) + ' (Your credit limit is ₹<?php echo number_format($credit_limit ?? 50000, 2); ?>).';
+            warningCard.style.display = 'block';
+            submitBtn.setAttribute('disabled', 'disabled');
+            submitBtn.style.opacity = '0.5';
+            submitBtn.style.cursor = 'not-allowed';
             return;
         }
 

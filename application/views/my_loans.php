@@ -298,8 +298,13 @@
     <div class="loans-header">
         <h1>My Loans</h1>
         <?php if (!empty($profile_completed)): ?>
-            <?php if (!empty($has_active_loan)): ?>
-                <button class="btn-apply" style="opacity: 0.6; cursor: not-allowed; display: inline-flex; align-items: center; gap: 8px; border: 0;" onclick="Swal.fire({icon:'warning',title:'Blocked',text:'You already have an active/pending loan application. You must pay off your existing loan before applying for a new one.'})">
+            <?php if (empty($can_apply_loan)): ?>
+                <?php 
+                    $block_text = !empty($loan_summary['block_reason']) 
+                        ? $loan_summary['block_reason'] 
+                        : 'You cannot apply for a new loan at this time.';
+                ?>
+                <button class="btn-apply" style="opacity: 0.6; cursor: not-allowed; display: inline-flex; align-items: center; gap: 8px; border: 0;" onclick="Swal.fire({icon:'warning',title:'Limit Reached',text:<?php echo json_encode($block_text); ?>})">
                     <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
                     </svg>
@@ -315,6 +320,43 @@
             <?php endif; ?>
         <?php endif; ?>
     </div>
+
+    <!-- Active Loan Credit Limit Overview Card -->
+    <?php if (!empty($profile_completed)): ?>
+        <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 16px 20px; margin-bottom: 22px; display: flex; flex-wrap: wrap; gap: 20px; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+            <div style="display: flex; gap: 24px; flex-wrap: wrap; align-items: center;">
+                <div>
+                    <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #64748b; letter-spacing: 0.5px;">Credit Limit (Set by Admin)</div>
+                    <div style="font-size: 17px; font-weight: 800; color: #0f172a; margin-top: 2px;">
+                        ₹<?php echo number_format($credit_limit ?? 50000, 2); ?>
+                    </div>
+                </div>
+                <div style="border-left: 1px solid #e2e8f0; padding-left: 24px;">
+                    <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #64748b; letter-spacing: 0.5px;">Active Borrowed</div>
+                    <div style="font-size: 17px; font-weight: 800; color: #0f172a; margin-top: 2px;">
+                        ₹<?php echo number_format($active_loans_total_amount ?? 0, 2); ?> <span style="font-size: 12.5px; font-weight: 600; color: #64748b;">(<?php echo (int) ($active_loans_count ?? 0); ?> loans)</span>
+                    </div>
+                </div>
+                <div style="border-left: 1px solid #e2e8f0; padding-left: 24px;">
+                    <div style="font-size: 11px; text-transform: uppercase; font-weight: 700; color: #64748b; letter-spacing: 0.5px;">Available Limit</div>
+                    <div style="font-size: 17px; font-weight: 800; color: #059669; margin-top: 2px;">
+                        ₹<?php echo number_format($remaining_limit ?? 50000, 2); ?>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <?php if (!empty($can_apply_loan)): ?>
+                    <span style="background: #ecfdf5; color: #065f46; font-size: 12.5px; font-weight: 700; padding: 6px 14px; border-radius: 99px; border: 1px solid #a7f3d0; display: inline-flex; align-items: center; gap: 6px;">
+                        ● Eligible to Apply
+                    </span>
+                <?php else: ?>
+                    <span style="background: #fef2f2; color: #991b1b; font-size: 12.5px; font-weight: 700; padding: 6px 14px; border-radius: 99px; border: 1px solid #fecaca; display: inline-flex; align-items: center; gap: 6px;">
+                        ● Limit Reached
+                    </span>
+                <?php endif; ?>
+            </div>
+        </div>
+    <?php endif; ?>
 
     <?php if (!empty($profile_review_pending)): ?>
         <div class="alert-success-banner" style="background:#fffbeb; border-color:#fde68a; color:#92400e;">

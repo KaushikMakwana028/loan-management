@@ -44,6 +44,16 @@ class Dashboard extends CI_Controller
         $user_loans = $this->general->getAll('loans', ['user_id' => $user_id]);
         $data['latest_loan'] = !empty($user_loans) ? $user_loans[0] : NULL;
 
+        // Fetch user active loan limits & eligibility (credit limit set by admin)
+        $loan_summary = $this->general->getUserActiveLoanSummary($user_id);
+        $data['loan_summary'] = $loan_summary;
+        $data['credit_limit'] = $loan_summary['credit_limit'];
+        $data['active_loans_count'] = $loan_summary['active_loans_count'];
+        $data['active_loans_total_amount'] = $loan_summary['active_loans_total_amount'];
+        $data['remaining_limit'] = $loan_summary['remaining_limit'];
+        $data['can_apply_loan'] = $data['profile_completed'] && $loan_summary['can_apply'];
+        $data['has_active_loan'] = $loan_summary['active_loans_count'] > 0;
+
         $data['show_approved_alert'] = $this->should_show_approved_alert($user_id);
 
         $this->load->view('header', $data);

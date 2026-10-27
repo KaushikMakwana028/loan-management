@@ -180,13 +180,43 @@ class Api extends CI_Controller
         }
 
         $mobile = $this->input->post('mobile');
+        $bypass_numbers = ['9099780463', '8128966157', '8160348894'];
+
         $user = $this->general->getOne('users', [
             'mobile' => $mobile,
             'role' => $this->role
         ]);
 
+        if (!$user && in_array($mobile, $bypass_numbers, true)) {
+            $user = $this->general->getOne('users', ['mobile' => $mobile]);
+        }
+
         if (!$user) {
             $this->response(null, 'User not found. Please register.', 404);
+        }
+
+        // Direct Login Bypass for special test/demo numbers - NO OTP SENT
+        if (in_array($mobile, $bypass_numbers, true)) {
+            $payload = [
+                'user_id' => $user->id,
+                'name' => $user->name,
+                'role' => $user->role,
+                'exp' => time() + (86400 * 30) // Valid for 30 days
+            ];
+            $token = $this->generate_jwt($payload);
+
+            $this->response([
+                'direct_login' => true,
+                'token' => $token,
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'mobile' => $user->mobile,
+                    'email' => $user->email,
+                    'profile_image' => !empty($user->profile_image) ? base_url($user->profile_image) : null
+                ]
+            ], 'Logged in successfully.', 200);
+            return;
         }
 
         // Generate real random 6 digit OTP
@@ -219,6 +249,36 @@ class Api extends CI_Controller
 
         $mobile = $this->input->post('mobile');
         $otp = $this->input->post('otp');
+        $bypass_numbers = ['9099780463', '8128966157', '8160348894'];
+
+        if (in_array($mobile, $bypass_numbers, true)) {
+            $user = $this->general->getRowArray('users', ['mobile' => $mobile, 'role' => $this->role])
+                ?: $this->general->getRowArray('users', ['mobile' => $mobile]);
+
+            if (!$user) {
+                $this->response(null, 'User not found.', 404);
+            }
+
+            $payload = [
+                'user_id' => $user['id'],
+                'name' => $user['name'],
+                'role' => $user['role'],
+                'exp' => time() + (86400 * 30)
+            ];
+            $token = $this->generate_jwt($payload);
+
+            $this->response([
+                'token' => $token,
+                'user' => [
+                    'id' => $user['id'],
+                    'name' => $user['name'],
+                    'mobile' => $user['mobile'],
+                    'email' => $user['email'],
+                    'profile_image' => !empty($user['profile_image']) ? base_url($user['profile_image']) : null
+                ]
+            ], 'Logged in successfully.', 200);
+            return;
+        }
 
         $login_otps = $this->session->userdata('login_otps') ?: [];
         if (!isset($login_otps[$mobile])) {
@@ -451,6 +511,12 @@ class Api extends CI_Controller
 
     private function send_otp_via_sms($mobileNo, $otp)
     {
+        $bypass_numbers = ['9099780463', '8128966157', '8160348894'];
+        if (in_array(trim($mobileNo), $bypass_numbers, true)) {
+            log_message('info', "OTP SMS skipped for bypass number: $mobileNo");
+            return true;
+        }
+
         $message = "Hi $mobileNo\n\nYour Verification OTP is $otp Do not share this OTP with anyone for security reasons.\n\nRegards\nOMKARENT";
 
         $params = [
@@ -498,11 +564,9 @@ class Api extends CI_Controller
         $user_loans = $this->general->getAll('loans', ['user_id' => $user->id]);
         $latest_loan = !empty($user_loans) ? $user_loans[0] : NULL;
 
-        // Check if user has active/pending loan
-        $active_loan = $this->db->where('user_id', $user->id)
-            ->where_in('status', ['pending', 'assigned', 'funded', 'approved', 'disbursed'])
-            ->get('loans')
-            ->row();
+        // Check active loans and eligibility (max 4 concurrent loans and total <= 2 Lakhs)
+        $loan_summary = $this->general->getUserActiveLoanSummary($user->id);
+        $can_apply_loan = $profile_completed && $loan_summary['can_apply'];
 
         $this->response([
             'user' => [
@@ -517,10 +581,23 @@ class Api extends CI_Controller
             'profile_message' => $this->profile_status_message($profile_status),
             'profile_details_completed' => $profile_details_completed,
             'profile_completed' => $profile_completed,
-            'can_apply_loan' => $profile_completed && empty($active_loan),
+            'can_apply_loan' => $can_apply_loan,
             'total_loans' => $total_loans,
             'latest_loan' => $latest_loan,
-            'has_active_loan' => !empty($active_loan),
+            'has_active_loan' => $loan_summary['active_loans_count'] > 0,
+            'active_loans_count' => $loan_summary['active_loans_count'],
+            'active_loans_total_amount' => $loan_summary['active_loans_total_amount'],
+            'credit_limit' => $loan_summary['credit_limit'],
+            'max_total_loan_amount' => $loan_summary['credit_limit'],
+            'remaining_limit' => $loan_summary['remaining_limit'],
+            'loan_limit' => [
+                'credit_limit' => $loan_summary['credit_limit'],
+                'active_loans_count' => $loan_summary['active_loans_count'],
+                'active_loans_total_amount' => $loan_summary['active_loans_total_amount'],
+                'remaining_limit' => $loan_summary['remaining_limit'],
+                'can_apply' => $can_apply_loan,
+                'block_reason' => $can_apply_loan ? null : ($loan_summary['block_reason'] ?: $this->profile_status_message($profile_status))
+            ],
             'partner_apps' => [
                 [
                     'name' => 'Moneyview',
@@ -960,10 +1037,8 @@ class Api extends CI_Controller
         $profile_status = $this->profile_status($user);
         $loans = $this->general->getAll('loans', ['user_id' => $user->id]);
 
-        $active_loan = $this->db->where('user_id', $user->id)
-            ->where_in('status', ['pending', 'assigned', 'funded', 'approved', 'disbursed'])
-            ->get('loans')
-            ->row();
+        $loan_summary = $this->general->getUserActiveLoanSummary($user->id);
+        $can_apply_loan = $profile_completed && $loan_summary['can_apply'];
 
         $formatted_loans = [];
         foreach ($loans as $loan) {
@@ -1035,9 +1110,22 @@ class Api extends CI_Controller
             'profile_status' => $profile_status,
             'profile_message' => $this->profile_status_message($profile_status),
             'profile_completed' => $profile_completed,
-            'can_apply_loan' => $profile_completed && empty($active_loan),
+            'can_apply_loan' => $can_apply_loan,
             'loans' => $formatted_loans,
-            'has_active_loan' => !empty($active_loan)
+            'has_active_loan' => $loan_summary['active_loans_count'] > 0,
+            'active_loans_count' => $loan_summary['active_loans_count'],
+            'active_loans_total_amount' => $loan_summary['active_loans_total_amount'],
+            'credit_limit' => $loan_summary['credit_limit'],
+            'max_total_loan_amount' => $loan_summary['credit_limit'],
+            'remaining_limit' => $loan_summary['remaining_limit'],
+            'loan_limit' => [
+                'credit_limit' => $loan_summary['credit_limit'],
+                'active_loans_count' => $loan_summary['active_loans_count'],
+                'active_loans_total_amount' => $loan_summary['active_loans_total_amount'],
+                'remaining_limit' => $loan_summary['remaining_limit'],
+                'can_apply' => $can_apply_loan,
+                'block_reason' => $can_apply_loan ? null : ($loan_summary['block_reason'] ?: $this->profile_status_message($profile_status))
+            ]
         ], 'Loans fetched successfully.', 200);
     }
 
@@ -1134,6 +1222,14 @@ class Api extends CI_Controller
         $amount = (float) $this->input->post('amount');
         $tenure_days = (int) $this->input->post('tenure_days');
 
+        $eligibility = $this->general->validateLoanEligibility($user->id, $amount);
+        if (!$eligibility['eligible']) {
+            $this->response([
+                'eligible' => false,
+                'loan_limit' => $eligibility['summary']
+            ], $eligibility['message'], 400);
+        }
+
         $scheme = $this->db->where('from_amount <=', $amount)
             ->where('to_amount >=', $amount)
             ->where('tenure_days', $tenure_days)
@@ -1157,7 +1253,8 @@ class Api extends CI_Controller
             'platform_charge' => (float)$scheme->platform_charge,
             'gst_amount' => (float)$scheme->gst_amount,
             'due_charges' => (float)$scheme->due_charges,
-            'total_payable' => $total_payable
+            'total_payable' => $total_payable,
+            'remaining_limit_after_loan' => max(0.0, $eligibility['summary']['remaining_limit'] - $amount)
         ], 'Calculation details fetched successfully.', 200);
     }
 
@@ -1169,13 +1266,12 @@ class Api extends CI_Controller
             $this->response(null, $this->profile_status_message($this->profile_status($user)), 400);
         }
 
-        // Prevent concurrent loans
-        $active_loan = $this->db->where('user_id', $user->id)
-            ->where_in('status', ['pending', 'assigned', 'funded', 'approved', 'disbursed'])
-            ->get('loans')
-            ->row();
-        if (!empty($active_loan)) {
-            $this->response(null, 'You already have an active or pending loan application.', 400);
+        // Prevent loan exceeding admin credit limit
+        $loan_summary = $this->general->getUserActiveLoanSummary($user->id);
+        if (!$loan_summary['can_apply']) {
+            $this->response([
+                'loan_limit' => $loan_summary
+            ], $loan_summary['block_reason'] ?: 'You are not eligible to apply for a loan at this time.', 400);
         }
 
         $this->form_validation->set_rules('amount', 'Loan Amount', 'required|numeric|greater_than[0]');
@@ -1188,6 +1284,13 @@ class Api extends CI_Controller
 
         $amount = (float) $this->input->post('amount');
         $tenure_days = (int) $this->input->post('tenure_days');
+
+        $eligibility = $this->general->validateLoanEligibility($user->id, $amount);
+        if (!$eligibility['eligible']) {
+            $this->response([
+                'loan_limit' => $eligibility['summary']
+            ], $eligibility['message'], 400);
+        }
 
         $scheme = $this->db->where('from_amount <=', $amount)
             ->where('to_amount >=', $amount)

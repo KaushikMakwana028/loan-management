@@ -355,6 +355,7 @@
                     <th>Name</th>
                     <th>Contact Info</th>
                     <th>Address</th>
+                    <th>Credit Limit</th>
                     <th>KYC Status</th>
                     <th>Account Status</th>
                     <th>Actions</th>
@@ -466,6 +467,12 @@
                                 <span style="font-size: 12px; color: #65758b;"><?php echo !empty(trim($usr['email'] ?? '')) ? html_escape($usr['email']) : '<span style="color:#94a3b8; font-style:italic;">Empty</span>'; ?></span>
                             </td>
                             <td data-label="Address"><?php echo !empty(trim($usr['address'] ?? '')) ? html_escape($usr['address']) : '<span style="color:#94a3b8; font-style:italic;">Empty</span>'; ?></td>
+                            <td data-label="Credit Limit">
+                                <div style="display:inline-flex; align-items:center; gap:8px;">
+                                    <strong style="color:#0f172a; font-size:13.5px;">₹<?php echo number_format($usr['credit_limit'] ?? 50000, 2); ?></strong>
+                                    <button type="button" class="btn-action" style="background:#f1f5f9; color:#0f766e; border:1px solid #cbd5e1; padding:3px 7px; font-size:11px; border-radius:6px; cursor:pointer;" onclick="editCreditLimit(<?php echo $usr['id']; ?>, <?php echo html_escape(json_encode($usr['name'])); ?>, <?php echo (float)($usr['credit_limit'] ?? 50000); ?>)" title="Edit Credit Limit">✏️ Edit</button>
+                                </div>
+                            </td>
                             <td data-label="KYC Status">
                                 <?php if ($kyc_completed): ?>
                                     <span class="kyc-badge kyc-done">
@@ -488,9 +495,9 @@
                             <td data-label="Actions" class="actions-cell">
                                 <a href="<?php echo base_url('admin/users/view/' . $usr['id']); ?>" class="btn-action btn-view">View</a>
                                 <?php if ((int) $usr['is_active'] === 1): ?>
-                                    <button class="btn-action btn-inactivate" onclick="changeUserStatus(<?php echo $usr['id']; ?>, 0, <?php echo html_escape(json_encode($usr['name'])); ?>)">Inactive</button>
+                                    <button class="btn-action btn-inactivate" onclick="changeUserStatus(<?php echo $usr['id']; ?>, 0, <?php echo html_escape(json_encode($usr['name'])); ?>, <?php echo (float)($usr['credit_limit'] ?? 50000); ?>)">Inactive</button>
                                 <?php else: ?>
-                                    <button class="btn-action btn-activate" onclick="changeUserStatus(<?php echo $usr['id']; ?>, 1, <?php echo html_escape(json_encode($usr['name'])); ?>)">Active</button>
+                                    <button class="btn-action btn-activate" onclick="changeUserStatus(<?php echo $usr['id']; ?>, 1, <?php echo html_escape(json_encode($usr['name'])); ?>, <?php echo (float)($usr['credit_limit'] ?? 50000); ?>)">Active</button>
                                 <?php endif; ?>
                                 <button class="btn-action btn-delete" onclick="deleteUser(<?php echo $usr['id']; ?>, <?php echo html_escape(json_encode($usr['name'])); ?>)">Delete</button>
                             </td>
@@ -528,20 +535,81 @@
         });
     }
 
-    function changeUserStatus(id, status, name) {
+    function changeUserStatus(id, status, name, currentLimit = 50000) {
         const activate = status === 1;
+        if (activate) {
+            Swal.fire({
+                title: `Activate Profile for ${name}?`,
+                html: `
+                    <p style="font-size:13.5px; color:#64748b; margin-bottom:15px;">Approve this user to unlock loan applications and set their initial credit limit:</p>
+                    <div style="text-align:left; max-width:320px; margin:0 auto;">
+                        <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:6px;">Credit Limit (INR)</label>
+                        <input id="swal_credit_limit" type="number" class="swal2-input" style="width:100%; margin:0; box-sizing:border-box; font-size:15px; font-weight:700;" value="${currentLimit}" min="1" step="any" placeholder="e.g. 50000">
+                    </div>
+                `,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#15803d',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, Activate with Limit',
+                preConfirm: () => {
+                    const limitVal = document.getElementById('swal_credit_limit').value;
+                    if (!limitVal || isNaN(limitVal) || parseFloat(limitVal) <= 0) {
+                        Swal.showValidationMessage('Please enter a valid credit limit greater than 0');
+                        return false;
+                    }
+                    return parseFloat(limitVal);
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const limit = result.value;
+                    window.location.href = `<?php echo base_url('admin/users/status/'); ?>${id}/1?credit_limit=${limit}`;
+                }
+            });
+        } else {
+            Swal.fire({
+                title: 'Mark User Inactive?',
+                text: `Block "${name}" from applying for loans until reactivated?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#b45309',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Yes, Inactive'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = `<?php echo base_url('admin/users/status/'); ?>${id}/0`;
+                }
+            });
+        }
+    }
+
+    function editCreditLimit(id, name, currentLimit = 50000) {
         Swal.fire({
-            title: activate ? 'Activate User Profile?' : 'Mark User Inactive?',
-            text: activate ?
-                `Approve "${name}" and allow this user to apply for loans?` : `Block "${name}" from applying for loans until reactivated?`,
-            icon: activate ? 'question' : 'warning',
+            title: `Edit Credit Limit`,
+            html: `
+                <p style="font-size:13.5px; color:#64748b; margin-bottom:15px;">Update the maximum loan credit limit for <strong>${name}</strong>:</p>
+                <div style="text-align:left; max-width:320px; margin:0 auto;">
+                    <label style="font-size:12px; font-weight:700; color:#334155; display:block; margin-bottom:6px;">New Credit Limit (INR)</label>
+                    <input id="swal_new_limit" type="number" class="swal2-input" style="width:100%; margin:0; box-sizing:border-box; font-size:15px; font-weight:700;" value="${currentLimit}" min="0" step="any" placeholder="e.g. 50000">
+                </div>
+            `,
+            icon: 'info',
             showCancelButton: true,
-            confirmButtonColor: activate ? '#15803d' : '#b45309',
+            confirmButtonColor: '#0f766e',
             cancelButtonColor: '#6b7280',
-            confirmButtonText: activate ? 'Yes, Activate' : 'Yes, Inactive'
+            confirmButtonText: 'Save New Limit',
+            preConfirm: () => {
+                const limitVal = document.getElementById('swal_new_limit').value;
+                if (!limitVal || isNaN(limitVal) || parseFloat(limitVal) < 0) {
+                    Swal.showValidationMessage('Please enter a valid credit limit');
+                    return false;
+                }
+                return parseFloat(limitVal);
+            }
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = `<?php echo base_url('admin/users/status/'); ?>${id}/${status}`;
+                const limit = result.value;
+                window.location.href = `<?php echo base_url('admin/users/update_limit/'); ?>${id}?credit_limit=${limit}`;
             }
         });
     }
